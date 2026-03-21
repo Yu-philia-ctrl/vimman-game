@@ -167,6 +167,7 @@ const vimmanGame = (function() {
       bossHPMul: isBoss ? world.bossHPMul : 0,
       _mapVariant: pickMapVariant(wid, sid),
       _bossType: isBoss ? (wid === 50 ? 4 : wid <= 10 ? 0 : wid <= 20 ? 1 : wid <= 30 ? 2 : 3) : 0,
+      _bossBehavior: isBoss ? (wid <= 8 ? 'ground' : wid <= 15 ? 'flying' : wid <= 24 ? 'giant' : wid <= 34 ? 'teleporter' : wid <= 44 ? 'summoner' : 'chaos') : 'ground',
     };
   }
 
@@ -1070,30 +1071,40 @@ const vimmanGame = (function() {
     { name:'NULL DRAGON',   color:'#ff0044', color2:'#ff88aa', eyeCol:'#ffff00', bg:'#1a0008' },
   ];
 
-  function VimBoss(hpMul, bossType) {
+  function VimBoss(hpMul, bossType, bossBehavior) {
     this.type = bossType || 0;
+    this.behavior = bossBehavior || 'ground';
     const def = BOSS_DEFS[this.type];
     const base = Math.round(28*(hpMul||1));
-    // Spawn in center of expanded arena
-    this.x=(BOSS_ARENA_START+8)*TILE; this.y=8*TILE; this.w=56; this.h=64;
+    // Giant boss gets 2x HP and 2x size
+    if (this.behavior === 'giant') {
+      this.w=96; this.h=88; this.x=(BOSS_ARENA_START+6)*TILE; this.y=6*TILE;
+      this.health=base*2; this.maxHealth=base*2;
+    } else {
+      this.w=56; this.h=64; this.x=(BOSS_ARENA_START+8)*TILE; this.y=8*TILE;
+      this.health=base; this.maxHealth=base;
+    }
     this.vx=0; this.vy=0; this.onGround=false;
-    this.health=base; this.maxHealth=base;
     this.dead=false; this.deathTimer=180; this.invTimer=0;
     this.jumpTimer=90; this.shootTimer=60; this.facing=-1;
     this.phase=1;
+    // behavior state
+    this.flyTargetY = 4*TILE;   // flying boss target Y
+    this.swoopState = 0;         // 0=hover, 1=swoop, 2=retreat
+    this.swoopTimer = 180;       // timer until next swoop
+    this.teleCD = 120;           // teleport cooldown
+    this.minionTimer = 0;
     // type-specific state
-    this.dashTimer=0; this.dashCD=0;     // type 1 NullPointer dash
-    this.splitDone=false;                // type 2 SegFault split
-    this.orbitAngle=0;                   // type 3 orbit ring
-    this.minionTimer=0;                  // type 3 spawn
-    this.beamTimer=0; this.beamActive=0; // type 4 beam
-    this.patternTimer=0; this.pattern=0; // type 4 pattern cycling
+    this.dashTimer=0; this.dashCD=0;
+    this.splitDone=false;
+    this.orbitAngle=0;
+    this.beamTimer=0; this.beamActive=0;
+    this.patternTimer=0; this.pattern=0;
     // Phase 3 state
     this.telegraphTimer = 0;
     this.telegraphMsg = '';
     this.lastPhase = 1;
     this.stompQueued = false;
-    this.teleCD = 0;
     this.laserCD = 0;
     this.laserActive = 0;
     this.slowCD = 0;
@@ -1114,6 +1125,233 @@ const vimmanGame = (function() {
       bossWarnMsg = '⚠ PHASE ' + this.phase + ' !! ⚠';
       screenFlash = 15;
     }
+    // ── Behavior-based movement overrides ────────────────────
+    const behaviorSpd = (this.phase===3 ? 5.5 : this.phase===2 ? 4.5 : 3.5) * (1 + this.type * 0.1);
+
+    if (this.behavior === 'flying') {
+      // Flying boss: hovers and swoops. Override gravity.
+      this.swoopTimer--;
+      if (this.swoopState === 0) {
+        // Hovering — drift slowly toward player X, stay at flyTargetY
+        this.vx += (player.x - this.x > 0 ? 0.2 : -0.2);
+        this.vx = Math.max(-2.5, Math.min(2.5, this.vx));
+        this.vy += (this.flyTargetY - this.y) * 0.04 - this.vy * 0.1;
+        if (this.swoopTimer <= 0) {
+          this.swoopState = 1; this.swoopTimer = 60;
+          addFlash('⚡ ' + (BOSS_DEFS[this.type]||{}).name + ' ── SWOOP!');
+          bossWarnTimer = 40; bossWarnMsg = '⚠ SWOOP!! DODGE!';
+        }
+      } else if (this.swoopState === 1) {
+        // Swooping down at player
+        this.vx += (player.x - this.x) * 0.05;
+        this.vy += (player.y - this.y) * 0.05;
+        this.vx = Math.max(-8, Math.min(8, this.vx));
+        this.vy = Math.max(-8, Math.min(8, this.vy));
+        if (this.swoopTimer <= 0 || this.y > 12*TILE) {
+          this.swoopState = 2; this.swoopTimer = 60;
+        }
+      } else {
+        // Retreating back up
+        this.flyTargetY = (3 + Math.random()*3) * TILE;
+        this.vy += (this.flyTargetY - this.y) * 0.06 - this.vy * 0.1;
+        this.vx *= 0.85;
+        if (this.swoopTimer <= 0) {
+          this.swoopState = 0; this.swoopTimer = 120 + Math.random()*60;
+        }
+      }
+      // No ground gravity for flying boss
+      this.x += this.vx; resolveX(this);
+      this.y += this.vy;
+      this.y = Math.max(TILE, Math.min(13*TILE, this.y));
+      const aL2=BOSS_ARENA_START*TILE, aR2=(COLS-1)*TILE-this.w;
+      if (this.x<aL2){this.x=aL2;this.vx=Math.abs(this.vx);}
+      if (this.x>aR2){this.x=aR2;this.vx=-Math.abs(this.vx);}
+      // Shoot bullets while flying
+      this.shootTimer--;
+      if (this.shootTimer <= 0) {
+        this.shootTimer = this.phase===3 ? 20 : this.phase===2 ? 30 : 45;
+        const bx2=this.x+this.w/2, by3=this.y+this.h/2;
+        const ddx=player.x+player.w/2-bx2, ddy=player.y+player.h/2-by3;
+        const dd=Math.sqrt(ddx*ddx+ddy*ddy)||1;
+        const ns=behaviorSpd*0.85;
+        bullets.push(new Bullet(bx2-4,by3-4,ddx/dd*ns,ddy/dd*ns,false));
+        if (this.phase >= 2) {
+          for (const sp of [-0.35, 0.35]) {
+            const a2=Math.atan2(ddy,ddx)+sp;
+            bullets.push(new Bullet(bx2-4,by3-4,Math.cos(a2)*ns,Math.sin(a2)*ns,false));
+          }
+        }
+      }
+      return; // skip ground physics
+
+    } else if (this.behavior === 'giant') {
+      // Giant boss: very slow but massive. Ground-based. Wider attacks.
+      const giantSpd = behaviorSpd * 0.5;
+      this.vx += (player.x < this.x ? -0.15 : 0.15);
+      this.vx = Math.max(-giantSpd, Math.min(giantSpd, this.vx));
+      this.jumpTimer--;
+      if (this.jumpTimer <= 0 && this.onGround) {
+        this.jumpTimer = 120;
+        this.vy = PLAYER_JUMP * 0.7;
+        addFlash('⚡ ' + (BOSS_DEFS[this.type]||{}).name + ' ── GIANT SLAM!!');
+        bossWarnTimer = 40; bossWarnMsg = '⚠ STOMP WAVE!!';
+        screenFlash = 12;
+        // Wide shockwave in both directions
+        for (let i=0;i<5;i++) {
+          bullets.push(new Bullet(this.x+this.w/2, this.y+this.h-8, (i%2===0?1:-1)*(2+i*2), 0, false));
+        }
+      }
+      this.shootTimer--;
+      if (this.shootTimer <= 0) {
+        this.shootTimer = this.phase===3 ? 18 : this.phase===2 ? 28 : 40;
+        const bx3=this.x+this.w/2, by4=this.y+this.h/2;
+        const ddx2=player.x+player.w/2-bx3, ddy2=player.y+player.h/2-by4;
+        const dd2=Math.sqrt(ddx2*ddx2+ddy2*ddy2)||1;
+        const count = this.phase===3 ? 7 : this.phase===2 ? 5 : 3;
+        for (let i=-(Math.floor(count/2));i<=Math.floor(count/2);i++) {
+          const a3=Math.atan2(ddy2,ddx2)+(i*0.25);
+          bullets.push(new Bullet(bx3-4,by4-4,Math.cos(a3)*behaviorSpd*0.9,Math.sin(a3)*behaviorSpd*0.9,false));
+        }
+      }
+      // Normal gravity + physics for giant
+      this.vy += GRAVITY; if (this.vy>MAX_FALL) this.vy=MAX_FALL;
+      this.onGround=false;
+      this.x+=this.vx; resolveX(this);
+      this.y+=this.vy; resolveY(this);
+      const aL3=BOSS_ARENA_START*TILE, aR3=(COLS-1)*TILE-this.w;
+      if (this.x<aL3){this.x=aL3;this.vx=Math.abs(this.vx);}
+      if (this.x>aR3){this.x=aR3;this.vx=-Math.abs(this.vx);}
+      if (this.y<TILE){this.y=TILE;this.vy=0;}
+      return; // skip type-specific logic
+
+    } else if (this.behavior === 'teleporter') {
+      // Teleporter: blinks rapidly, fires on arrival
+      this.teleCD--;
+      if (this.teleCD <= 0) {
+        this.teleCD = this.phase===3 ? 70 : this.phase===2 ? 100 : 140;
+        const newX = (BOSS_ARENA_START + 1 + Math.random() * 14) * TILE;
+        const newY = (4 + Math.random() * 8) * TILE;
+        spawnExplosion(this.x+this.w/2, this.y+this.h/2, 6, (BOSS_DEFS[this.type]||{}).color||'#ffffff');
+        this.x = Math.max(BOSS_ARENA_START*TILE, Math.min((COLS-2)*TILE-this.w, newX));
+        this.y = Math.max(2*TILE, Math.min(12*TILE, newY));
+        spawnExplosion(this.x+this.w/2, this.y+this.h/2, 8, '#ffffff');
+        screenFlash = 6;
+        addFlash('⚡ TELEPORT!!');
+        // Burst on arrival
+        const tCount = this.phase===3 ? 10 : this.phase===2 ? 8 : 6;
+        for (let i=0;i<tCount;i++) {
+          const a4=Math.PI*2*i/tCount;
+          bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(a4)*behaviorSpd*0.8, Math.sin(a4)*behaviorSpd*0.8, false));
+        }
+      }
+      // Also aimed shots
+      this.shootTimer--;
+      if (this.shootTimer <= 0) {
+        this.shootTimer = this.phase===3 ? 15 : this.phase===2 ? 22 : 35;
+        const bx4=this.x+this.w/2, by5=this.y+this.h/2;
+        const ddx3=player.x+player.w/2-bx4, ddy3=player.y+player.h/2-by5;
+        const dd3=Math.sqrt(ddx3*ddx3+ddy3*ddy3)||1;
+        bullets.push(new Bullet(bx4-4,by5-4,ddx3/dd3*behaviorSpd,ddy3/dd3*behaviorSpd,false));
+      }
+      // Float in mid-air
+      this.vy += GRAVITY * 0.15;
+      this.vy = Math.max(-3, Math.min(3, this.vy));
+      this.x += this.vx; resolveX(this);
+      this.y += this.vy;
+      this.y = Math.max(2*TILE, Math.min(12*TILE, this.y));
+      const aL4=BOSS_ARENA_START*TILE, aR4=(COLS-1)*TILE-this.w;
+      if (this.x<aL4){this.x=aL4;this.vx=Math.abs(this.vx);}
+      if (this.x>aR4){this.x=aR4;this.vx=-Math.abs(this.vx);}
+      return;
+
+    } else if (this.behavior === 'summoner') {
+      // Summoner: stays back, spawns lots of enemies
+      this.minionTimer--;
+      if (this.minionTimer <= 0) {
+        this.minionTimer = this.phase===3 ? 40 : this.phase===2 ? 60 : 90;
+        const mSpd = 1 + Math.random() * 1.5;
+        if (this.phase >= 2 && Math.random() < 0.4) {
+          vm_enemies.push(new Bee(this.x + (Math.random()-0.5)*80, this.y-20, mSpd));
+        } else {
+          vm_enemies.push(new Met(this.x + (Math.random()-0.5)*60, this.y, mSpd));
+        }
+        if (this.phase === 3 && Math.random() < 0.3) {
+          vm_enemies.push(new Tank(this.x + (Math.random()-0.5)*40, 7*TILE, mSpd*0.7));
+        }
+        addFlash('🔮 召喚！ SUMMON!!');
+      }
+      // Slow retreat from player
+      this.vx = (this.x > player.x ? 1.5 : -1.5);
+      this.shootTimer--;
+      if (this.shootTimer <= 0) {
+        this.shootTimer = this.phase===3 ? 12 : this.phase===2 ? 18 : 30;
+        const bx5=this.x+this.w/2, by6=this.y+this.h/2;
+        const ddx4=player.x+player.w/2-bx5, ddy4=player.y+player.h/2-by6;
+        const dd4=Math.sqrt(ddx4*ddx4+ddy4*ddy4)||1;
+        const sc = this.phase===3 ? 3 : 2;
+        for (let i=0;i<sc;i++) {
+          const sp2 = (i - (sc-1)/2) * 0.3;
+          const a5=Math.atan2(ddy4,ddx4)+sp2;
+          bullets.push(new Bullet(bx5-4,by6-4,Math.cos(a5)*behaviorSpd*0.8,Math.sin(a5)*behaviorSpd*0.8,false));
+        }
+      }
+      this.vy += GRAVITY; if (this.vy>MAX_FALL) this.vy=MAX_FALL;
+      this.onGround=false;
+      this.x+=this.vx; resolveX(this);
+      this.y+=this.vy; resolveY(this);
+      const aL5=BOSS_ARENA_START*TILE, aR5=(COLS-1)*TILE-this.w;
+      if (this.x<aL5){this.x=aL5;this.vx=Math.abs(this.vx);}
+      if (this.x>aR5){this.x=aR5;this.vx=-Math.abs(this.vx);}
+      if (this.y<TILE){this.y=TILE;this.vy=0;}
+      return;
+
+    } else if (this.behavior === 'chaos') {
+      // Chaos: combines flying + teleport + summoner
+      this.teleCD--;
+      if (this.teleCD <= 0) {
+        this.teleCD = 80 + Math.random()*40;
+        spawnExplosion(this.x+this.w/2, this.y+this.h/2, 6, '#ff00ff');
+        this.x = (BOSS_ARENA_START + 2 + Math.random()*12)*TILE;
+        this.y = (3 + Math.random()*8)*TILE;
+        spawnExplosion(this.x+this.w/2, this.y+this.h/2, 10, '#ffffff');
+        screenFlash = 8;
+        // Giant burst on teleport
+        for (let i=0;i<12;i++) {
+          const a6=Math.PI*2*i/12;
+          bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(a6)*behaviorSpd, Math.sin(a6)*behaviorSpd, false));
+        }
+      }
+      this.minionTimer--;
+      if (this.minionTimer <= 0) {
+        this.minionTimer = 50;
+        vm_enemies.push(new Met(this.x + (Math.random()-0.5)*80, this.y, 1.5+Math.random()));
+      }
+      this.shootTimer--;
+      if (this.shootTimer <= 0) {
+        this.shootTimer = this.phase===3 ? 8 : this.phase===2 ? 12 : 18;
+        const bx6=this.x+this.w/2, by7=this.y+this.h/2;
+        const ddx5=player.x+player.w/2-bx6, ddy5=player.y+player.h/2-by7;
+        const dd5=Math.sqrt(ddx5*ddx5+ddy5*ddy5)||1;
+        const ns2=behaviorSpd*0.9;
+        bullets.push(new Bullet(bx6-4,by7-4,ddx5/dd5*ns2,ddy5/dd5*ns2,false));
+        if (this.phase >= 2) {
+          for (const sp3 of [-0.4, 0.4]) {
+            const a7=Math.atan2(ddy5,ddx5)+sp3;
+            bullets.push(new Bullet(bx6-4,by7-4,Math.cos(a7)*ns2,Math.sin(a7)*ns2,false));
+          }
+        }
+      }
+      this.vy += GRAVITY * 0.12;
+      this.vy = Math.max(-3, Math.min(3, this.vy));
+      this.x += this.vx; resolveX(this);
+      this.y += this.vy;
+      this.y = Math.max(TILE, Math.min(13*TILE, this.y));
+      const aL6=BOSS_ARENA_START*TILE, aR6=(COLS-1)*TILE-this.w;
+      if (this.x<aL6){this.x=aL6;this.vx=Math.abs(this.vx);}
+      if (this.x>aR6){this.x=aR6;this.vx=-Math.abs(this.vx);}
+      return;
+    }
+    // 'ground' behavior falls through to existing type-specific logic below
     this.facing = player.x < this.x ? -1 : 1;
     const bx = this.x + this.w/2, by2 = this.y + this.h/2;
     const px = player.x + player.w/2, py = player.y + player.h/2;
@@ -1383,9 +1621,60 @@ const vimmanGame = (function() {
     ctx.fillStyle='#330011'; ctx.fillRect(x,y-10,BW,6);
     ctx.fillStyle=hpPct>0.5?'#ff4444':hpPct>0.25?'#ff8800':'#ff0000';
     ctx.fillRect(x,y-10,BW*hpPct,6);
-    // Boss name
+    // Boss name + behavior label
     ctx.fillStyle=def.color; ctx.font='bold 8px monospace'; ctx.textAlign='center';
-    ctx.fillText(def.name, x+BW/2, y-13);
+    const behaviorLabel = {'flying':'✈','giant':'⚡','teleporter':'⚡','summoner':'🔮','chaos':'💥','ground':''}[this.behavior]||'';
+    ctx.fillText(behaviorLabel + ' ' + def.name, x+BW/2, y-13);
+    // Behavior-specific visuals
+    if (this.behavior === 'flying') {
+      // Draw wings
+      const wAlpha = 0.6 + 0.3*Math.sin(Date.now()*0.015);
+      ctx.save();
+      ctx.globalAlpha = wAlpha;
+      ctx.fillStyle = def.color2;
+      // Left wing
+      ctx.beginPath();
+      ctx.moveTo(x, y+20);
+      ctx.lineTo(x-40 + 10*Math.sin(Date.now()*0.01), y-10);
+      ctx.lineTo(x-20, y+30);
+      ctx.closePath(); ctx.fill();
+      // Right wing
+      ctx.beginPath();
+      ctx.moveTo(x+BW, y+20);
+      ctx.lineTo(x+BW+40 - 10*Math.sin(Date.now()*0.01), y-10);
+      ctx.lineTo(x+BW+20, y+30);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+    } else if (this.behavior === 'giant') {
+      // Giant aura
+      ctx.save();
+      ctx.globalAlpha = 0.15 + 0.08*Math.sin(Date.now()*0.008);
+      ctx.fillStyle = def.color;
+      ctx.fillRect(x-12, y-12, BW+24, BH+24);
+      ctx.restore();
+      // "GIANT" label
+      ctx.save();
+      ctx.fillStyle = '#ffdd44'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+      ctx.fillText('⚡GIANT', x+BW/2, y-22);
+      ctx.restore();
+    } else if (this.behavior === 'teleporter') {
+      // Teleport shimmer
+      ctx.save();
+      ctx.globalAlpha = 0.3*Math.random();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x, y, BW, BH);
+      ctx.restore();
+    } else if (this.behavior === 'summoner' || this.behavior === 'chaos') {
+      // Summoner rune circle
+      ctx.save();
+      ctx.strokeStyle = def.color2;
+      ctx.lineWidth = 2;
+      ctx.globalAlpha = 0.4 + 0.3*Math.sin(Date.now()*0.005);
+      ctx.beginPath();
+      ctx.arc(x+BW/2, y+BH/2, BH*0.85, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
     ctx.globalAlpha=1; ctx.restore();
   };
 
@@ -1473,8 +1762,8 @@ const vimmanGame = (function() {
     def.bees.forEach(function(d)  { vm_enemies.push(new Bee(d[0]*TILE, d[1]*TILE, spd)); });
     def.tanks.forEach(function(c) { vm_enemies.push(new Tank(c*TILE, 7*TILE, spd)); });
     // Only spawn boss if isBoss (last stage of world)
-    if (def.bossHPMul > 0) vm_boss = new VimBoss(def.bossHPMul, def._bossType || 0);
-    else vm_boss = new VimBoss(0.3, 0); // weak dummy boss for non-boss stages
+    if (def.bossHPMul > 0) vm_boss = new VimBoss(def.bossHPMul, def._bossType || 0, def._bossBehavior || 'ground');
+    else vm_boss = new VimBoss(0.3, 0, 'ground');
   }
 
   // ── Special moves ─────────────────────────────────────────

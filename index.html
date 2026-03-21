@@ -229,9 +229,9 @@
   <div id="vim-reference">
     <div id="vim-ref-header">
       <span>📖 Vim コマンド完全一覧</span>
-      <button id="btn-vim-ref-toggle">開く ▼</button>
+      <button id="btn-vim-ref-toggle">折りたたむ ▲</button>
     </div>
-    <div id="vim-ref-body" class="hidden">
+    <div id="vim-ref-body">
 
       <div class="vr-section">
         <div class="vr-cat-title">カーソル移動</div>
@@ -555,6 +555,78 @@
     </div><!-- end vim-ref-body -->
   </div><!-- end vim-reference -->
 
+  <!-- Community Platform -->
+  <div id="community-section">
+    <div id="community-header">
+      <span class="community-title">🌐 VIM ARCADE コミュニティ</span>
+      <div class="community-header-btns">
+        <button id="btn-community-toggle">折りたたむ ▲</button>
+      </div>
+    </div>
+    <div id="community-body">
+      <!-- Auth bar -->
+      <div id="comm-auth-bar">
+        <div id="comm-guest-bar">
+          <input type="text" id="comm-name-input" placeholder="ユーザー名 (例: VimMaster)" maxlength="20" />
+          <button id="btn-comm-join">参加する</button>
+        </div>
+        <div id="comm-user-bar" class="hidden">
+          <span id="comm-user-label"></span>
+          <span id="comm-online-count" class="comm-online">● 0 オンライン</span>
+          <button id="btn-comm-leave" class="comm-leave-btn">退出</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div id="comm-tabs">
+        <button class="comm-tab active" data-tab="chat">💬 チャット</button>
+        <button class="comm-tab" data-tab="leaderboard">🏆 ランキング</button>
+        <button class="comm-tab" data-tab="tips">💡 攻略情報</button>
+      </div>
+
+      <!-- Chat panel -->
+      <div id="comm-panel-chat" class="comm-panel">
+        <div id="comm-messages"></div>
+        <div id="comm-input-row">
+          <input type="text" id="comm-msg-input" placeholder="メッセージを入力... (Enterで送信)" maxlength="200" disabled />
+          <button id="btn-comm-send" disabled>送信</button>
+        </div>
+      </div>
+
+      <!-- Leaderboard panel -->
+      <div id="comm-panel-leaderboard" class="comm-panel hidden">
+        <div class="comm-lb-header">
+          <span>順位</span><span>ユーザー名</span><span>スコア</span><span>キャラ</span>
+        </div>
+        <div id="comm-lb-list"><div class="comm-lb-loading">データを読み込み中...</div></div>
+        <div id="comm-my-score-row" class="comm-my-score hidden">
+          <button id="btn-submit-score">スコアを登録</button>
+          <span id="comm-my-score-val"></span>
+        </div>
+      </div>
+
+      <!-- Tips panel -->
+      <div id="comm-panel-tips" class="comm-panel hidden">
+        <div class="comm-tips-list">
+          <div class="comm-tip-item"><kbd>dd</kbd> → 前方にレーザービーム（1.5秒持続）</div>
+          <div class="comm-tip-item"><kbd>yy</kbd> → 全回復 <span class="tip-rare">（希少コマンド）</span></div>
+          <div class="comm-tip-item"><kbd>ss</kbd> → キャラ必殺技発動</div>
+          <div class="comm-tip-item"><kbd>Xキー長押し</kbd> → ため攻撃（必殺一撃）</div>
+          <div class="comm-tip-item"><kbd>:wq</kbd> → セーブしてHOMEへ</div>
+          <div class="comm-tip-item"><kbd>ESC → /</kbd> → 敵サーチ（高速移動）</div>
+          <div class="comm-tip-item">剣士は <kbd>ss</kbd> 居合斬りでATK1.5倍バフ</div>
+          <div class="comm-tip-item">ボスW16以降は空中ボス — ジャンプ射撃推奨</div>
+          <div class="comm-tip-item">ClaudeManの <kbd>ss</kbd> は全弾バリア生成</div>
+          <div class="comm-tip-item">魔法使いの <kbd>dd</kbd> は画面全体に魔法陣</div>
+        </div>
+        <div id="comm-tips-submit">
+          <input type="text" id="comm-tip-input" placeholder="攻略情報を投稿..." maxlength="100" disabled />
+          <button id="btn-submit-tip" disabled>投稿</button>
+        </div>
+      </div>
+    </div><!-- end community-body -->
+  </div><!-- end community-section -->
+
   <!-- Site footer -->
   <footer id="site-footer">
     <div class="footer-inner">
@@ -582,6 +654,10 @@
 <script src="tetris.js"></script>
 <script src="invaders.js"></script>
 <script src="main.js"></script>
+<!-- Firebase SDKs (compat version for simplicity) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="mobile.js"></script>
+<script src="community.js"></script>
 </body>
 </html>

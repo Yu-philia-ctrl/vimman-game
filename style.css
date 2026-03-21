@@ -574,6 +574,177 @@ body {
   font-size: 10px;
 }
 
+/* ── Community Platform ── */
+#community-section {
+  background: #0c1a2e;
+  border: 1px solid #1e4080;
+  border-radius: 6px;
+  margin: 8px auto;
+  max-width: 760px;
+  width: 100%;
+  overflow: hidden;
+}
+#community-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, #0a2040 0%, #0d2a50 100%);
+  padding: 8px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #1e4080;
+}
+.community-title {
+  color: #4d96ff;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: monospace;
+}
+#btn-community-toggle {
+  background: none;
+  border: 1px solid #2a5090;
+  color: #4d96ff;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+#btn-community-toggle:hover { background: #1a3060; }
+
+#community-body { padding: 10px 12px; }
+
+/* Auth bar */
+#comm-auth-bar { margin-bottom: 8px; }
+#comm-guest-bar { display: flex; gap: 6px; align-items: center; }
+#comm-name-input {
+  flex: 1; max-width: 220px;
+  background: #0a1828; border: 1px solid #2a5080;
+  color: #cde; padding: 5px 8px; border-radius: 3px; font-size: 12px;
+}
+#btn-comm-join {
+  background: #1a5fa0; border: none; color: #fff;
+  padding: 5px 14px; border-radius: 3px; font-size: 12px; cursor: pointer;
+}
+#btn-comm-join:hover { background: #2070b8; }
+#comm-user-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+#comm-user-label { color: #cde; font-size: 12px; font-family: monospace; }
+.comm-online { color: #6bcb77; font-size: 11px; }
+.comm-leave-btn {
+  background: none; border: 1px solid #4a3060; color: #a06090;
+  font-size: 11px; padding: 2px 8px; border-radius: 3px; cursor: pointer;
+}
+.comm-leave-btn:hover { background: #3a1848; }
+
+/* Tabs */
+#comm-tabs { display: flex; gap: 4px; margin-bottom: 8px; border-bottom: 1px solid #1a3a6a; padding-bottom: 4px; }
+.comm-tab {
+  background: none; border: 1px solid #1a3a6a; color: #6890b0;
+  padding: 4px 14px; border-radius: 4px 4px 0 0; font-size: 12px; cursor: pointer;
+}
+.comm-tab:hover { background: #0a2040; color: #8ab0d0; }
+.comm-tab.active { background: #0d2a4a; color: #4d96ff; border-color: #2a5090; border-bottom-color: #0d2a4a; }
+
+/* Chat panel */
+#comm-messages {
+  background: #060e1a;
+  border: 1px solid #1a3a5a;
+  border-radius: 4px;
+  height: 220px;
+  overflow-y: auto;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.comm-msg {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.comm-msg-system { opacity: 0.6; font-style: italic; }
+.comm-msg-time { color: #446680; font-size: 10px; flex-shrink: 0; }
+.comm-msg-name { font-weight: bold; flex-shrink: 0; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.comm-msg-text { color: #b0c8e0; word-break: break-word; }
+#comm-input-row { display: flex; gap: 6px; }
+#comm-msg-input {
+  flex: 1; background: #0a1828; border: 1px solid #2a5080;
+  color: #cde; padding: 5px 8px; border-radius: 3px; font-size: 12px;
+}
+#comm-msg-input:disabled { opacity: 0.4; }
+#btn-comm-send {
+  background: #1a5fa0; border: none; color: #fff;
+  padding: 5px 14px; border-radius: 3px; font-size: 12px; cursor: pointer;
+}
+#btn-comm-send:hover:not(:disabled) { background: #2070b8; }
+#btn-comm-send:disabled { opacity: 0.4; cursor: default; }
+
+/* Leaderboard */
+.comm-lb-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px 70px;
+  padding: 4px 8px;
+  color: #6890b0;
+  font-size: 11px;
+  border-bottom: 1px solid #1a3a5a;
+  margin-bottom: 4px;
+}
+.comm-lb-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px 70px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 3px;
+  color: #b0c8e0;
+}
+.comm-lb-row:nth-child(even) { background: #060e1a; }
+.comm-lb-me { background: #0d2a4a !important; outline: 1px solid #2a5090; }
+.lb-rank { color: #ffcc44; font-size: 13px; }
+.lb-score { color: #6bcb77; font-family: monospace; }
+.lb-char { color: #9090b0; font-size: 11px; }
+.comm-lb-loading { color: #6890b0; font-size: 12px; padding: 8px; text-align: center; }
+.comm-my-score { display: flex; gap: 8px; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid #1a3a5a; }
+#btn-submit-score {
+  background: #2a7a2a; border: none; color: #fff;
+  padding: 4px 12px; border-radius: 3px; font-size: 11px; cursor: pointer;
+}
+#btn-submit-score:hover { background: #3a9a3a; }
+#comm-my-score-val { color: #a0c090; font-size: 11px; }
+
+/* Tips panel */
+.comm-tips-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.comm-tip-item {
+  background: #060e1a;
+  border: 1px solid #1a3050;
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #a0b8c8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.comm-tip-item kbd {
+  background: #1a2a3a; border: 1px solid #2a4a6a;
+  border-radius: 2px; padding: 1px 5px;
+  color: #ffdd44; font-size: 10px; font-family: monospace;
+}
+.tip-rare { color: #cc5de8; font-size: 10px; }
+.comm-tip-user { border-color: #1e3a5a; }
+#comm-tips-submit { display: flex; gap: 6px; }
+#comm-tip-input {
+  flex: 1; background: #0a1828; border: 1px solid #2a5080;
+  color: #cde; padding: 5px 8px; border-radius: 3px; font-size: 12px;
+}
+#comm-tip-input:disabled { opacity: 0.4; }
+#btn-submit-tip {
+  background: #4a3a80; border: none; color: #fff;
+  padding: 5px 14px; border-radius: 3px; font-size: 12px; cursor: pointer;
+}
+#btn-submit-tip:hover:not(:disabled) { background: #5a4a90; }
+#btn-submit-tip:disabled { opacity: 0.4; cursor: default; }
+
 /* ── Mobile responsive ── */
 @media (max-width: 600px) {
   body { padding: 0; }
@@ -602,4 +773,8 @@ body {
 
   #vim-reference { border-radius: 0; border-left: none; border-right: none; }
   .vr-section { flex: 1 1 140px; min-width: 130px; }
+
+  #community-section { border-radius: 0; border-left: none; border-right: none; margin: 4px 0; }
+  .comm-lb-header, .comm-lb-row { grid-template-columns: 36px 1fr 70px 60px; }
+  #comm-messages { height: 160px; }
 }
