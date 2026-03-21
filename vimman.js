@@ -47,18 +47,18 @@ const vimmanGame = (function() {
     const equipBonus = window.getEquipStats ? Math.floor(window.getEquipStats().atk / 4) : 0;
     const charBonus  = (vm_player && vm_player.atkBonus) ? Math.floor(vm_player.atkBonus / 2) : 0;
     const cid = vm_player ? vm_player.charId : 'vimman';
-    const specialMul = (charSpecialActive > 0 && (cid==='claudeman' || cid==='warrior')) ? (cid==='claudeman' ? 2.0 : 1.5) : 1.0;
+    const specialMul = (charSpecialActive > 0 && (cid==='claudeman' || cid==='warrior' || cid==='swordsman')) ? (cid==='claudeman' ? 2.0 : 1.5) : 1.0;
     return (base + equipBonus + charBonus) * specialMul;
   }
   function getMeleeDmg() {
     const equipBonus = window.getEquipStats ? window.getEquipStats().atk : 0;
     const charBonus  = (vm_player && vm_player.atkBonus) ? vm_player.atkBonus : 0;
     const base = 4 + skillLv('power') * 2 + equipBonus + charBonus;
-    // Warrior passive: sword damage x5
-    const isWarrior = (vm_player && vm_player.charId === 'warrior');
-    const baseResult = isWarrior ? base * 5 : base;
     const cid = vm_player ? vm_player.charId : 'vimman';
-    const specialMul = (charSpecialActive > 0 && (cid==='claudeman' || cid==='warrior')) ? (cid==='claudeman' ? 2.0 : 1.5) : 1.0;
+    // Warrior passive: sword damage x5; Swordsman: x3
+    const charMul = (cid === 'warrior') ? 5 : (cid === 'swordsman') ? 3 : 1;
+    const baseResult = base * charMul;
+    const specialMul = (charSpecialActive > 0 && (cid==='claudeman' || cid==='warrior' || cid==='swordsman')) ? (cid==='claudeman' ? 2.0 : 1.5) : 1.0;
     return baseResult * specialMul;
   }
   function getDDCool()  { return Math.max(20, 60 - skillLv('ddcool') * 20); }
@@ -401,6 +401,8 @@ const vimmanGame = (function() {
   let gimmickTimer = 0;       // gimmick effect timer
   let screenFlashColor = '#ffffff'; // flash color
   let familiarShootTimer = 0; // mage familiar shoot timer
+  let ddLaserTimer = 0;       // dd laser beam duration
+  let ddLaserDir   = 1;       // dd laser direction
   // Key display
   let recentKeys = [];
 
@@ -519,6 +521,15 @@ const vimmanGame = (function() {
         ctx.fillStyle='#ffcc44'; ctx.fillRect(this.x+1,this.y+1,this.w-2,this.h-2);
         ctx.fillStyle='#ffffff'; ctx.font='bold 7px monospace'; ctx.textAlign='center';
         ctx.fillText('{}', this.x+this.w/2, this.y+this.h-1);
+      } else if (this.isSlash) {
+        // Swordsman slash wave — golden crescent
+        ctx.save();
+        ctx.fillStyle='#ffcc44'; ctx.fillRect(this.x, this.y, this.w, this.h);
+        ctx.fillStyle='#ffffff'; ctx.fillRect(this.x+2, this.y+2, this.w-4, this.h-4);
+        ctx.fillStyle='#ffaa00'; ctx.fillRect(this.x+4, this.y+4, this.w-8, this.h-8);
+        ctx.strokeStyle='rgba(255,220,50,0.9)'; ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(this.x+this.w/2, this.y+this.h/2, this.w*0.6, -0.7, 0.7); ctx.stroke();
+        ctx.restore();
       } else if (this.isPierce) {
         // Arrow — long thin
         ctx.fillStyle='#88cc44'; ctx.fillRect(this.x,this.y,this.w,this.h);
@@ -686,37 +697,47 @@ const vimmanGame = (function() {
     ctx.fillStyle='#000033'; ctx.fillRect(4,1,2,3);
   }
 
-  // ClaudeMan (Claude AI — orange/purple hex-inspired)
+  // ClaudeMan (Claude AI — coral/orange, official Claude color scheme)
+  // Claude's brand: coral-orange (#CC785C / #DA7756), cream face, warm brown hair
   function _drawClaudeMan(cx, frame, shooting) {
-    // Legs
-    ctx.fillStyle='#cc5500';
+    // Legs — warm brown
+    ctx.fillStyle='#7a3e28';
     if (frame===-1)     ctx.fillRect(-6,18,12,10);
     else if (frame===1) { ctx.fillRect(-6,18,5,10); ctx.fillRect(2,16,5,12); }
     else if (frame===2) { ctx.fillRect(-6,16,5,12); ctx.fillRect(2,18,5,10); }
     else                { ctx.fillRect(-6,18,5,10); ctx.fillRect(2,18,5,10); }
-    // Body (hexagon-ish)
-    ctx.fillStyle='#ff8800'; ctx.fillRect(-8,6,16,14);
-    ctx.fillStyle='#ffaa44'; ctx.fillRect(-6,8,12,10);
-    // Claude "A" diamond logo on chest
-    ctx.fillStyle='#ffffff'; ctx.fillRect(-3,10,6,6);
-    ctx.fillStyle='#ff8800'; ctx.fillRect(-2,11,4,4);
-    ctx.fillStyle='#ffffff'; ctx.fillRect(-1,12,2,2);
-    // Arm / tool
-    ctx.fillStyle='#cc5500'; ctx.fillRect(-12,10,5,5);
+    // Body — Claude coral-orange
+    ctx.fillStyle='#cc785c'; ctx.fillRect(-8,5,16,15);
+    ctx.fillStyle='#da8870'; ctx.fillRect(-6,7,12,11);
+    // Chest — Claude "A" shape (triangle + crossbar = Anthropic logo simplified)
+    ctx.fillStyle='#ffffff';
+    ctx.fillRect(-3,9,6,1);   // crossbar
+    ctx.fillRect(-3,9,2,6);   // left stroke
+    ctx.fillRect(1,9,2,6);    // right stroke
+    ctx.fillRect(-1,9,2,2);   // top bridge
+    // Left arm
+    ctx.fillStyle='#aa6248'; ctx.fillRect(-13,8,6,8);
+    // Right arm / tool emitter
     if (shooting) {
-      ctx.fillStyle='#ff8800'; ctx.fillRect(5,10,12,5);
-      ctx.fillStyle='#ffee00'; ctx.fillRect(15,9,5,7);
+      ctx.fillStyle='#cc785c'; ctx.fillRect(5,9,10,6);
+      ctx.fillStyle='#ffe8b0'; ctx.fillRect(14,7,6,10); // bright shot glow
+      ctx.fillStyle='#ffcc44'; ctx.fillRect(15,9,4,6);
     } else {
-      ctx.fillStyle='#cc5500'; ctx.fillRect(5,10,7,5);
+      ctx.fillStyle='#aa6248'; ctx.fillRect(5,9,7,6);
     }
-    // Head (round-ish with orange hue)
-    ctx.fillStyle='#ffaa55'; ctx.fillRect(-8,-4,16,14);
-    ctx.fillStyle='#ff8800'; ctx.fillRect(-8,-4,16,4);
-    // Eyes — two bright dots
-    ctx.fillStyle='#ffffff'; ctx.fillRect(-4,1,4,4); ctx.fillRect(1,1,4,4);
-    ctx.fillStyle='#000000'; ctx.fillRect(-3,2,2,2); ctx.fillRect(2,2,2,2);
-    // Claude purple forehead accent
-    ctx.fillStyle='#aa44ff'; ctx.fillRect(-6,-3,12,3);
+    // Head — cream/warm skin (Claude's face color)
+    ctx.fillStyle='#f5c9a0'; ctx.fillRect(-8,-5,16,15);
+    // Hair — warm brown
+    ctx.fillStyle='#7a3e28'; ctx.fillRect(-8,-5,16,6);
+    ctx.fillRect(-9,-3,3,8);   // side hair left
+    // Eyes — warm brown
+    ctx.fillStyle='#ffffff'; ctx.fillRect(-5,1,4,4); ctx.fillRect(2,1,4,4);
+    ctx.fillStyle='#5a3018'; ctx.fillRect(-4,2,2,2); ctx.fillRect(3,2,2,2);
+    // Claude orange glow halo (subtle)
+    ctx.globalAlpha = 0.18 + 0.1*Math.sin(Date.now()*0.005);
+    ctx.fillStyle='#ff9955';
+    ctx.fillRect(-10,-7,20,22);
+    ctx.globalAlpha = 1;
   }
 
   // Warrior (red armored fighter with sword)
@@ -839,6 +860,52 @@ const vimmanGame = (function() {
     ctx.fillStyle='#aaffaa'; ctx.fillRect(-1,-7,3,5);
   }
 
+  // Swordsman (gold/black katana fighter)
+  function _drawSwordsman(cx, frame, slashing) {
+    // Legs — fast stance
+    ctx.fillStyle='#2a1800';
+    if (frame===-1)     ctx.fillRect(-7,18,14,10);
+    else if (frame===1) { ctx.fillRect(-7,18,6,10); ctx.fillRect(2,16,6,12); }
+    else if (frame===2) { ctx.fillRect(-7,16,6,12); ctx.fillRect(2,18,6,10); }
+    else                { ctx.fillRect(-7,18,6,10); ctx.fillRect(2,18,6,10); }
+    // Hakama trim
+    ctx.fillStyle='#ffcc44'; ctx.fillRect(-7,18,14,3);
+    // Body — dark gi
+    ctx.fillStyle='#1a1000'; ctx.fillRect(-8,5,16,15);
+    ctx.fillStyle='#2a2000'; ctx.fillRect(-6,7,12,11);
+    // Chest sash
+    ctx.fillStyle='#ffaa00'; ctx.fillRect(-1,7,2,11);
+    // Left arm
+    ctx.fillStyle='#1a1000'; ctx.fillRect(-13,7,6,7);
+    // Sword arm / katana
+    if (slashing) {
+      // Slashing: sword extended diagonally
+      ctx.fillStyle='#888888'; ctx.fillRect(4,-4,4,28);     // blade
+      ctx.fillStyle='#eeeeee'; ctx.fillRect(5,-4,2,28);     // shine
+      ctx.fillStyle='#ffff44'; ctx.fillRect(4,-6,4,4);      // tip glow
+      ctx.fillStyle='#8b4513'; ctx.fillRect(3,20,6,4);      // tsuba
+      // Slash arc
+      ctx.save();
+      ctx.strokeStyle='rgba(255,230,50,0.85)';
+      ctx.lineWidth=3; ctx.beginPath();
+      ctx.arc(6, 8, 26, -1.0, 0.6); ctx.stroke();
+      ctx.restore();
+    } else {
+      // At rest: sword held diagonally
+      ctx.fillStyle='#888888'; ctx.fillRect(4,2,4,22);
+      ctx.fillStyle='#eeeeee'; ctx.fillRect(5,2,2,22);
+      ctx.fillStyle='#ffcc44'; ctx.fillRect(4,1,4,3);
+      ctx.fillStyle='#8b4513'; ctx.fillRect(3,20,6,4);
+    }
+    // Head — with headband
+    ctx.fillStyle='#ffdd99'; ctx.fillRect(-7,-5,14,13);
+    ctx.fillStyle='#1a1000'; ctx.fillRect(-7,-5,14,5); // hair top
+    ctx.fillStyle='#ffaa00'; ctx.fillRect(-8,-3,16,3); // headband
+    // Eyes — focused
+    ctx.fillStyle='#ffffff'; ctx.fillRect(-4,1,3,3); ctx.fillRect(2,1,3,3);
+    ctx.fillStyle='#cc6600'; ctx.fillRect(-3,2,2,2); ctx.fillRect(3,2,2,2);
+  }
+
   VimPlayer.prototype.draw = function() {
     if (this.dead) return;
     if (this.invTimer>0 && Math.floor(this.invTimer/4)%2===0) return;
@@ -853,18 +920,26 @@ const vimmanGame = (function() {
     const frame=!this.onGround?-1:this.animFrame;
 
     const cid = this.charId || 'vimman';
-    if      (cid==='claudeman') _drawClaudeMan(cx, frame, shooting);
-    else if (cid==='warrior')   _drawWarrior(cx, frame, slashing);
-    else if (cid==='mage')      _drawMage(cx, frame, shooting);
-    else if (cid==='archer')    _drawArcher(cx, frame, shooting);
-    else                        _drawVimMan(cx, frame, shooting);
+    if      (cid==='claudeman')  _drawClaudeMan(cx, frame, shooting);
+    else if (cid==='warrior')    _drawWarrior(cx, frame, slashing);
+    else if (cid==='mage')       _drawMage(cx, frame, shooting);
+    else if (cid==='archer')     _drawArcher(cx, frame, shooting);
+    else if (cid==='swordsman')  _drawSwordsman(cx, frame, slashing);
+    else                         _drawVimMan(cx, frame, shooting);
 
-    // Sword slash arc overlay
+    // Sword slash arc overlay (VimMan / ClaudeMan only — Swordsman has built-in arc)
     if (slashing && (cid==='vimman'||cid==='claudeman')) {
       ctx.strokeStyle='rgba(255,220,50,'+(swordSlashTimer/12)+')';
       ctx.lineWidth=4; ctx.beginPath();
       ctx.arc(8, 12, 22, -0.8, 0.8);
       ctx.stroke();
+    }
+    // Swordsman special aura
+    if (cid==='swordsman' && charSpecialActive > 0) {
+      ctx.globalAlpha = 0.35 + 0.2 * Math.sin(Date.now() * 0.015);
+      ctx.fillStyle = '#ffcc44';
+      ctx.fillRect(-12, -8, 24, 36);
+      ctx.globalAlpha = 1;
     }
     ctx.restore();
   };
@@ -1389,6 +1464,7 @@ const vimmanGame = (function() {
     specialCD=0; undoActive=0; yankHealCD=0; shieldActive=0; swordSlashTimer=0;
     xHoldTimer=0; sComboCount=0; sComboTimer=0;
     charSpecialCD=0; charSpecialActive=0;
+    ddLaserTimer=0; ddLaserDir=1;
     bossWarnTimer=0; bossWarnMsg='';
     familiarShootTimer=0;
 
@@ -1407,15 +1483,13 @@ const vimmanGame = (function() {
     if (window.canUseGameCmd && !window.canUseGameCmd('dd')) {
       addFlash('dd はまだアンロックされていません  (World 8ボスを倒せ)'); return;
     }
-    let killed=0;
-    vm_enemies.forEach(function(e) {
-      if (!e.dead&&e.x>vm_cameraX-32&&e.x<vm_cameraX+512+32) {
-        e.health=0; e.dead=true; spawnExplosion(e.x+e.w/2,e.y+e.h/2,6); killed++; score+=200;
-      }
-    });
-    specialCD=getDDCool(); screenFlash=8;
-    addFlash('dd -- DELETE LINE!  '+killed+' bugs nuked  [VimXP: +'+(killed*2)+']');
-    addVimXP(killed*2);
+    // dd = DELETE LINE — fire a persistent laser from the player's position
+    ddLaserTimer = 90;  // ~1.5 seconds
+    ddLaserDir   = vm_player.facing;
+    specialCD    = getDDCool();
+    screenFlash  = 8;
+    addFlash('dd -- DELETE LINE! レーザー発射！ (1.5秒持続)');
+    addVimXP(2);
   }
   function execYY() {
     if (!vm_player||vm_player.dead||yankHealCD>0) return;
@@ -1615,20 +1689,50 @@ const vimmanGame = (function() {
         }, i * 60);
       }
 
+    } else if (cid === 'swordsman') {
+      // Swordsman without melee weapon: powerful unarmed slash wave
+      if (swordSlashTimer > 0) return;
+      swordSlashTimer = 22;
+      const dmgSW = getMeleeDmg() * 0.8;
+      const hitXSW = vm_player.facing > 0 ? vm_player.x + vm_player.w : vm_player.x - 48;
+      let hSW = 0;
+      vm_enemies.forEach(function(e) {
+        if (!e.dead && e.x+e.w > hitXSW && e.x < hitXSW + 48) {
+          e.takeDamage(dmgSW); hSW++;
+          spawnExplosion(e.x+e.w/2, e.y+e.h/2, 4, '#ffcc44');
+        }
+      });
+      if (vm_boss && !vm_boss.dead && vm_boss.x+vm_boss.w > hitXSW && vm_boss.x < hitXSW + 48) {
+        vm_boss.takeDamage(dmgSW); hSW++;
+      }
+      // Fire a slash wave projectile
+      const bxSW = vm_player.facing > 0 ? vm_player.x + vm_player.w : vm_player.x - 20;
+      const wave = new Bullet(bxSW, vm_player.y+8, vm_player.facing*BULLET_SPEED*0.75, 0, true);
+      wave.w=22; wave.h=12; wave.isSlash=true; wave.dmgMul=2; wave.isPierce=true; wave.pierceLeft=3;
+      vm_bullets.push(wave);
+      screenFlash = 5;
+      addFlash('⚔ 斬撃波！ ' + Math.floor(dmgSW) + ' dmg + 斬撃飛ばし！' + (hSW > 0 ? ' HIT x'+hSW : ''));
+      if (hSW > 0) addVimXP(hSW * 2);
     } else {
-      // No weapon — Warrior fist slam if warrior, else hint
+      // No weapon — Warrior fist slam, else hint
       if (cid === 'warrior') {
         if (swordSlashTimer > 0) return;
         swordSlashTimer = 20;
         const dmg2 = getMeleeDmg() * 0.7;
-        const hitX2 = vm_player.facing > 0 ? vm_player.x + vm_player.w : vm_player.x - 40;
+        const hitX2 = vm_player.facing > 0 ? vm_player.x + vm_player.w : vm_player.x - 44;
+        let h2 = 0;
         vm_enemies.forEach(function(e) {
-          if (!e.dead && e.x+e.w > hitX2 && e.x < hitX2 + 40) {
-            e.takeDamage(dmg2);
+          if (!e.dead && e.x+e.w > hitX2 && e.x < hitX2 + 44) {
+            e.takeDamage(dmg2); h2++;
             spawnExplosion(e.x+e.w/2, e.y+e.h/2, 3, '#ffaa00');
           }
         });
-        addFlash('👊 パンチ！ 剣を装備するとより強力！');
+        if (vm_boss && !vm_boss.dead && vm_boss.x+vm_boss.w > hitX2 && vm_boss.x < hitX2 + 44) {
+          vm_boss.takeDamage(dmg2); h2++;
+        }
+        screenFlash = 4;
+        addFlash('👊 アームカノン！ ' + Math.floor(dmg2) + ' dmg' + (h2 > 0 ? ' HIT!' : ''));
+        if (h2 > 0) addVimXP(h2);
       } else {
         addFlash('s = 武器スペシャル。装備してください (HOME > キャラ > 武器)');
       }
@@ -1681,6 +1785,25 @@ const vimmanGame = (function() {
         vm_bullets.push(arr);
       }
       addVimXP(3);
+    } else if (cid === 'swordsman') {
+      // Swordsman: Iaijutsu — instant quick-draw, massive slash wave + invuln dash
+      charSpecialCD = 300;
+      charSpecialActive = 180;
+      swordSlashTimer = 30;
+      screenFlash = 14;
+      vm_player.invTimer = 30;
+      // Fire three powerful slash waves in a fan
+      const bxSS = vm_player.facing > 0 ? vm_player.x + vm_player.w : vm_player.x - 24;
+      for (const ang of [-0.25, 0, 0.25]) {
+        const vxW = Math.cos(ang) * BULLET_SPEED * vm_player.facing;
+        const vyW = Math.sin(ang) * BULLET_SPEED;
+        const w = new Bullet(bxSS, vm_player.y + vm_player.h/2, vxW, vyW, true);
+        w.w=28; w.h=14; w.isSlash=true; w.dmgMul=4; w.isPierce=true; w.pierceLeft=5;
+        vm_bullets.push(w);
+      }
+      addFlash('⚔⚔⚔ 居合！ IAIJUTSU! ATK×1.5 3連斬撃波！');
+      spawnExplosion(vm_player.x+vm_player.w/2, vm_player.y+vm_player.h/2, 18, '#ffcc44');
+      addVimXP(5);
     } else {
       // VimMan: dash combo
       charSpecialCD = 200;
@@ -1721,6 +1844,14 @@ const vimmanGame = (function() {
         vm_bullets.push(b2);
       }
       addFlash('🤖 CHARGE: AI 3-way shot! 2x dmg each!');
+    } else if (cid === 'swordsman') {
+      // Swordsman: giant slash wave
+      swordSlashTimer = 35;
+      const sw = new Bullet(bx, vm_player.y+2, vm_player.facing*spd*0.7, 0, true);
+      sw.w=36; sw.h=24; sw.isSlash=true; sw.dmgMul=6; sw.isPierce=true; sw.pierceLeft=8;
+      vm_bullets.push(sw);
+      screenFlash = 10;
+      addFlash('⚔ CHARGE: 覇王斬！ 超巨大斬撃波 6x dmg 全貫通！');
     } else {
       const bb = new BigBullet(bx, vm_player.y+8, vm_player.facing*spd*0.9);
       bb.dmgMul=3;
@@ -1756,9 +1887,10 @@ const vimmanGame = (function() {
       setTimeout(function() { switchGame('menu'); }, 800);
     }
     else if (c==='wq'||c==='x') {
-      saveProgress(); score+=1000;
-      addFlash(':wq  -- PR MERGED! Progress saved!');
-      state='stageclear'; stageEndTimer=0; blinkTimer=0;
+      // :wq = write & quit → save position + return to HOME (Vim-style)
+      saveProgress();
+      addFlash(':wq  -- Written! 進捗を保存してHOMEへ戻ります...');
+      setTimeout(function() { switchGame('menu'); }, 800);
     }
     else if (c==='vs'||c==='sp')  execVS();
     else if (c==='help')          addFlash(vm_player&&vm_player.charId==='claudeman'?':help  ClaudeMan commands: think=ATK×2  add=召喚  print=ビーム  bash=爆発  fix=回復  run=高速':':help  h/l:Move  k:Jump  x:Shoot  dd:Nuke  yy:+HP  gg:Top  cc:BigShot  ZZ:Shield/Life  u:Undo  w/b:Dash  :w=save  :wq=clear  :q=menu');
@@ -2519,6 +2651,34 @@ const vimmanGame = (function() {
       sComboTimer--;
       if (sComboTimer<=0) sComboCount=0;
     }
+    // dd laser damage
+    if (ddLaserTimer > 0) {
+      ddLaserTimer--;
+      if (ddLaserTimer % 5 === 0 && vm_player && !vm_player.dead) {
+        const laserDmg = Math.max(1, getBulletDmg() * 0.8);
+        const laserYc  = vm_player.y + vm_player.h/2;
+        const laserX0  = vm_player.x + (ddLaserDir > 0 ? vm_player.w : 0);
+        vm_enemies.forEach(function(e) {
+          if (e.dead) return;
+          const inX = ddLaserDir > 0
+            ? (e.x+e.w > laserX0 && e.x < laserX0 + 800)
+            : (e.x+e.w > laserX0 - 800 && e.x < laserX0);
+          if (inX && e.y+e.h > laserYc - 8 && e.y < laserYc + 8) {
+            e.takeDamage(laserDmg);
+            spawnExplosion(e.x+e.w/2, e.y+e.h/2, 2, '#ff4444');
+            addVimXP(1);
+          }
+        });
+        if (vm_boss && !vm_boss.dead) {
+          const inBX = ddLaserDir > 0
+            ? (vm_boss.x+vm_boss.w > laserX0)
+            : (vm_boss.x < laserX0);
+          if (inBX && vm_boss.y+vm_boss.h > laserYc-8 && vm_boss.y < laserYc+8) {
+            vm_boss.takeDamage(laserDmg);
+          }
+        }
+      }
+    }
 
     // Update moving platforms
     movingPlatforms.forEach(function(p) {
@@ -2559,12 +2719,26 @@ const vimmanGame = (function() {
         arr.w=16; arr.h=4; arr.isPierce=true; arr.pierceLeft=2;
         vm_bullets.push(arr);
       } else if (cid==='warrior') {
-        // Warrior: no ranged if melee equipped, weak punch if not
-        if (!isMeleeEquipped()) {
-          const p=new Bullet(bx,vm_player.y+14,vm_player.facing*BULLET_SPEED*0.5,0,true);
-          p.w=10; p.h=8;
-          vm_bullets.push(p);
+        // Warrior: x key = melee punch (short range shockwave)
+        if (swordSlashTimer <= 0) {
+          swordSlashTimer = 18;
+          const dmgW = getMeleeDmg() * 0.5;
+          const hitXW = vm_player.facing > 0 ? vm_player.x + vm_player.w : vm_player.x - 36;
+          vm_enemies.forEach(function(e) {
+            if (!e.dead && e.x+e.w > hitXW && e.x < hitXW+36) {
+              e.takeDamage(dmgW);
+              spawnExplosion(e.x+e.w/2, e.y+e.h/2, 3, '#ffaa00');
+            }
+          });
+          if (vm_boss && !vm_boss.dead && vm_boss.x+vm_boss.w > hitXW && vm_boss.x < hitXW+36) {
+            vm_boss.takeDamage(dmgW);
+          }
         }
+      } else if (cid==='swordsman') {
+        // Swordsman: x key = mini slash wave (travels forward)
+        const sw = new Bullet(bx, vm_player.y+10, vm_player.facing*BULLET_SPEED*0.8, 0, true);
+        sw.w=18; sw.h=10; sw.isSlash=true; sw.dmgMul=1.5; sw.isPierce=true; sw.pierceLeft=2;
+        vm_bullets.push(sw);
       } else if (cid==='claudeman') {
         // ClaudeMan: code-fragment bullet (orange glow, claude-themed)
         const cb=new Bullet(bx,vm_player.y+12,vm_player.facing*BULLET_SPEED*1.1,0,true);
@@ -2739,6 +2913,21 @@ const vimmanGame = (function() {
     vm_bullets.forEach(function(b) { b.draw(); });
     drawParticles();
     if (vm_player) vm_player.draw();
+    // dd laser beam (world coords)
+    if (ddLaserTimer > 0 && vm_player && !vm_player.dead) {
+      const alpha = Math.min(1, ddLaserTimer / 25) * (0.7 + 0.3 * Math.sin(Date.now() * 0.03));
+      const laserYw = vm_player.y + vm_player.h/2;
+      const laserXw = vm_player.x + (ddLaserDir > 0 ? vm_player.w : 0);
+      const laserW  = ddLaserDir > 0 ? 2048 : -2048;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.shadowColor = '#ff2200'; ctx.shadowBlur = 18;
+      ctx.fillStyle = '#ff4422';
+      ctx.fillRect(laserXw, laserYw - 5, laserW, 10);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(laserXw, laserYw - 2, laserW, 4);
+      ctx.globalAlpha = 1; ctx.restore();
+    }
     ctx.restore();
     ctx.globalAlpha=1;
     // Gimmick visual effects
@@ -2767,16 +2956,19 @@ const vimmanGame = (function() {
     // Character special active aura
     if (charSpecialActive > 0 && vm_player && !vm_player.dead) {
       const cid = vm_player.charId || 'vimman';
-      const auraColor = cid==='claudeman' ? 'rgba(255,140,0,0.25)' :
-                        cid==='warrior'   ? 'rgba(255,30,0,0.2)'   :
-                        cid==='mage'      ? 'rgba(170,68,255,0.25)' : 'rgba(68,255,68,0.2)';
+      const auraColor = cid==='claudeman'  ? 'rgba(255,140,0,0.22)'  :
+                        cid==='warrior'    ? 'rgba(255,30,0,0.18)'   :
+                        cid==='mage'       ? 'rgba(170,68,255,0.22)' :
+                        cid==='swordsman'  ? 'rgba(255,200,0,0.18)'  : 'rgba(68,255,68,0.15)';
       ctx.fillStyle = auraColor;
       ctx.fillRect(0, 0, W, H);
-      const sLabel = cid==='claudeman' ? '/think ACTIVE  ATK×2' :
-                     cid==='warrior'   ? 'BERSERK!!  ATK×1.5' :
-                     cid==='mage'      ? 'ファミリア召喚中' : '';
+      const sLabel = cid==='claudeman'  ? '/think ACTIVE  ATK×2' :
+                     cid==='warrior'    ? 'BERSERK!!  ATK×1.5' :
+                     cid==='mage'       ? 'ファミリア召喚中' :
+                     cid==='swordsman'  ? '居合・居合斬！ ATK×1.5' : '';
       if (sLabel) {
-        ctx.fillStyle = (cid==='claudeman'?'#ff8800':cid==='warrior'?'#ff4400':'#aa44ff');
+        const sc = cid==='claudeman'?'#ff8800':cid==='warrior'?'#ff4400':cid==='swordsman'?'#ffcc44':'#aa44ff';
+        ctx.fillStyle = sc;
         ctx.font = 'bold 10px monospace';
         ctx.textAlign = 'left';
         ctx.fillText(sLabel + ' (' + Math.ceil(charSpecialActive/60) + 's)', 36, 44);

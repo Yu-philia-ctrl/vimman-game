@@ -394,6 +394,21 @@ window.CHARACTER_DEFS = [
     unlockReq: null, // 最初から使用可能（Claude公式キャラ）
   },
   {
+    id: 'swordsman',
+    name: 'Swordsman',
+    nameJa: '剣士',
+    desc: '剣特化の超攻撃型。斬撃波で遠距離攻撃、ため斬りで必殺一撃。',
+    color: '#ffcc44',
+    bgColor: '#2a1800',
+    hp: 32, atk: 3, def: 1, spdMul: 1.05,
+    jumpMul: 1.0,
+    specialCmds: ['slash','wave','charge','dd'],
+    weaponTypes: ['melee'],
+    passive: '剣斬撃波(遠距離) / 剣攻撃3倍ダメージ',
+    passiveId: 'blade_wave',
+    unlockReq: 3, // World 3クリアで解放
+  },
+  {
     id: 'warrior',
     name: 'Warrior',
     nameJa: '戦士',

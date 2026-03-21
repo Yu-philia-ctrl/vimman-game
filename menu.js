@@ -312,8 +312,8 @@ const menuModule = (function() {
     const chars = window.CHARACTER_DEFS || [];
     const clearedCount2 = s ? Object.keys(s.clearedWorlds).length : 0;
     const curCharId = (s && s.character) || 'vimman';
-    const crCardW = Math.floor((W - 24) / 5);
-    chars.slice(0, 5).forEach(function(ch, i) {
+    const crCardW = Math.floor((W - 20) / Math.min(chars.length, 6));
+    chars.slice(0, 6).forEach(function(ch, i) {
       const cx = 12 + i * crCardW;
       const cy = crY + 18;
       const cw = crCardW - 4;
@@ -444,11 +444,14 @@ const menuModule = (function() {
     ctx.translate(cx, cy);
     ctx.scale(s, s);
     if (charId === 'claudeman') {
-      ctx.fillStyle='#ff8800'; ctx.fillRect(-7,5,14,12);
-      ctx.fillStyle='#ffaa55'; ctx.fillRect(-6,-8,12,14);
-      ctx.fillStyle='#aa44ff'; ctx.fillRect(-6,-10,12,4);
-      ctx.fillStyle='#ffffff'; ctx.fillRect(-3,0,5,4); ctx.fillRect(2,0,5,4);
-      ctx.fillStyle='#000000'; ctx.fillRect(-2,1,2,2); ctx.fillRect(3,1,2,2);
+      // Claude coral-orange official colors
+      ctx.fillStyle='#7a3e28'; ctx.fillRect(-6,5,12,11);
+      ctx.fillStyle='#cc785c'; ctx.fillRect(-7,-2,14,9);
+      ctx.fillStyle='#f5c9a0'; ctx.fillRect(-6,-10,12,11);
+      ctx.fillStyle='#7a3e28'; ctx.fillRect(-6,-10,12,4);
+      // Claude "A" logo
+      ctx.fillStyle='#ffffff'; ctx.fillRect(-2,0,4,1); ctx.fillRect(-2,-1,1,5); ctx.fillRect(1,-1,1,5);
+      ctx.fillStyle='#5a3018'; ctx.fillRect(-3,1,2,2); ctx.fillRect(2,1,2,2);
     } else if (charId === 'warrior') {
       ctx.fillStyle='#cc2222'; ctx.fillRect(-8,4,16,13);
       ctx.fillStyle='#ff4444'; ctx.fillRect(-7,-8,14,14);
@@ -470,6 +473,19 @@ const menuModule = (function() {
       ctx.fillStyle='#884400'; ctx.fillRect(-10,4,4,14);
       ctx.fillStyle='#ffffff'; ctx.fillRect(-3,0,3,3); ctx.fillRect(1,0,3,3);
       ctx.fillStyle='#004400'; ctx.fillRect(-2,1,2,2); ctx.fillRect(2,1,2,2);
+    } else if (charId === 'swordsman') {
+      // Swordsman — gold/black katana fighter
+      ctx.fillStyle='#2a1800'; ctx.fillRect(-6,4,12,12);
+      ctx.fillStyle='#1a1000'; ctx.fillRect(-7,-2,14,9);
+      ctx.fillStyle='#ffaa00'; ctx.fillRect(-7,-2,14,2); // headband
+      ctx.fillStyle='#ffdd99'; ctx.fillRect(-6,-10,12,10);
+      ctx.fillStyle='#1a1000'; ctx.fillRect(-6,-10,12,4);
+      ctx.fillStyle='#ffffff'; ctx.fillRect(-3,-5,3,3); ctx.fillRect(1,-5,3,3);
+      ctx.fillStyle='#cc6600'; ctx.fillRect(-2,-4,2,2); ctx.fillRect(2,-4,2,2);
+      // Sword
+      ctx.fillStyle='#888888'; ctx.fillRect(5,-8,3,20);
+      ctx.fillStyle='#eeeeee'; ctx.fillRect(6,-8,1,20);
+      ctx.fillStyle='#ffff44'; ctx.fillRect(5,-10,3,3);
     } else {
       // vimman (default)
       ctx.fillStyle='#2255ff'; ctx.fillRect(-8,4,16,12);
