@@ -11,7 +11,7 @@ const menuModule = (function() {
   let tab = 'home';  // 'home' | 'character' | 'codex' | 'claudecode'
 
   // HOME tab
-  const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character'];
+  const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'community'];
   let homeCursor = 0;
 
   // CHARACTER tab
@@ -172,7 +172,7 @@ const menuModule = (function() {
 
   // HOME menu items: indexes into HOME_ITEMS
   // 0=continue, 1=newgame, 2=stageselect, 3=snake, 4=invaders, 5=tetris, 6=tutorial, 7=codex, 8=character
-  const HOME_CURSOR_MAX = 8;
+  const HOME_CURSOR_MAX = 9;
 
   function drawHome() {
     drawStarBg();
@@ -270,15 +270,17 @@ const menuModule = (function() {
       ctx.fillText(sg.label, bx + (sgBW - 4) / 2, by2 + 20);
     });
 
-    // ── Codex & Character shortcuts ──────────────────────────────
+    // ── Codex / Character / Community shortcuts ───────────────────
     const shortY = sgY + 48;
     const shortcuts = [
-      { id:'codex',     label:'📖 コマンドCODEX', color:'#ffaa44', cursor:7 },
-      { id:'character', label:'⚔ キャラクター装備', color:'#ff88ff', cursor:8 },
+      { id:'codex',     label:'📖 Vim CODEX',  color:'#ffaa44', cursor:7 },
+      { id:'character', label:'⚔ キャラ装備',  color:'#ff88ff', cursor:8 },
+      { id:'community', label:'🌐 コミュニティ', color:'#4d96ff', cursor:9 },
     ];
+    const shBW = Math.floor((W - 24) / 3);
     shortcuts.forEach(function(sh, i) {
-      const bx = 12 + i * (W / 2 - 14);
-      const bw = W / 2 - 18;
+      const bx = 12 + i * shBW;
+      const bw = shBW - 4;
       const isSel = (homeCursor === sh.cursor);
       ctx.fillStyle = isSel ? 'rgba(60,30,80,0.7)' : 'rgba(20,10,40,0.5)';
       ctx.fillRect(bx, shortY, bw, 28);
@@ -288,7 +290,7 @@ const menuModule = (function() {
         ctx.strokeRect(bx, shortY, bw, 28);
       }
       ctx.fillStyle = isSel ? sh.color : sh.color + '88';
-      ctx.font = 'bold 10px monospace';
+      ctx.font = 'bold 9px monospace';
       ctx.textAlign = 'center';
       ctx.fillText(sh.label, bx + bw / 2, shortY + 18);
     });
@@ -387,7 +389,7 @@ const menuModule = (function() {
     ctx.fillStyle = '#334455';
     ctx.font = '9px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('j/k: 移動  Enter: 決定  2: キャラ  3: VIM CODEX  4: CLAUDE CODE', W / 2, H - 36);
+    ctx.fillText('j/k:移動  Enter:決定  2:キャラ  3:CODEX  4:Claude  5:コミュニティ', W / 2, H - 36);
 
     drawVimStatusline();
   }
@@ -423,6 +425,16 @@ const menuModule = (function() {
         tab = 'codex'; codexScroll = 0; codexCursor = 0;
       } else if (item === 'character') {
         tab = 'character'; charCursor = 0; charSubState = 'main';
+      } else if (item === 'community') {
+        const sec = document.getElementById('community-section');
+        if (sec) { sec.scrollIntoView({ behavior: 'smooth' }); }
+        // Also expand community body if collapsed
+        const body = document.getElementById('community-body');
+        const btn  = document.getElementById('btn-community-toggle');
+        if (body && body.classList.contains('hidden')) {
+          body.classList.remove('hidden');
+          if (btn) btn.textContent = '折りたたむ ▲';
+        }
       }
     }
 
@@ -431,6 +443,10 @@ const menuModule = (function() {
     if (justPressed('Digit2')) { tab = 'character'; charSubState = 'main'; charCursor = 0; }
     if (justPressed('Digit3')) { tab = 'codex'; codexScroll = 0; codexCursor = 0; }
     if (justPressed('Digit4')) { tab = 'claudecode'; claudeScroll = 0; claudeCursor = 0; }
+    if (justPressed('Digit5')) {
+      const sec = document.getElementById('community-section');
+      if (sec) sec.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -438,11 +454,63 @@ const menuModule = (function() {
   // ─────────────────────────────────────────────────────────────────
 
   // Character portraits for menu (simple pixel art per character)
+  // Map weapon id prefix to visual type
+  function _weaponVisualType(weapId) {
+    if (!weapId || weapId === 'fist') return null;
+    if (weapId.startsWith('sw') || weapId === 'ult') return 'sword';
+    if (weapId.startsWith('st'))  return 'staff';
+    if (weapId.startsWith('bow')) return 'bow';
+    if (weapId.startsWith('gu'))  return 'gun';
+    return null;
+  }
+
+  // Draw weapon/armor overlay on top of character portrait
+  function _drawEquipOverlay(weaponId, armorId) {
+    const wt = _weaponVisualType(weaponId);
+    // Weapon
+    if (wt === 'sword') {
+      ctx.fillStyle = '#cccccc'; ctx.fillRect(7, -14, 3, 22); // blade
+      ctx.fillStyle = '#eeeeee'; ctx.fillRect(8, -14, 1, 22); // shine
+      ctx.fillStyle = '#cc8800'; ctx.fillRect(5, -2, 7, 3);   // crossguard
+      ctx.fillStyle = '#885500'; ctx.fillRect(7, 8, 3, 5);    // hilt
+    } else if (wt === 'staff') {
+      ctx.fillStyle = '#884400'; ctx.fillRect(8, -18, 3, 30); // pole
+      ctx.fillStyle = '#aa44ff'; ctx.fillRect(6, -20, 7, 6);  // orb base
+      ctx.fillStyle = '#cc88ff';
+      ctx.beginPath(); ctx.arc(9, -22, 5, 0, Math.PI*2); ctx.fill(); // orb
+      ctx.fillStyle = 'rgba(200,100,255,0.5)';
+      ctx.beginPath(); ctx.arc(9, -22, 7, 0, Math.PI*2); ctx.fill(); // glow
+    } else if (wt === 'bow') {
+      ctx.strokeStyle = '#886633'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(-12, 0, 14, -Math.PI*0.6, Math.PI*0.6); ctx.stroke(); // bow arc
+      ctx.strokeStyle = '#eeeecc'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(-12, -8); ctx.lineTo(-12, 8); ctx.stroke(); // string
+      ctx.fillStyle = '#ffcc44'; ctx.fillRect(-14, -1, 16, 2); // arrow
+    } else if (wt === 'gun') {
+      ctx.fillStyle = '#555555'; ctx.fillRect(6, 0, 14, 5);  // barrel
+      ctx.fillStyle = '#333333'; ctx.fillRect(8, 5, 8, 5);   // body
+      ctx.fillStyle = '#ff4422'; ctx.fillRect(18, 1, 3, 3);  // muzzle flash
+    }
+    // Armor tint overlay (translucent color on body)
+    if (armorId && armorId !== 'none') {
+      const arColors = { ar1:'rgba(80,120,80,0.25)', ar2:'rgba(60,80,160,0.25)', ar3:'rgba(140,80,20,0.25)', ar4:'rgba(80,30,120,0.25)', ar5:'rgba(180,20,20,0.3)' };
+      const ac = arColors[armorId];
+      if (ac) {
+        ctx.fillStyle = ac;
+        ctx.fillRect(-8, -4, 16, 14); // body tint
+      }
+    }
+  }
+
   function _drawCharPortrait(charId, cx, cy, scale) {
     const s = scale || 1;
     ctx.save();
     ctx.translate(cx, cy);
     ctx.scale(s, s);
+    // Current equipment (if on character screen show player's equip)
+    const _eq = window.SAVE && window.SAVE.equip;
+    const _activeCharId = (window.SAVE && window.SAVE.character) || 'vimman';
+    const _showEquip = (charId === _activeCharId) && _eq;
     if (charId === 'claudeman') {
       // Claude coral-orange official colors
       ctx.fillStyle='#7a3e28'; ctx.fillRect(-6,5,12,11);
@@ -494,6 +562,10 @@ const menuModule = (function() {
       ctx.fillStyle='#ffffff'; ctx.fillRect(0,-5,5,4);
       ctx.fillStyle='#000033'; ctx.fillRect(2,-4,2,2);
       ctx.fillStyle='#5599ff'; ctx.fillRect(6,6,8,5);
+    }
+    // Draw equipment overlay for active character
+    if (_showEquip) {
+      _drawEquipOverlay(_eq.weapon, _eq.armor);
     }
     ctx.restore();
   }
