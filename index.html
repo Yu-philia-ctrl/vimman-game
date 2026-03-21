@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000011">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>VIM ARCADE — Vimコマンドで戦うアクションRPG</title>
+  <meta name="description" content="Vimのコマンドを使って戦うアクションRPG。50ワールドを制覇してNULL DRAGONを倒せ！無料でブラウザからプレイ。">
+  <meta property="og:title" content="VIM ARCADE">
+  <meta property="og:description" content="Vimコマンドで戦うアクションRPG — 無料ブラウザゲーム">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app-wrapper">
+
+  <!-- Top toolbar -->
+  <div id="toolbar">
+    <div id="toolbar-left">
+      <span id="toolbar-title">VIM ARCADE</span>
+      <span id="toolbar-tagline">Vimで戦え</span>
+    </div>
+    <div id="toolbar-right">
+      <button class="tb-btn" id="btn-home" title="メニューへ (Esc)">🏠 HOME</button>
+      <button class="tb-btn" id="btn-settings" title="設定">⚙ 設定</button>
+      <button class="tb-btn tb-btn-support" id="btn-support" title="応援する">❤ Support</button>
+      <button class="tb-btn" id="btn-kbd-toggle" title="キーボード表示切替">⌨ KBD</button>
+    </div>
+  </div>
+
+  <!-- Support / Donation modal -->
+  <div id="support-panel" class="hidden">
+    <div id="support-content">
+      <h2>❤ VIM ARCADEを応援する</h2>
+      <p class="support-desc">VIM ARCADEは完全無料でプレイできます。<br>開発を続けるために応援してください！</p>
+      <div class="support-options">
+        <div class="support-tier">
+          <div class="tier-badge">☕</div>
+          <div class="tier-name">コーヒー 1杯</div>
+          <div class="tier-price">¥500</div>
+          <div class="tier-perk">感謝の気持ち ＋ ゲーム内称号「Supporter」</div>
+          <a class="support-btn" href="https://ko-fi.com" target="_blank" rel="noopener">支援する</a>
+        </div>
+        <div class="support-tier support-tier-featured">
+          <div class="tier-badge">⭐</div>
+          <div class="tier-name">スター支援</div>
+          <div class="tier-price">¥1,500</div>
+          <div class="tier-perk">称号「Vim Master」＋ 限定キャラ解放キー</div>
+          <a class="support-btn support-btn-featured" href="https://ko-fi.com" target="_blank" rel="noopener">支援する</a>
+        </div>
+        <div class="support-tier">
+          <div class="tier-badge">🏆</div>
+          <div class="tier-name">スポンサー</div>
+          <div class="tier-price">¥5,000+</div>
+          <div class="tier-perk">スポンサーロール掲載 ＋ 全DLC解放</div>
+          <a class="support-btn" href="mailto:support@vimarcade.dev" target="_blank" rel="noopener">お問い合わせ</a>
+        </div>
+      </div>
+      <div class="support-social">
+        <p>⭐ GitHubでStarをつけてシェアするだけでも助かります！</p>
+      </div>
+      <button id="btn-close-support">✕ 閉じる</button>
+    </div>
+  </div>
+
+  <!-- Settings panel -->
+  <div id="settings-panel" class="hidden">
+    <div id="settings-content">
+      <h2>⚙ 設定 / Settings</h2>
+      <div class="setting-row">
+        <label><input type="checkbox" id="chk-cmdpanel" checked> Vimコマンド一覧を表示</label>
+      </div>
+      <div class="setting-row">
+        <label><input type="checkbox" id="chk-inputdisp" checked> INPUTキー表示</label>
+      </div>
+      <div class="setting-row">
+        <label><input type="checkbox" id="chk-kbd" checked> キーボードビジュアライザー</label>
+      </div>
+      <div class="setting-row">
+        <label><input type="checkbox" id="chk-hints" checked> HUDヒント表示</label>
+      </div>
+      <hr>
+      <div class="setting-row save-row">
+        <button id="btn-reset-xp">VimXPリセット</button>
+        <button id="btn-close-settings">✕ 閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ad banner slot (top) — replace with actual AdSense tag -->
+  <div class="ad-slot ad-slot-top" id="ad-top">
+    <!-- Google AdSense: 728x90 leaderboard
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    -->
+    <div class="ad-placeholder">広告スペース — Sponsor this space</div>
+  </div>
+
+  <!-- Main layout: game + optional side ad -->
+  <div id="main-layout">
+
+    <!-- Main game area -->
+    <div id="game-area">
+      <canvas id="gameCanvas" width="512" height="480" tabindex="0" autofocus></canvas>
+
+      <!-- Mobile touch controls overlay -->
+      <div id="touch-controls" class="hidden">
+        <!-- D-pad left side -->
+        <div id="touch-dpad">
+          <button class="touch-btn touch-dpad-left"  data-key="ArrowLeft">◀</button>
+          <button class="touch-btn touch-dpad-right" data-key="ArrowRight">▶</button>
+          <button class="touch-btn touch-dpad-up"    data-key="ArrowUp">▲</button>
+          <button class="touch-btn touch-dpad-down"  data-key="ArrowDown">▼</button>
+        </div>
+        <!-- Action buttons right side -->
+        <div id="touch-actions">
+          <button class="touch-btn touch-btn-jump"  data-key="Space">JUMP<br><small>K</small></button>
+          <button class="touch-btn touch-btn-shoot" data-key="KeyX">SHOOT<br><small>X</small></button>
+          <button class="touch-btn touch-btn-esc"   data-key="Escape">ESC</button>
+          <button class="touch-btn touch-btn-enter" data-key="Enter">OK</button>
+          <button class="touch-btn touch-btn-sword" data-key="KeyS">⚔<br><small>S</small></button>
+        </div>
+        <!-- Mode row -->
+        <div id="touch-modes">
+          <button class="touch-btn touch-mode-i"  data-key="KeyI">INS</button>
+          <button class="touch-btn touch-mode-v"  data-key="KeyV">VIS</button>
+          <button class="touch-btn touch-mode-dd" data-key-seq="dd">dd</button>
+          <button class="touch-btn touch-mode-yy" data-key-seq="yy">yy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side ad slot — desktop only -->
+    <div class="ad-slot ad-slot-side" id="ad-side">
+      <!-- Google AdSense: 300x250
+      <ins class="adsbygoogle" ...></ins>
+      -->
+      <div class="ad-placeholder ad-placeholder-side">広告スペース<br>300×250</div>
+    </div>
+
+  </div><!-- end main-layout -->
+
+  <!-- Keyboard visualizer -->
+  <div id="kbd-display">
+    <div class="kbd-label">KEYBOARD</div>
+    <div class="kbd-row">
+      <div class="key key-wide" data-code="Escape">ESC</div>
+      <div class="key-gap"></div>
+      <div class="key key-action" data-code="Digit1">1</div>
+      <div class="key key-action" data-code="Digit2">2</div>
+      <div class="key key-action" data-code="Digit3">3</div>
+      <div class="key key-action" data-code="Digit4">4</div>
+      <div class="key key-action" data-code="Digit5">5</div>
+    </div>
+    <div class="kbd-row">
+      <div class="key key-wide2">Tab</div>
+      <div class="key key-combo" data-code="KeyQ">Q</div>
+      <div class="key key-action" data-code="KeyW">W</div>
+      <div class="key" data-code="KeyE">E</div>
+      <div class="key" data-code="KeyR">R</div>
+      <div class="key" data-code="KeyT">T</div>
+      <div class="key key-combo" data-code="KeyY">Y</div>
+      <div class="key key-action" data-code="KeyU">U</div>
+      <div class="key key-mode" data-code="KeyI">I</div>
+      <div class="key" data-code="KeyO">O</div>
+      <div class="key" data-code="KeyP">P</div>
+    </div>
+    <div class="kbd-row">
+      <div class="key key-wide2">Cap</div>
+      <div class="key key-mode" data-code="KeyA">A</div>
+      <div class="key" data-code="KeyS">S</div>
+      <div class="key key-combo" data-code="KeyD">D</div>
+      <div class="key" data-code="KeyF">F</div>
+      <div class="key" data-code="KeyG">G</div>
+      <div class="key key-move" data-code="KeyH">H</div>
+      <div class="key key-move" data-code="KeyJ">J</div>
+      <div class="key key-move" data-code="KeyK">K</div>
+      <div class="key key-move" data-code="KeyL">L</div>
+      <div class="key key-cmd" data-code="Semicolon">;</div>
+    </div>
+    <div class="kbd-row">
+      <div class="key key-shift" data-code="ShiftLeft">Shift</div>
+      <div class="key" data-code="KeyZ">Z</div>
+      <div class="key key-action" data-code="KeyX">X</div>
+      <div class="key key-combo" data-code="KeyC">C</div>
+      <div class="key key-mode" data-code="KeyV">V</div>
+      <div class="key key-action" data-code="KeyB">B</div>
+      <div class="key" data-code="KeyN">N</div>
+      <div class="key" data-code="KeyM">M</div>
+    </div>
+    <div class="kbd-row kbd-row-bottom">
+      <div class="key key-space" data-code="Space">SPACE / Jump</div>
+      <div class="key key-enter" data-code="Enter">Enter</div>
+    </div>
+    <div class="kbd-row kbd-row-arrows">
+      <div class="key key-arrow" data-code="ArrowLeft">◀</div>
+      <div class="key key-arrow" data-code="ArrowDown">▼</div>
+      <div class="key key-arrow" data-code="ArrowUp">▲</div>
+      <div class="key key-arrow" data-code="ArrowRight">▶</div>
+    </div>
+    <div class="kbd-legend">
+      <span class="leg-move">移動</span>
+      <span class="leg-action">アクション</span>
+      <span class="leg-combo">コンボ</span>
+      <span class="leg-mode">モード切替</span>
+      <span class="leg-cmd">:コマンド</span>
+    </div>
+  </div>
+
+  <!-- Site footer -->
+  <footer id="site-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <span class="footer-brand">VIM ARCADE</span>
+        <span class="footer-copy">© 2025 VimArcade Project. All rights reserved.</span>
+      </div>
+      <div class="footer-links">
+        <a href="#" id="footer-privacy">プライバシー</a>
+        <a href="#" id="footer-terms">利用規約</a>
+        <a href="mailto:contact@vimarcade.dev">お問い合わせ</a>
+        <button class="footer-support-btn" id="footer-support-btn">❤ 応援する</button>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- end app-wrapper -->
+
+<script src="core.js"></script>
+<script src="vimdata.js"></script>
+<script src="menu.js"></script>
+<script src="tutorial.js"></script>
+<script src="vimman.js"></script>
+<script src="snake.js"></script>
+<script src="tetris.js"></script>
+<script src="invaders.js"></script>
+<script src="main.js"></script>
+<script src="mobile.js"></script>
+</body>
+</html>
