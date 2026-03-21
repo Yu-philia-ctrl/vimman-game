@@ -170,6 +170,7 @@ const vimmanGame = (function() {
       _bossBehavior: isBoss ? (wid <= 8 ? 'ground' : wid <= 15 ? 'flying' : wid <= 24 ? 'giant' : wid <= 34 ? 'teleporter' : wid <= 44 ? 'summoner' : 'chaos') : 'ground',
       _bossTheme: isBoss ? (wid <= 12 ? 'robot' : wid <= 25 ? 'dragon' : wid <= 38 ? 'mage' : wid <= 49 ? 'machine' : 'void') : 'robot',
       _bossWeakness: isBoss ? (['mage','swordsman','archer','vimman','claudeman','warrior'][wid % 6]) : 'vimman',
+      _isRaidBoss: isBoss && wid === 50, // World 50 = NULL DRAGON = Raid Boss
     };
   }
 
@@ -1986,6 +1987,285 @@ const vimmanGame = (function() {
     ctx.globalAlpha=1; ctx.restore();
   };
 
+  // ── RaidBoss — Community Boss (World 50: NULL DRAGON) ────
+  function RaidBoss() {
+    this.x = -32;
+    this.y = -64;
+    this.w = W + 64;   // wider than full screen
+    this.h = H + 128;  // taller than full screen
+    this.maxHealth = 999999;
+    this.health = 999999;
+    this.dead = false;
+    this.invTimer = 0;
+    this.phase = 1;
+    this.atkTimer = 0;
+    this.atkPattern = 0;
+    this.shieldTimer = 0;
+    this.shieldCD = 180;
+    this.enrageTimer = 0;
+    this.name = 'NULL DRAGON';
+    this.communityDmg = 0; // damage from other players via Firebase
+    this.fbRef = null;
+    // Try to sync with Firebase
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) {
+      try {
+        var db = firebase.database();
+        this.fbRef = db.ref('vimarcade/raidboss/nulldragon');
+        // Load shared HP
+        this.fbRef.once('value', function(snap) {
+          var v = snap.val();
+          if (v && v.health > 0 && v.health < 999999) {
+            // Another player weakened it — inherit that HP
+          }
+        });
+      } catch(e) {}
+    }
+  }
+  RaidBoss.prototype.takeDamage = function(n) {
+    if (this.invTimer > 0) return;
+    if (this.shieldTimer > 0) {
+      spawnExplosion(this.x + this.w/2, this.y + this.h/2, 3, '#4488ff');
+      addFlash('🛡 NULL DRAGON のシールドが攻撃を弾いた！');
+      return;
+    }
+    this.health -= n;
+    this.invTimer = 10;
+    if (this.health < 0) this.health = 0;
+    // Sync to Firebase (throttled to every 3s or every 1000 dmg)
+    if (this.fbRef && Math.random() < 0.02) {
+      this.fbRef.update({ health: this.health, ts: Date.now() });
+    }
+    if (this.health <= 0 && !this.dead) {
+      this.dead = true;
+      spawnExplosion(W/2, H/2, 60, '#ff4400');
+      screenFlash = 40;
+      addFlash('🏆 NULL DRAGON 討伐！ コミュニティ全員の勝利！');
+      if (this.fbRef) this.fbRef.update({ health: 0, defeated: true, ts: Date.now() });
+    }
+  };
+  RaidBoss.prototype.update = function() {
+    if (this.dead) return;
+    if (this.invTimer > 0) this.invTimer--;
+
+    // Enrage at 50% health
+    if (this.health < this.maxHealth * 0.5 && this.enrageTimer <= 0) {
+      this.enrageTimer = 999999;
+      screenFlash = 30;
+      addFlash('🔴 NULL DRAGON PHASE 2 — 全力モード！');
+    }
+    var enraged = this.enrageTimer > 0;
+
+    // Shield cycle
+    if (this.shieldCD > 0) { this.shieldCD--; }
+    else if (this.shieldTimer <= 0) {
+      this.shieldTimer = enraged ? 120 : 80;
+      this.shieldCD = enraged ? 150 : 250;
+      addFlash('🛡 NULL DRAGON シールド展開！ — 一定時間攻撃無効');
+    }
+    if (this.shieldTimer > 0) this.shieldTimer--;
+
+    // Attack patterns
+    if (this.atkTimer > 0) { this.atkTimer--; return; }
+    var pat = this.atkPattern % 6;
+    var spd = enraged ? 4.5 : 3.0;
+
+    if (pat === 0) {
+      // Full-screen vertical columns — player must dodge left/right
+      for (var col = 0; col < 8; col++) {
+        if (col % 2 === 0) continue; // gaps to dodge through
+        var bx = col * (W/8) + W/16 - 4;
+        for (var row = 0; row < 12; row++) {
+          var b = new Bullet(bx + (Math.random()-0.5)*20, -8, 0, spd + Math.random(), false);
+          b.w = 10; b.h = 10;
+          vm_bullets.push(b);
+        }
+      }
+      addFlash('⚠ NULL DRAGON ── COLUMN RAIN!');
+      this.atkTimer = enraged ? 60 : 90;
+    } else if (pat === 1) {
+      // Spiral from center
+      for (var i = 0; i < 24; i++) {
+        var ang = i * Math.PI / 12;
+        vm_bullets.push(new Bullet(W/2 - 4, H/3 - 4,
+          Math.cos(ang) * spd * 1.2, Math.sin(ang) * spd * 1.2, false));
+      }
+      addFlash('⚠ NULL DRAGON ── SPIRAL BURST!');
+      this.atkTimer = enraged ? 70 : 110;
+    } else if (pat === 2) {
+      // Horizontal sweep walls
+      for (var row2 = 0; row2 < 4; row2++) {
+        var by = (row2 + 1) * (H / 5) - 4;
+        for (var col2 = 0; col2 < 20; col2++) {
+          if (col2 % 4 === 0) continue; // gaps
+          vm_bullets.push(new Bullet(-8, by + (Math.random()-0.5)*16,
+            spd * 1.5, 0, false));
+        }
+      }
+      addFlash('⚠ NULL DRAGON ── LASER SWEEP!');
+      this.atkTimer = enraged ? 80 : 130;
+    } else if (pat === 3) {
+      // Aimed mega-burst at player
+      if (vm_player) {
+        for (var i3 = 0; i3 < 16; i3++) {
+          var ang3 = i3 * Math.PI/8;
+          var b3 = new Bullet(W/2-4, H/3-4,
+            Math.cos(ang3)*spd, Math.sin(ang3)*spd, false);
+          b3.w = 14; b3.h = 14;
+          vm_bullets.push(b3);
+        }
+        // Extra aimed shots directly at player
+        for (var j = -2; j <= 2; j++) {
+          var dx = vm_player.x - W/2, dy = vm_player.y - H/3;
+          var d = Math.sqrt(dx*dx+dy*dy)||1;
+          vm_bullets.push(new Bullet(W/2-4, H/3-4,
+            dx/d*spd*1.5 + j*0.4, dy/d*spd*1.5, false));
+        }
+      }
+      addFlash('⚠ NULL DRAGON ── NULL POINTER!');
+      this.atkTimer = enraged ? 75 : 120;
+    } else if (pat === 4) {
+      // Giant expanding ring
+      for (var i4 = 0; i4 < 32; i4++) {
+        var ang4 = i4 * Math.PI/16 + Date.now()*0.001;
+        var b4 = new Bullet(W/2-4, H/2-4,
+          Math.cos(ang4)*spd*1.3, Math.sin(ang4)*spd*1.3, false);
+        b4.w = 8; b4.h = 8;
+        vm_bullets.push(b4);
+      }
+      addFlash('⚠ NULL DRAGON ── NULL RING!');
+      this.atkTimer = enraged ? 90 : 140;
+    } else {
+      // Phase 2: screen-filling darkness + random spray
+      screenFlash = 15;
+      for (var i5 = 0; i5 < 30; i5++) {
+        var b5 = new Bullet(
+          Math.random()*W, Math.random()<0.5 ? -8 : H+8,
+          (Math.random()-0.5)*spd*2, Math.random()<0.5 ? spd*1.8 : -spd*1.8, false);
+        b5.w = 8; b5.h = 8;
+        vm_bullets.push(b5);
+      }
+      addFlash('⚠ NULL DRAGON ── VOID STORM!');
+      this.atkTimer = enraged ? 55 : 85;
+    }
+    this.atkPattern++;
+  };
+  RaidBoss.prototype.draw = function() {
+    var t = Date.now();
+    // Background darkness aura
+    ctx.save();
+    ctx.globalAlpha = 0.35 + 0.1*Math.sin(t*0.003);
+    ctx.fillStyle = '#110022';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    // Massive body — fills the upper portion of screen
+    var bodyH = Math.round(H * 0.52);
+    var bodyY = -20 + Math.round(Math.sin(t*0.001)*8);
+
+    // Outer glow
+    ctx.save();
+    ctx.globalAlpha = 0.4 + 0.15*Math.sin(t*0.005);
+    var grad = ctx.createLinearGradient(0, bodyY, 0, bodyY+bodyH);
+    grad.addColorStop(0, '#660099');
+    grad.addColorStop(0.5, '#220044');
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(-32, bodyY, W+64, bodyH+40);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    // Main body
+    ctx.fillStyle = '#1a0033';
+    ctx.fillRect(0, bodyY, W, bodyH);
+    ctx.strokeStyle = '#aa00ff';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(0, bodyY, W, bodyH);
+
+    // Head / face
+    ctx.fillStyle = '#330055';
+    ctx.fillRect(W/2-80, bodyY+10, 160, 100);
+
+    // Eyes — giant glowing red
+    for (var side = -1; side <= 1; side += 2) {
+      var ex = W/2 + side * 45;
+      var ey = bodyY + 50;
+      ctx.save();
+      ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 30;
+      ctx.fillStyle = '#ff0000';
+      ctx.beginPath(); ctx.arc(ex, ey, 16 + 4*Math.sin(t*0.008), 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#ffaaaa';
+      ctx.beginPath(); ctx.arc(ex+3, ey-3, 5, 0, Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+
+    // Mouth — jagged teeth
+    ctx.fillStyle = '#440000';
+    ctx.fillRect(W/2-50, bodyY+80, 100, 20);
+    ctx.fillStyle = '#ffffff';
+    for (var t2 = 0; t2 < 8; t2++) {
+      ctx.fillRect(W/2 - 48 + t2*13, bodyY+80, 8, 12 + (t2%2)*6);
+    }
+
+    // Dragon wings
+    ctx.save();
+    ctx.globalAlpha = 0.7 + 0.2*Math.sin(t*0.006);
+    ctx.fillStyle = '#550088';
+    // Left wing
+    ctx.beginPath();
+    ctx.moveTo(0, bodyY+bodyH*0.5);
+    ctx.lineTo(-32, bodyY+bodyH*0.2);
+    ctx.lineTo(W*0.3, bodyY+bodyH*0.6);
+    ctx.closePath(); ctx.fill();
+    // Right wing
+    ctx.beginPath();
+    ctx.moveTo(W, bodyY+bodyH*0.5);
+    ctx.lineTo(W+32, bodyY+bodyH*0.2);
+    ctx.lineTo(W*0.7, bodyY+bodyH*0.6);
+    ctx.closePath(); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.restore();
+
+    // Shield visual
+    if (this.shieldTimer > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.5 + 0.3*Math.sin(t*0.02);
+      ctx.strokeStyle = '#4488ff'; ctx.lineWidth = 6;
+      ctx.shadowColor = '#4488ff'; ctx.shadowBlur = 20;
+      ctx.strokeRect(4, bodyY+4, W-8, bodyH-8);
+      ctx.globalAlpha = 1; ctx.restore();
+    }
+
+    // Enrage aura
+    if (this.enrageTimer > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.2 + 0.1*Math.sin(t*0.01);
+      ctx.fillStyle = '#ff2200';
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = 1; ctx.restore();
+    }
+
+    // HP bar (full width at top)
+    var hpPct = this.health / this.maxHealth;
+    ctx.fillStyle = '#330000';
+    ctx.fillRect(0, 2, W, 10);
+    ctx.fillStyle = hpPct > 0.5 ? '#ff2200' : (hpPct > 0.25 ? '#ff6600' : '#ffaa00');
+    ctx.fillRect(0, 2, W * hpPct, 10);
+    ctx.strokeStyle = '#660000'; ctx.lineWidth = 1;
+    ctx.strokeRect(0, 2, W, 10);
+
+    // Name + HP text
+    ctx.fillStyle = '#ffaaff';
+    ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+    ctx.shadowColor = '#aa00ff'; ctx.shadowBlur = 8;
+    ctx.fillText('👾 NULL DRAGON  HP: ' + Math.max(0,this.health).toLocaleString() + ' / ' + this.maxHealth.toLocaleString(), W/2, 24);
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#cc88ff'; ctx.font = '9px monospace';
+    ctx.fillText('⚠ コミュニティ討伐ボス — 全プレイヤーで倒せ！', W/2, 36);
+  };
+  // deathTimer shim so stage clear logic works
+  RaidBoss.prototype.deathTimer = 0;
+
   // SegClone — mini version spawned by SegFault boss
   function SegClone(x,y,hp,type) {
     this.type=type; this.x=x; this.y=y; this.w=28; this.h=34;
@@ -2070,8 +2350,13 @@ const vimmanGame = (function() {
     def.bees.forEach(function(d)  { vm_enemies.push(new Bee(d[0]*TILE, d[1]*TILE, spd)); });
     def.tanks.forEach(function(c) { vm_enemies.push(new Tank(c*TILE, 7*TILE, spd)); });
     // Only spawn boss if isBoss (last stage of world)
-    if (def.bossHPMul > 0) vm_boss = new VimBoss(def.bossHPMul, def._bossType || 0, def._bossBehavior || 'ground', def._bossTheme || 'robot', def._bossWeakness || 'vimman');
-    else vm_boss = new VimBoss(0.3, 0, 'ground', 'robot', 'vimman');
+    if (def._isRaidBoss) {
+      vm_boss = new RaidBoss();
+    } else if (def.bossHPMul > 0) {
+      vm_boss = new VimBoss(def.bossHPMul, def._bossType || 0, def._bossBehavior || 'ground', def._bossTheme || 'robot', def._bossWeakness || 'vimman');
+    } else {
+      vm_boss = new VimBoss(0.3, 0, 'ground', 'robot', 'vimman');
+    }
   }
 
   // ── Special moves ─────────────────────────────────────────
@@ -2487,7 +2772,8 @@ const vimmanGame = (function() {
       // :wq = write & quit → save position + return to HOME (Vim-style)
       saveProgress();
       addFlash(':wq  -- Written! 進捗を保存してHOMEへ戻ります...');
-      setTimeout(function() { switchGame('menu'); }, 800);
+      state = 'worldselect'; // leave gameplay so isEnter won't re-trigger
+      switchGame('menu');
     }
     else if (c==='vs'||c==='sp')  execVS();
     else if (c==='help')          addFlash(vm_player&&vm_player.charId==='claudeman'?':help  ClaudeMan commands: think=ATK×2  add=召喚  print=ビーム  bash=爆発  fix=回復  run=高速':':help  h/l:Move  k:Jump  x:Shoot  dd:Nuke  yy:+HP  gg:Top  cc:BigShot  ZZ:Shield/Life  u:Undo  w/b:Dash  :w=save  :wq=clear  :q=menu');
@@ -2646,7 +2932,7 @@ const vimmanGame = (function() {
       ['dd',      'DELETE (全敵消去)'],
       ['yy',      'YANK (HP回復)'],
       ['cc',      'CHANGE (大弾)'],
-      [':wq',     'ステージクリア'],
+      [':wq',     'Save+HOME へ戻る'],
     ] : [
       ['h/l',      'Move left/right'],
       ['k/Space',  'Jump'],
@@ -2660,7 +2946,7 @@ const vimmanGame = (function() {
       ['ZZ',       'Extra life / Shield'],
       ['u',        'Invincibility (UNDO)'],
       [':w',       'Write — +1 LIFE'],
-      [':wq',      'Save+Quit — CLEAR!'],
+      [':wq',      'Save+HOME (Vim-style quit)'],
       [':vs',      'Nuke — SPLIT'],
       [':skills',  'Equipment screen'],
     ];
@@ -2804,7 +3090,7 @@ const vimmanGame = (function() {
     if (window.gameSettings && window.gameSettings.get('showHints') && !vm_bossTriggered) {
       ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(0,H-70,W,12);
       ctx.fillStyle='#334455'; ctx.font='9px monospace'; ctx.textAlign='center';
-      ctx.fillText(':wq=ステージクリア  :w=セーブ  :skills=装備  :q=メニューへ', W/2, H-61);
+      ctx.fillText(':wq=保存&HOME  :w=セーブ  :skills=装備  :q=メニューへ', W/2, H-61);
     }
 
     drawKeyDisplay();
@@ -2854,7 +3140,7 @@ const vimmanGame = (function() {
       else if (item==='Toggle Input Disp') {
         if (window.gameSettings) window.gameSettings.set('showInputDisp', !window.gameSettings.get('showInputDisp'));
       }
-      else if (item==='Back to Menu') { saveProgress(); state='worldselect'; }
+      else if (item==='Back to Menu') { saveProgress(); switchGame('menu'); }
     }
   }
 

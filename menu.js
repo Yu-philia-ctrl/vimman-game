@@ -8,10 +8,10 @@ const menuModule = (function() {
     STARS.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()<0.3?2:1 });
 
   // ── State ─────────────────────────────────────────────────────────
-  let tab = 'home';  // 'home' | 'character' | 'codex' | 'claudecode'
+  let tab = 'home';  // 'home' | 'character' | 'codex' | 'claudecode' | 'shell'
 
   // HOME tab
-  const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'community'];
+  const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'shell'];
   let homeCursor = 0;
 
   // CHARACTER tab
@@ -39,6 +39,141 @@ const menuModule = (function() {
   let codexCatIdx = 0;
   let codexScroll = 0;
   let codexCursor = 0;
+
+  // Shell One-liner CODEX tab
+  const SHELL_CATS = ['FS/ストレージ','プロセス','ネットワーク','ログ/テキスト','セキュリティ','アーカイブ','高度テキスト','ネット診断','システム情報','計算/日時'];
+  const SHELL_DATA = [
+    // FS/ストレージ
+    [
+      { cmd:'find / -size +1G 2>/dev/null | xargs ls -lh',              desc:'1GB以上ファイル抽出' },
+      { cmd:'du -sk * | sort -rn | awk \'{print $2" "$1/1024" MB"}\'',  desc:'ディレクトリ使用量集計' },
+      { cmd:'find . -type d -empty | xargs rmdir',                       desc:'空ディレクトリ一括削除' },
+      { cmd:'find . -mtime -1 -type f | xargs ls -lt',                  desc:'24h以内の更新ファイル' },
+      { cmd:'find . -mtime +30 | xargs ls -lh',                         desc:'30日以上更新なし' },
+      { cmd:'find . -type f | sed \'s/^.*\\.//\' | sort | uniq -c',     desc:'拡張子別ファイル数' },
+      { cmd:'find . -perm 777 | xargs -r ls -l',                        desc:'誰でも読めるファイル' },
+      { cmd:'ls | grep " " | rename \'s/ /_/g\'',                        desc:'スペースをアンダースコアへ' },
+      { cmd:'df -h | awk \'$5+0 > 90 {print $0}\'',                     desc:'使用率90%以上パーティション' },
+      { cmd:'find . -xdev -type f | cut -d "/" -f2 | sort | uniq -c | sort -nr', desc:'ファイル数多い順' },
+    ],
+    // プロセス
+    [
+      { cmd:'ps aux --sort=-%mem | head',                                desc:'メモリ使用トップ10' },
+      { cmd:'ps aux --sort=-%cpu | head',                                desc:'CPU使用トップ10' },
+      { cmd:'ps -u <user> | wc -l',                                      desc:'指定ユーザーのプロセス数' },
+      { cmd:'ps -eo pid,etimes,comm --sort=-etimes | head',              desc:'起動時間が長いプロセス' },
+      { cmd:'ps aux | awk \'$8=="Z" {print $2}\'',                       desc:'ゾンビプロセス' },
+      { cmd:'pgrep <name> | xargs kill -9',                              desc:'名前指定で強制終了' },
+      { cmd:'grep VmSwap /proc/*/status 2>/dev/null | sort -nk 2 -r | head', desc:'スワップ使用プロセス' },
+      { cmd:'ps aux | awk \'{sum+=$6} END {print sum/1024" MB"}\'',      desc:'メモリ合計' },
+      { cmd:'ps -eLo pid,tid,comm | awk \'{print $1}\' | sort | uniq -c | sort -nr | head', desc:'スレッド数トップ10' },
+      { cmd:'ls /proc/*/fd -1 2>/dev/null | awk -F\'/\' \'{print $3}\' | sort | uniq -c | sort -nr | head', desc:'FD数トップ10' },
+    ],
+    // ネットワーク
+    [
+      { cmd:'ss -tuln | grep LISTEN',                                    desc:'待機TCPポート' },
+      { cmd:'curl -s https://ifconfig.me | xargs echo',                  desc:'グローバルIP' },
+      { cmd:'netstat -ant | awk \'$6=="ESTABLISHED"\' | awk -F\':\' \'{print $1}\' | sort | uniq -c | sort -nr', desc:'接続元IP頻度' },
+      { cmd:'ss -s | grep "estab" | grep -oE \'estab [0-9]+\' | awk \'{print $2}\'', desc:'接続数' },
+      { cmd:'dig +short <domain> | cat',                                 desc:'ドメイン→IP' },
+      { cmd:'echo | openssl s_client -connect <host>:443 2>/dev/null | openssl x509 -noout -dates', desc:'SSL証明書期限' },
+      { cmd:'ip addr | grep "inet " | awk \'{print $2}\'',               desc:'IP一覧' },
+    ],
+    // ログ/テキスト
+    [
+      { cmd:'awk \'$9 == 404\' /var/log/apache2/access.log | wc -l',    desc:'404回数' },
+      { cmd:'awk -F\'"\' \'{print $6}\' /var/log/apache2/access.log | sort | uniq -c | sort -nr | head', desc:'アクセス上位IP' },
+      { cmd:'tail -f <log> | grep --line-buffered "<err>"',              desc:'リアルタイムエラー検出' },
+      { cmd:'cat <csv> | cut -d\',\' -f1,3',                             desc:'CSV抽出' },
+      { cmd:'cat <file> | sed \'/^$/d\' | tee <out>',                    desc:'空行削除' },
+      { cmd:'sed -n \'11,35p\'',                                          desc:'行抽出 (11-35行)' },
+      { cmd:'tr \'[:upper:]\' \'[:lower:]\'',                             desc:'小文字変換' },
+      { cmd:'grep -C 2 "<keyword>"',                                     desc:'前後2行表示' },
+      { cmd:'sort | uniq -c | sort -nr',                                 desc:'重複行カウント' },
+      { cmd:'strings | less',                                            desc:'制御文字除去' },
+    ],
+    // セキュリティ
+    [
+      { cmd:'grep "Failed password" /var/log/auth.log | awk \'{print $(NF-3)}\' | sort | uniq', desc:'SSH失敗IP' },
+      { cmd:'who | awk \'{print $1" from "$5}\'',                        desc:'ログインユーザー' },
+      { cmd:'find / -type d -perm -0002 -ls 2>/dev/null | grep -v "/proc"', desc:'誰でも書けるディレクトリ' },
+      { cmd:'sudo getent shadow | awk -F: \'$2=="" {print $1}\'',        desc:'パスワードなしユーザー' },
+      { cmd:'find /usr/bin -perm -4000 | xargs ls -l',                  desc:'SUIDバイナリ' },
+      { cmd:'grep -f /etc/shells /etc/passwd | cut -d: -f1',            desc:'ログイン可能ユーザー' },
+      { cmd:'grep "sudo" /var/log/auth.log | head -n 20',               desc:'sudo履歴' },
+      { cmd:'echo -n "<str>" | sha256sum | cut -d\' \' -f1',             desc:'SHA-256' },
+      { cmd:'sudo ls -l /proc/*/exe | awk \'{print $11}\'',              desc:'実行プロセス元' },
+      { cmd:'cat /etc/passwd | cut -d: -f1 | xargs -I{} groups {}',     desc:'グループ所属' },
+    ],
+    // アーカイブ
+    [
+      { cmd:'tar -cvf - <dir> | gzip > file.tar.gz',                    desc:'圧縮' },
+      { cmd:'zgrep "<str>" file.gz | head',                             desc:'gz中身確認' },
+      { cmd:'find . -name "*.<ext>" -print0 | tar --null -cvf file.tar --files-from=-', desc:'拡張子でtar' },
+      { cmd:'zcat file.gz | wc -l',                                      desc:'行数確認' },
+      { cmd:'split -b 100M file file_part_',                             desc:'100MB分割' },
+      { cmd:'find . -maxdepth 3 | sed \'s/[^/]*\\//|__/g\'',             desc:'ツリー表示' },
+      { cmd:'mysqldump -u root <DB> | gzip > db_$(date +%F).sql.gz',    desc:'MySQLバックアップ' },
+      { cmd:'rsync -avvn src/ dest/ | grep \'^f\'',                      desc:'rsync差分確認' },
+      { cmd:'find . -mtime -1 -type f -print0 | tar --null -czvf file.tar.gz --files-from=-', desc:'24h更新バックアップ' },
+      { cmd:'find <dir> -type f -mtime +7 -print0 | xargs -0 rm -f',    desc:'古いファイル削除' },
+    ],
+    // 高度テキスト
+    [
+      { cmd:'jq -r \'.id\' data.json | sort -n',                        desc:'JSON id抽出' },
+      { cmd:'echo "<str>" | python3 -c "import urllib.parse,sys;print(urllib.parse.unquote(sys.stdin.read()))"', desc:'URLデコード' },
+      { cmd:'shuf file | head',                                          desc:'ランダム並び替え' },
+      { cmd:'expand -t 4 file | tee out',                                desc:'タブ→スペース変換' },
+      { cmd:'sed \'s/[[:space:]]*$//\'',                                  desc:'行末空白削除' },
+      { cmd:'grep -oE \'[0-9]+\' file | awk \'{s+=$1} END {print s}\'', desc:'数値合計' },
+      { cmd:'comm -12 <(sort f1) <(sort f2)',                            desc:'共通行抽出' },
+      { cmd:'awk \'NR%2==1\'',                                            desc:'奇数行のみ' },
+      { cmd:'ls | xargs -I{} sh -c \'stat -c %y {}\'',                  desc:'更新日付付与' },
+      { cmd:'echo "<str>" | base64 -d',                                  desc:'Base64デコード' },
+    ],
+    // ネット診断
+    [
+      { cmd:'ping -c 10 <IP> | grep "packet loss"',                     desc:'パケットロス確認' },
+      { cmd:'nmap -sn <net> | grep "Nmap scan report"',                 desc:'ホスト探索' },
+      { cmd:'dig ns <domain> +short',                                    desc:'NSレコード取得' },
+      { cmd:'curl -I <URL> | grep -i "Server"',                         desc:'Webサーバ種別' },
+      { cmd:'curl -s -o /dev/null -w "%{http_code}" <URL>',             desc:'稼働確認(HTTPコード)' },
+      { cmd:'host <IP>',                                                 desc:'逆引きDNS' },
+      { cmd:'curl -sI <URL> | grep "Content-Type"',                     desc:'Content-Type確認' },
+      { cmd:'timeout 2 bash -c "cat < /dev/null > /dev/tcp/<host>/<port>"', desc:'ポート確認' },
+      { cmd:'ip neigh show',                                             desc:'MACアドレス一覧' },
+      { cmd:'time dig @<DNS> google.com',                                desc:'DNS応答時間' },
+    ],
+    // システム情報
+    [
+      { cmd:'grep -c ^processor /proc/cpuinfo',                         desc:'CPUコア数' },
+      { cmd:'grep PRETTY_NAME /etc/os-release',                         desc:'OS確認' },
+      { cmd:'mount | column -t',                                         desc:'パーティション一覧' },
+      { cmd:'dmidecode -s system-serial-number',                        desc:'シリアル番号' },
+      { cmd:'echo $PATH | tr \':\' \'\\n\'',                             desc:'PATH一覧' },
+      { cmd:'cat /etc/shells',                                           desc:'シェル一覧' },
+      { cmd:'lspci | grep -i vga',                                       desc:'GPU情報' },
+      { cmd:'lastlog',                                                   desc:'最終ログイン一覧' },
+      { cmd:'uname -r',                                                  desc:'カーネルバージョン' },
+      { cmd:'locale',                                                    desc:'文字コード設定' },
+    ],
+    // 計算/日時
+    [
+      { cmd:'seq 1 93 | paste -sd+ | bc',                                desc:'1〜93の合計' },
+      { cmd:'echo "scale=4;<式>" | bc',                                  desc:'小数計算' },
+      { cmd:'date -d yesterday',                                          desc:'昨日の日時' },
+      { cmd:'date -d @<unix>',                                            desc:'UNIX時間→日時' },
+      { cmd:'stat -c %y <file>',                                          desc:'ファイル更新日' },
+      { cmd:'watch -n 10 "ls -A | wc -l"',                               desc:'ファイル数監視(10s)' },
+      { cmd:'cal',                                                        desc:'カレンダー表示' },
+      { cmd:'date +%j',                                                   desc:'年内経過日数' },
+      { cmd:'date',                                                       desc:'現在日時' },
+      { cmd:'seq $(date +%m) 12 | xargs -I{} cal {}',                    desc:'残り月カレンダー' },
+    ],
+  ];
+  let shellCatIdx  = 0;
+  let shellScroll  = 0;
+  let shellCursor  = 0;
 
   // ClaudeCode CODEX tab
   const CLAUDE_CATS = ['全て','起動','スラッシュ','MCP','設定','権限','パイプ'];
@@ -109,10 +244,11 @@ const menuModule = (function() {
   // ── Draw tab bar ──────────────────────────────────────────────────
   function drawTabBar() {
     const tabs = [
-      { id:'home',        label:'🏠HOME'       },
-      { id:'character',   label:'⚔CHAR'        },
-      { id:'codex',       label:'📖VIM'         },
-      { id:'claudecode',  label:'🤖CLAUDE'      },
+      { id:'home',        label:'🏠HOME'   },
+      { id:'character',   label:'⚔CHAR'   },
+      { id:'codex',       label:'📖VIM'    },
+      { id:'claudecode',  label:'🤖CLAUDE' },
+      { id:'shell',       label:'$SHELL'   },
     ];
     const tw = W / tabs.length;
     tabs.forEach(function(t, i) {
@@ -275,7 +411,7 @@ const menuModule = (function() {
     const shortcuts = [
       { id:'codex',     label:'📖 Vim CODEX',  color:'#ffaa44', cursor:7 },
       { id:'character', label:'⚔ キャラ装備',  color:'#ff88ff', cursor:8 },
-      { id:'community', label:'🌐 コミュニティ', color:'#4d96ff', cursor:9 },
+      { id:'shell',     label:'$ SHELL100選',  color:'#44ff88', cursor:9 },
     ];
     const shBW = Math.floor((W - 24) / 3);
     shortcuts.forEach(function(sh, i) {
@@ -389,7 +525,7 @@ const menuModule = (function() {
     ctx.fillStyle = '#334455';
     ctx.font = '9px monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('j/k:移動  Enter:決定  2:キャラ  3:CODEX  4:Claude  5:コミュニティ', W / 2, H - 36);
+    ctx.fillText('j/k:移動  Enter:決定  2:キャラ  3:VIM  4:Claude  5:SHELL  6:コミュニティ', W / 2, H - 36);
 
     drawVimStatusline();
   }
@@ -425,16 +561,8 @@ const menuModule = (function() {
         tab = 'codex'; codexScroll = 0; codexCursor = 0;
       } else if (item === 'character') {
         tab = 'character'; charCursor = 0; charSubState = 'main';
-      } else if (item === 'community') {
-        const sec = document.getElementById('community-section');
-        if (sec) { sec.scrollIntoView({ behavior: 'smooth' }); }
-        // Also expand community body if collapsed
-        const body = document.getElementById('community-body');
-        const btn  = document.getElementById('btn-community-toggle');
-        if (body && body.classList.contains('hidden')) {
-          body.classList.remove('hidden');
-          if (btn) btn.textContent = '折りたたむ ▲';
-        }
+      } else if (item === 'shell') {
+        tab = 'shell'; shellScroll = 0; shellCursor = 0;
       }
     }
 
@@ -443,7 +571,8 @@ const menuModule = (function() {
     if (justPressed('Digit2')) { tab = 'character'; charSubState = 'main'; charCursor = 0; }
     if (justPressed('Digit3')) { tab = 'codex'; codexScroll = 0; codexCursor = 0; }
     if (justPressed('Digit4')) { tab = 'claudecode'; claudeScroll = 0; claudeCursor = 0; }
-    if (justPressed('Digit5')) {
+    if (justPressed('Digit5')) { tab = 'shell'; shellScroll = 0; shellCursor = 0; }
+    if (justPressed('Digit6')) {
       const sec = document.getElementById('community-section');
       if (sec) sec.scrollIntoView({ behavior: 'smooth' });
     }
@@ -1304,6 +1433,128 @@ const menuModule = (function() {
   }
 
   // ─────────────────────────────────────────────────────────────────
+  // ── SHELL ONE-LINER TAB ──────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
+
+  function drawShell() {
+    drawStarBg();
+    drawHeader();
+    drawTabBar();
+
+    const catY = 58;
+    const catItems = SHELL_CATS;
+    const catW = Math.floor((W - 16) / catItems.length);
+    catItems.forEach(function(cat, i) {
+      const bx = 8 + i * catW;
+      const isSel = (shellCatIdx === i);
+      ctx.fillStyle = isSel ? 'rgba(20,60,10,0.9)' : 'rgba(10,20,5,0.6)';
+      ctx.fillRect(bx, catY, catW - 2, 18);
+      if (isSel) { ctx.strokeStyle = '#44ff44'; ctx.lineWidth = 1; ctx.strokeRect(bx, catY, catW - 2, 18); }
+      ctx.fillStyle = isSel ? '#44ff44' : '#337733';
+      ctx.font = '7px monospace';
+      ctx.textAlign = 'center';
+      const shortCat = cat.slice(0, 5);
+      ctx.fillText(shortCat, bx + (catW - 2) / 2, catY + 12);
+    });
+
+    const items = SHELL_DATA[shellCatIdx] || [];
+    const listY = catY + 24;
+    const rowH  = 36;
+    const listH = H - listY - 40;
+    const maxVisible = Math.floor(listH / rowH);
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, listY, W, listH);
+    ctx.clip();
+
+    items.slice(shellScroll, shellScroll + maxVisible).forEach(function(item, idx) {
+      const i = idx + shellScroll;
+      const by = listY + idx * rowH;
+      const isSel = (shellCursor === i);
+
+      ctx.fillStyle = isSel ? 'rgba(10,40,10,0.9)' : (idx % 2 === 0 ? 'rgba(5,15,5,0.6)' : 'transparent');
+      ctx.fillRect(4, by + 1, W - 8, rowH - 2);
+      if (isSel) {
+        ctx.strokeStyle = '#44ff44'; ctx.lineWidth = 1;
+        ctx.strokeRect(4, by + 1, W - 8, rowH - 2);
+      }
+
+      // Line number
+      ctx.fillStyle = '#336633';
+      ctx.font = '8px monospace'; ctx.textAlign = 'right';
+      ctx.fillText((i + 1), 22, by + 14);
+
+      // Command
+      ctx.fillStyle = isSel ? '#88ffaa' : '#44cc44';
+      ctx.font = 'bold 9px monospace'; ctx.textAlign = 'left';
+      const cmdStr = item.cmd.length > 54 ? item.cmd.slice(0, 52) + '…' : item.cmd;
+      ctx.fillText('$ ' + cmdStr, 26, by + 14);
+
+      // Description
+      ctx.fillStyle = '#779977';
+      ctx.font = '8px monospace';
+      ctx.fillText('# ' + item.desc, 26, by + 27);
+    });
+
+    ctx.restore();
+
+    // Scroll indicator
+    if (items.length > maxVisible) {
+      const sbX = W - 5, sbH = listH;
+      const thumbH = Math.max(12, (maxVisible / items.length) * sbH);
+      const thumbY = listY + (shellScroll / Math.max(1, items.length - maxVisible)) * (sbH - thumbH);
+      ctx.fillStyle = '#1a3a1a'; ctx.fillRect(sbX, listY, 4, sbH);
+      ctx.fillStyle = '#44aa44'; ctx.fillRect(sbX, thumbY, 4, thumbH);
+    }
+
+    // Bottom hint
+    ctx.fillStyle = '#336633';
+    ctx.font = '9px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('j/k:移動  h/l:カテゴリ  1-5:タブ  Enter:コピーして実行(ゲーム内コマンド適用)', W / 2, H - 26);
+
+    drawVimStatusline();
+  }
+
+  function updateShell() {
+    const items = SHELL_DATA[shellCatIdx] || [];
+    const maxVisible = Math.floor((H - 82 - 40) / 36);
+
+    if (justPressed('KeyJ') || justPressed('ArrowDown')) {
+      shellCursor = Math.min(shellCursor + 1, items.length - 1);
+      if (shellCursor >= shellScroll + maxVisible) shellScroll = shellCursor - maxVisible + 1;
+    }
+    if (justPressed('KeyK') || justPressed('ArrowUp')) {
+      shellCursor = Math.max(shellCursor - 1, 0);
+      if (shellCursor < shellScroll) shellScroll = shellCursor;
+    }
+    if (justPressed('KeyL') || justPressed('ArrowRight')) {
+      shellCatIdx = (shellCatIdx + 1) % SHELL_CATS.length;
+      shellScroll = 0; shellCursor = 0;
+    }
+    if (justPressed('KeyH') || justPressed('ArrowLeft')) {
+      shellCatIdx = (shellCatIdx - 1 + SHELL_CATS.length) % SHELL_CATS.length;
+      shellScroll = 0; shellCursor = 0;
+    }
+    if (isEnter()) {
+      const item = items[shellCursor];
+      if (item) {
+        // Copy to clipboard if available
+        if (navigator && navigator.clipboard) {
+          navigator.clipboard.writeText(item.cmd).catch(function() {});
+        }
+        addFlash('$ ' + item.cmd.slice(0, 48));
+      }
+    }
+    if (justPressed('Escape')) { tab = 'home'; }
+    if (justPressed('Digit1')) tab = 'home';
+    if (justPressed('Digit2')) { tab = 'character'; charSubState = 'main'; charCursor = 0; }
+    if (justPressed('Digit3')) { tab = 'codex'; codexScroll = 0; codexCursor = 0; }
+    if (justPressed('Digit4')) { tab = 'claudecode'; claudeScroll = 0; claudeCursor = 0; }
+    if (justPressed('Digit5')) { /* stay */ }
+  }
+
+  // ─────────────────────────────────────────────────────────────────
   // ── Public interface ─────────────────────────────────────────────
   // ─────────────────────────────────────────────────────────────────
 
@@ -1328,6 +1579,7 @@ const menuModule = (function() {
     else if (tab === 'character')  updateCharacter();
     else if (tab === 'codex')      updateCodex();
     else if (tab === 'claudecode') updateClaudeCode();
+    else if (tab === 'shell')      updateShell();
 
     // Global tab shortcuts (only apply if not already handled per-tab)
     if (tab !== 'home'      && justPressed('Digit1')) tab = 'home';
@@ -1342,6 +1594,7 @@ const menuModule = (function() {
     else if (tab === 'character')  drawCharacter();
     else if (tab === 'codex')      drawCodex();
     else if (tab === 'claudecode') drawClaudeCode();
+    else if (tab === 'shell')      drawShell();
     ctx.globalAlpha = 1;
   }
 
