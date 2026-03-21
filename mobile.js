@@ -7,27 +7,23 @@
   const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
   function initMobile() {
-    const touchControls = document.getElementById('touch-controls');
-    const kbdDisplay    = document.getElementById('kbd-display');
-    const canvas        = document.getElementById('gameCanvas');
-    if (!touchControls || !canvas) return;
+    const mobileControls = document.getElementById('mobile-controls');
+    const kbdDisplay     = document.getElementById('kbd-display');
+    const canvas         = document.getElementById('gameCanvas');
+    if (!mobileControls || !canvas) return;
 
     if (isTouchDevice) {
-      touchControls.classList.remove('hidden');
+      mobileControls.classList.remove('hidden');
+      mobileControls.classList.add('visible');
       if (kbdDisplay) kbdDisplay.classList.add('hidden');
     }
 
     // ── Canvas scaling ────────────────────────────────────────────
     function scaleCanvas() {
-      const gameArea = document.getElementById('game-area');
-      if (!gameArea) return;
       const maxW = Math.min(window.innerWidth - 8, 512);
       const scale = maxW / 512;
       canvas.style.width  = Math.round(512 * scale) + 'px';
       canvas.style.height = Math.round(480 * scale) + 'px';
-      // Scale touch controls overlay to match
-      touchControls.style.width  = canvas.style.width;
-      touchControls.style.height = canvas.style.height;
     }
     scaleCanvas();
     window.addEventListener('resize', scaleCanvas);
@@ -36,12 +32,9 @@
     });
 
     // ── Keyboard simulation via touch ─────────────────────────────
-    // Map key code strings to simulated KeyboardEvents
     function fireKey(code, type) {
-      let key = code;
-      // Convert code to key value for the event
       const codeKeyMap = {
-        'Space':'  ', 'ArrowLeft':'ArrowLeft', 'ArrowRight':'ArrowRight',
+        'Space':' ', 'ArrowLeft':'ArrowLeft', 'ArrowRight':'ArrowRight',
         'ArrowUp':'ArrowUp', 'ArrowDown':'ArrowDown', 'Escape':'Escape',
         'Enter':'Enter', 'KeyX':'x', 'KeyS':'s', 'KeyI':'i', 'KeyV':'v',
         'KeyH':'h', 'KeyJ':'j', 'KeyK':'k', 'KeyL':'l',
@@ -54,7 +47,7 @@
     }
 
     // ── Wire single-key buttons ───────────────────────────────────
-    const singleBtns = touchControls.querySelectorAll('[data-key]');
+    const singleBtns = mobileControls.querySelectorAll('[data-key]');
     singleBtns.forEach(function(btn) {
       const code = btn.getAttribute('data-key');
 
@@ -76,14 +69,13 @@
       });
     });
 
-    // ── Wire sequence buttons (dd / yy) ──────────────────────────
-    const seqBtns = touchControls.querySelectorAll('[data-key-seq]');
+    // ── Wire sequence buttons (dd / yy / ss) ─────────────────────
+    const seqBtns = mobileControls.querySelectorAll('[data-key-seq]');
     seqBtns.forEach(function(btn) {
       const seq = btn.getAttribute('data-key-seq');
       btn.addEventListener('touchstart', function(e) {
         e.preventDefault();
         btn.classList.add('touch-active');
-        // Fire each key in sequence
         for (let i = 0; i < seq.length; i++) {
           const c = seq[i].toUpperCase();
           const code = 'Key' + c;
@@ -99,9 +91,9 @@
       }, { passive: false });
     });
 
-    // ── D-pad: support holding (continuous press) ─────────────────
-    const dpadBtns = touchControls.querySelectorAll('.touch-dpad-left, .touch-dpad-right');
-    dpadBtns.forEach(function(btn) {
+    // ── D-pad left/right: support holding (continuous press) ─────
+    const dpadHeld = mobileControls.querySelectorAll('.mc-left, .mc-right');
+    dpadHeld.forEach(function(btn) {
       const code = btn.getAttribute('data-key');
       let held = false;
       btn.addEventListener('touchstart', function(e) {
@@ -159,10 +151,28 @@
     });
   }
 
+  // ── Vim reference toggle ──────────────────────────────────────
+  function initVimRef() {
+    const btn  = document.getElementById('btn-vim-ref-toggle');
+    const body = document.getElementById('vim-ref-body');
+    const hdr  = document.getElementById('vim-ref-header');
+    if (!btn || !body) return;
+    function toggle() {
+      const open = !body.classList.contains('hidden');
+      body.classList.toggle('hidden', open);
+      btn.textContent = open ? '開く ▼' : '折りたたむ ▲';
+    }
+    btn.addEventListener('click', toggle);
+    hdr.addEventListener('click', function(e) {
+      if (e.target !== btn) toggle();
+    });
+  }
+
   window.addEventListener('load', function() {
     initMobile();
     initSupport();
     initFooterLinks();
+    initVimRef();
   });
 
 })();

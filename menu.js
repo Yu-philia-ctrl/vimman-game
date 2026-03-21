@@ -293,35 +293,95 @@ const menuModule = (function() {
       ctx.fillText(sh.label, bx + bw / 2, shortY + 18);
     });
 
-    // ── Vim Command quickref strip ────────────────────────────────
-    const qrY = shortY + 36;
+    // ── Character Roster ─────────────────────────────────────────
+    const crY = shortY + 36;
     ctx.fillStyle = 'rgba(0,0,20,0.7)';
-    ctx.fillRect(8, qrY, W - 16, 58);
-    ctx.strokeStyle = '#223344';
+    ctx.fillRect(8, crY, W - 16, 96);
+    ctx.strokeStyle = '#223355';
     ctx.lineWidth = 1;
-    ctx.strokeRect(8, qrY, W - 16, 58);
-    ctx.fillStyle = '#556688';
+    ctx.strokeRect(8, crY, W - 16, 96);
+    ctx.fillStyle = '#5577aa';
     ctx.font = '9px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('── 最近アンロックしたコマンド ──', 16, qrY + 12);
+    ctx.fillText('── キャラクター一覧 ──', 16, crY + 12);
+    ctx.fillStyle = '#334455';
+    ctx.font = '8px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('2キーでキャラ画面', W - 14, crY + 12);
 
-    // Show last 3 unlocked commands
-    if (window.VIM_CMD_DB && window.SAVE) {
-      const unlockeds = window.VIM_CMD_DB.filter(function(c){ return window.SAVE.unlockedCmds[c.id]; });
-      const recent = unlockeds.slice(-6);
-      recent.forEach(function(cmd, i) {
-        const cx = 16 + i * 82;
-        ctx.fillStyle = TIER_COLORS[cmd.tier] || '#aaaacc';
-        ctx.font = 'bold 9px monospace';
-        ctx.textAlign = 'left';
-        ctx.fillText(cmd.cmd, cx, qrY + 28);
-        ctx.fillStyle = '#667788';
-        ctx.font = '8px monospace';
-        ctx.fillText(cmd.desc.slice(0, 8), cx, qrY + 40);
-        ctx.fillStyle = '#334455';
-        ctx.fillText(cmd.cat, cx, qrY + 50);
-      });
-    }
+    const chars = window.CHARACTER_DEFS || [];
+    const clearedCount2 = s ? Object.keys(s.clearedWorlds).length : 0;
+    const curCharId = (s && s.character) || 'vimman';
+    const crCardW = Math.floor((W - 24) / 5);
+    chars.slice(0, 5).forEach(function(ch, i) {
+      const cx = 12 + i * crCardW;
+      const cy = crY + 18;
+      const cw = crCardW - 4;
+      const ch2 = 72;
+      const isActive = (curCharId === ch.id);
+      const isLocked = ch.unlockReq !== null && clearedCount2 < ch.unlockReq;
+      const isPremium = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
+
+      ctx.fillStyle = isActive ? 'rgba(20,60,30,0.85)' : (isLocked ? 'rgba(20,10,10,0.6)' : 'rgba(10,15,40,0.7)');
+      ctx.fillRect(cx, cy, cw, ch2);
+      ctx.strokeStyle = isActive ? '#44ff88' : (isLocked ? '#553322' : '#224466');
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx, cy, cw, ch2);
+
+      // Portrait
+      if (isLocked) {
+        ctx.fillStyle = '#445566';
+        ctx.font = '16px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('🔒', cx + cw / 2, cy + 32);
+      } else {
+        _drawCharPortrait(ch.id, cx + cw / 2, cy + 30, 1.1);
+      }
+
+      // Name
+      ctx.fillStyle = isActive ? '#44ff88' : (isLocked ? '#556677' : '#aaccdd');
+      ctx.font = isActive ? 'bold 8px monospace' : '8px monospace';
+      ctx.textAlign = 'center';
+      const shortName = (ch.name || ch.id).split(' ')[0].slice(0, 7);
+      ctx.fillText(shortName, cx + cw / 2, cy + 52);
+
+      // Status badge
+      if (isActive) {
+        ctx.fillStyle = '#44ff88';
+        ctx.font = '7px monospace';
+        ctx.fillText('▶使用中', cx + cw / 2, cy + 62);
+      } else if (isLocked && isPremium) {
+        ctx.fillStyle = '#ffaa44';
+        ctx.font = '7px monospace';
+        ctx.fillText('💎World' + ch.unlockReq, cx + cw / 2, cy + 62);
+      } else if (isLocked) {
+        ctx.fillStyle = '#886644';
+        ctx.font = '7px monospace';
+        ctx.fillText('W' + ch.unlockReq + '制覇', cx + cw / 2, cy + 62);
+      } else {
+        // Stats mini
+        ctx.fillStyle = '#556688';
+        ctx.font = '7px monospace';
+        ctx.fillText('HP' + ch.hp + ' ATK' + ch.atk, cx + cw / 2, cy + 62);
+      }
+
+      // FREE / PREMIUM tag
+      if (isPremium) {
+        ctx.fillStyle = 'rgba(200,120,0,0.8)';
+        ctx.fillRect(cx, cy, cw, 10);
+        ctx.fillStyle = '#ffdd88';
+        ctx.font = 'bold 7px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('UNLOCK', cx + cw / 2, cy + 8);
+      } else {
+        ctx.fillStyle = 'rgba(0,80,0,0.7)';
+        ctx.fillRect(cx, cy, cw, 10);
+        ctx.fillStyle = '#88ff88';
+        ctx.font = 'bold 7px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('FREE', cx + cw / 2, cy + 8);
+      }
+    });
 
     // ── Bottom hint ───────────────────────────────────────────────
     ctx.fillStyle = '#334455';
@@ -523,16 +583,16 @@ const menuModule = (function() {
 
     // ── Character select button ───────────────────────────────────
     const csBtnY = 68;
-    const isCsBtnSel = (charCursor === -1); // special slot above equip slots
-    ctx.fillStyle = 'rgba(30,60,10,0.7)';
+    const isCsBtnSel = (charCursor === -1);
+    ctx.fillStyle = isCsBtnSel ? 'rgba(50,100,20,0.9)' : 'rgba(30,60,10,0.7)';
     ctx.fillRect(8, csBtnY, W - 16, 26);
-    ctx.strokeStyle = '#44ff88';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = isCsBtnSel ? '#88ff44' : '#44ff88';
+    ctx.lineWidth = isCsBtnSel ? 2 : 1;
     ctx.strokeRect(8, csBtnY, W - 16, 26);
-    ctx.fillStyle = '#44ff88';
+    ctx.fillStyle = isCsBtnSel ? '#aaffaa' : '#44ff88';
     ctx.font = 'bold 10px monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('⚔ キャラクター変更', 18, csBtnY + 17);
+    ctx.fillText('⚔ キャラクター変更  [Enter/l で選択画面へ]', 18, csBtnY + 17);
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 10px monospace';
     ctx.textAlign = 'right';
@@ -774,17 +834,21 @@ const menuModule = (function() {
     if (justPressed('KeyJ') || justPressed('ArrowDown'))
       charCursor = Math.min(charCursor + 1, totalItems - 1);
     if (justPressed('KeyK') || justPressed('ArrowUp'))
-      charCursor = Math.max(charCursor - 1, 0);
+      charCursor = Math.max(charCursor - 1, -1);
+
+    function openCharSelect() {
+      charSubState = 'charselect';
+      const chars = window.CHARACTER_DEFS || [];
+      const curId = (window.SAVE && window.SAVE.character) || 'vimman';
+      charSelectCursor = Math.max(0, chars.findIndex(function(c){ return c.id === curId; }));
+    }
+
+    if (charCursor === -1 && (isEnter() || justPressed('KeyL'))) {
+      openCharSelect();
+      return;
+    }
 
     if (isEnter() || justPressed('KeyL')) {
-      if (charCursor === 0 && justPressed('KeyL')) {
-        // Leading 'l' on first item — open char select
-        charSubState = 'charselect';
-        const chars = window.CHARACTER_DEFS || [];
-        const curId = (window.SAVE && window.SAVE.character) || 'vimman';
-        charSelectCursor = Math.max(0, chars.findIndex(function(c){ return c.id === curId; }));
-        return;
-      }
       if (charCursor < 3) {
         // Equipment slot
         const slot = ['weapon', 'armor', 'accessory'][charCursor];
@@ -813,13 +877,8 @@ const menuModule = (function() {
       }
     }
 
-    // c key = open character select
-    if (justPressed('KeyC')) {
-      charSubState = 'charselect';
-      const chars = window.CHARACTER_DEFS || [];
-      const curId = (window.SAVE && window.SAVE.character) || 'vimman';
-      charSelectCursor = Math.max(0, chars.findIndex(function(c){ return c.id === curId; }));
-    }
+    // c key = open character select (shortcut)
+    if (justPressed('KeyC')) openCharSelect();
 
     if (justPressed('Escape') || justPressed('KeyH')) {
       tab = 'home';
