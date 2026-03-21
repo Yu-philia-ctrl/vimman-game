@@ -168,6 +168,8 @@ const vimmanGame = (function() {
       _mapVariant: pickMapVariant(wid, sid),
       _bossType: isBoss ? (wid === 50 ? 4 : wid <= 10 ? 0 : wid <= 20 ? 1 : wid <= 30 ? 2 : 3) : 0,
       _bossBehavior: isBoss ? (wid <= 8 ? 'ground' : wid <= 15 ? 'flying' : wid <= 24 ? 'giant' : wid <= 34 ? 'teleporter' : wid <= 44 ? 'summoner' : 'chaos') : 'ground',
+      _bossTheme: isBoss ? (wid <= 12 ? 'robot' : wid <= 25 ? 'dragon' : wid <= 38 ? 'mage' : wid <= 49 ? 'machine' : 'void') : 'robot',
+      _bossWeakness: isBoss ? (['mage','swordsman','archer','vimman','claudeman','warrior'][wid % 6]) : 'vimman',
     };
   }
 
@@ -1071,9 +1073,11 @@ const vimmanGame = (function() {
     { name:'NULL DRAGON',   color:'#ff0044', color2:'#ff88aa', eyeCol:'#ffff00', bg:'#1a0008' },
   ];
 
-  function VimBoss(hpMul, bossType, bossBehavior) {
+  function VimBoss(hpMul, bossType, bossBehavior, bossTheme, bossWeakness) {
     this.type = bossType || 0;
     this.behavior = bossBehavior || 'ground';
+    this.theme   = bossTheme   || 'robot';
+    this.weakness = bossWeakness || 'vimman';
     const def = BOSS_DEFS[this.type];
     const base = Math.round(28*(hpMul||1));
     // Giant boss gets 2x HP and 2x size
@@ -1109,6 +1113,16 @@ const vimmanGame = (function() {
     this.laserActive = 0;
     this.slowCD = 0;
     this.missileCD = 0;
+    // New: theme/weakness/attack pattern system
+    this.shieldTimer = 0;
+    this.shieldCD    = 300;
+    this.atkPattern  = 0;
+    this.atkTimer    = 0;
+    this.beamTimer   = 0;
+    this.beamAngle   = 0;
+    this.storedBullets = [];
+    this.enrageTimer = 0;
+    this.name = (BOSS_DEFS[this.type] || {}).name || 'BOSS';
   }
   VimBoss.prototype.update = function(player, bullets) {
     if (this.dead) { this.deathTimer--; return; }
@@ -1118,13 +1132,33 @@ const vimmanGame = (function() {
     if (this.phase > this.lastPhase) {
       this.lastPhase = this.phase;
       const msgs = ['', 'PHASE 2! 速度UP!', 'ENRAGE!! 最終形態!!'];
-      addFlash('⚠ ' + (BOSS_DEFS[this.type]||{}).name + ' ── ' + (msgs[this.phase-1]||'PHASE '+this.phase+'!'));
+      addFlash('! ' + (BOSS_DEFS[this.type]||{}).name + ' -- ' + (msgs[this.phase-1]||'PHASE '+this.phase+'!'));
       spawnExplosion(this.x+this.w/2, this.y+this.h/2, 20, (BOSS_DEFS[this.type]||{}).color||'#ffffff');
       this.invTimer = 30;
       bossWarnTimer = 80;
-      bossWarnMsg = '⚠ PHASE ' + this.phase + ' !! ⚠';
+      bossWarnMsg = 'PHASE ' + this.phase + ' !!';
       screenFlash = 15;
     }
+    // ── Shared attack phase system ────────────────────────────
+    // Enrage at low HP
+    if (this.hp < this.maxHp * 0.3 && this.enrageTimer <= 0) {
+      this.enrageTimer = 999999;
+      screenFlash = 20;
+      addFlash('ENRAGE! ' + this.name + ' が怒り狂った!');
+    }
+    var enraged = this.enrageTimer > 0;
+    // Shield cycle
+    if (this.shieldCD > 0) {
+      this.shieldCD--;
+    } else if (this.shieldTimer <= 0 && this.phase >= 2) {
+      this.shieldTimer = enraged ? 80 : 50;
+      this.shieldCD = enraged ? 200 : 350;
+      screenFlash = 6;
+      addFlash('SHIELD! ' + this.name + ' がシールドを展開!');
+    }
+    if (this.shieldTimer > 0) this.shieldTimer--;
+    // Attack pattern timer
+    if (this.atkTimer > 0) { this.atkTimer--; }
     // ── Behavior-based movement overrides ────────────────────
     const behaviorSpd = (this.phase===3 ? 5.5 : this.phase===2 ? 4.5 : 3.5) * (1 + this.type * 0.1);
 
@@ -1138,8 +1172,40 @@ const vimmanGame = (function() {
         this.vy += (this.flyTargetY - this.y) * 0.04 - this.vy * 0.1;
         if (this.swoopTimer <= 0) {
           this.swoopState = 1; this.swoopTimer = 60;
-          addFlash('⚡ ' + (BOSS_DEFS[this.type]||{}).name + ' ── SWOOP!');
-          bossWarnTimer = 40; bossWarnMsg = '⚠ SWOOP!! DODGE!';
+          addFlash('! ' + (BOSS_DEFS[this.type]||{}).name + ' -- SWOOP!');
+          bossWarnTimer = 40; bossWarnMsg = 'SWOOP!! DODGE!';
+        }
+        // Flying hover attack patterns
+        if (this.atkTimer <= 0) {
+          var fPat = this.atkPattern % 3;
+          var fBoss = this;
+          if (fPat === 0) {
+            // Aimed shot burst (3 delayed shots)
+            if (player) {
+              for (var fi = 0; fi < 3; fi++) {
+                setTimeout(function(boss, delay) { return function() {
+                  if (boss.dead) return;
+                  if (!player) return;
+                  var fdx = (player.x+8)-(boss.x+boss.w/2), fdy = (player.y+8)-(boss.y+boss.h/2);
+                  var fd = Math.sqrt(fdx*fdx+fdy*fdy)||1;
+                  bullets.push(new Bullet(boss.x+boss.w/2-4, boss.y+boss.h/2-4, fdx/fd*behaviorSpd*1.1, fdy/fd*behaviorSpd*1.1, false));
+                }; }(this, fi), fi*120);
+              }
+            }
+            this.atkTimer = enraged ? 60 : 100;
+          } else if (fPat === 1) {
+            // Radial burst
+            for (var fri = 0; fri < 12; fri++) {
+              var fang = fri*Math.PI/6 + Date.now()*0.001;
+              bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(fang)*behaviorSpd*0.9, Math.sin(fang)*behaviorSpd*0.9, false));
+            }
+            this.atkTimer = enraged ? 80 : 130;
+          } else {
+            // Dive bomb + spray
+            this.swoopState = 1; this.swoopTimer = 40;
+            this.atkTimer = enraged ? 90 : 140;
+          }
+          this.atkPattern++;
         }
       } else if (this.swoopState === 1) {
         // Swooping down at player
@@ -1213,6 +1279,44 @@ const vimmanGame = (function() {
           bullets.push(new Bullet(bx3-4,by4-4,Math.cos(a3)*behaviorSpd*0.9,Math.sin(a3)*behaviorSpd*0.9,false));
         }
       }
+      // Giant: pattern rotation attack system
+      if (this.atkTimer <= 0) {
+        var gpat = this.atkPattern % 4;
+        if (gpat === 0) {
+          // Stomp shockwave — horizontal spray at floor
+          for (var gsi = 0; gsi < 6; gsi++) {
+            var gsb = new Bullet(this.x+this.w/2-4, this.y+this.h-4, (gsi-2.5)*2.5, -3, false);
+            gsb.gravity = 0.35; gsb.bounceLeft = 1; bullets.push(gsb);
+          }
+          screenFlash = 5;
+          this.atkTimer = enraged ? 70 : 110;
+        } else if (gpat === 1) {
+          // Giant swing — large bullet both sides
+          var gswBoss = this;
+          [-1,1].forEach(function(dir) {
+            var gsw = new Bullet(gswBoss.x+gswBoss.w/2-12, gswBoss.y+gswBoss.h/2-12, dir*behaviorSpd*1.3, 0, false);
+            gsw.w=24; gsw.h=24; bullets.push(gsw);
+          });
+          this.atkTimer = enraged ? 60 : 100;
+        } else if (gpat === 2) {
+          // Meteor shower — bullets from above
+          var gmetBoss = this;
+          for (var gmi = 0; gmi < 5; gmi++) {
+            setTimeout(function(bx3m) { return function() {
+              bullets.push(new Bullet(bx3m, 0, 0, behaviorSpd*1.5, false));
+            }; }(player ? player.x + (Math.random()-0.5)*160 : this.x), gmi*100);
+          }
+          this.atkTimer = enraged ? 90 : 150;
+        } else {
+          // Spinning laser ring
+          for (var glr = 0; glr < 16; glr++) {
+            var glang = glr*Math.PI/8;
+            bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(glang)*behaviorSpd*1.1, Math.sin(glang)*behaviorSpd*1.1, false));
+          }
+          this.atkTimer = enraged ? 100 : 170;
+        }
+        this.atkPattern++;
+      }
       // Normal gravity + physics for giant
       this.vy += GRAVITY; if (this.vy>MAX_FALL) this.vy=MAX_FALL;
       this.onGround=false;
@@ -1252,6 +1356,51 @@ const vimmanGame = (function() {
         const ddx3=player.x+player.w/2-bx4, ddy3=player.y+player.h/2-by5;
         const dd3=Math.sqrt(ddx3*ddx3+ddy3*ddy3)||1;
         bullets.push(new Bullet(bx4-4,by5-4,ddx3/dd3*behaviorSpd,ddy3/dd3*behaviorSpd,false));
+      }
+      // Teleporter: blink attack pattern rotation
+      if (this.atkTimer <= 0 && this.teleCD <= 0) {
+        var tpPat = this.atkPattern % 3;
+        if (tpPat === 0) {
+          // Teleport above player + aimed burst
+          if (player) { this.x = player.x - this.w/2; this.y = 32; }
+          screenFlash = 8;
+          for (var tpi = 0; tpi < 6; tpi++) {
+            var tpang = tpi*Math.PI/3;
+            bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(tpang)*behaviorSpd, Math.sin(tpang)*behaviorSpd, false));
+          }
+          this.teleCD = enraged ? 60 : 90;
+          this.atkTimer = enraged ? 55 : 85;
+        } else if (tpPat === 1) {
+          // Rapid aimed triple
+          if (player) {
+            var tpdx = (player.x+8)-(this.x+this.w/2), tpdy = (player.y+8)-(this.y+this.h/2);
+            var tpd = Math.sqrt(tpdx*tpdx+tpdy*tpdy)||1;
+            for (var tpj = 0; tpj < 3; tpj++) {
+              setTimeout(function(boss, dx, dy, d) { return function() {
+                bullets.push(new Bullet(boss.x+boss.w/2-4, boss.y+boss.h/2-4, dx/d*behaviorSpd*1.2, dy/d*behaviorSpd*1.2, false));
+              }; }(this, tpdx, tpdy, tpd), tpj*80);
+            }
+          }
+          this.atkTimer = enraged ? 50 : 80;
+        } else {
+          // Surround blink — teleport to 4 corners rapidly
+          var tpCornersThis = this;
+          var corners = [
+            [BOSS_ARENA_START*TILE+32, 64],
+            [BOSS_ARENA_START*TILE+4*TILE, 64],
+            [BOSS_ARENA_START*TILE+32, (ROWS-3)*TILE],
+            [BOSS_ARENA_START*TILE+4*TILE, (ROWS-3)*TILE]
+          ];
+          corners.forEach(function(c, ci) {
+            setTimeout(function(boss, cx, cy) { return function() {
+              boss.x = cx; boss.y = cy; screenFlash = 4;
+              bullets.push(new Bullet(boss.x+boss.w/2-4, boss.y+boss.h/2-4, 0,  behaviorSpd, false));
+              bullets.push(new Bullet(boss.x+boss.w/2-4, boss.y+boss.h/2-4, 0, -behaviorSpd, false));
+            }; }(tpCornersThis, c[0], c[1]), ci*80);
+          });
+          this.atkTimer = enraged ? 120 : 200;
+        }
+        this.atkPattern++;
       }
       // Float in mid-air
       this.vy += GRAVITY * 0.15;
@@ -1341,6 +1490,54 @@ const vimmanGame = (function() {
           }
         }
       }
+      // Chaos: rotate through all patterns, faster, more bullets
+      if (this.atkTimer <= 0) {
+        var chPat = this.atkPattern % 5;
+        if (chPat === 0) {
+          // Aimed mega burst
+          if (player) {
+            for (var chi = -3; chi <= 3; chi++) {
+              var chdx = (player.x+8)-(this.x+this.w/2), chdy = (player.y+8)-(this.y+this.h/2);
+              var chd = Math.sqrt(chdx*chdx+chdy*chdy)||1;
+              bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, chdx/chd*behaviorSpd+chi*0.3, chdy/chd*behaviorSpd+chi*0.3, false));
+            }
+          }
+          this.atkTimer = enraged ? 35 : 55;
+        } else if (chPat === 1) {
+          // 16-way ring
+          for (var chr = 0; chr < 16; chr++) {
+            var chang = chr*Math.PI/8 + Date.now()*0.001;
+            bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(chang)*behaviorSpd*1.1, Math.sin(chang)*behaviorSpd*1.1, false));
+          }
+          this.atkTimer = enraged ? 45 : 70;
+        } else if (chPat === 2) {
+          // Wall sweep both directions
+          for (var chw = 0; chw < 5; chw++) {
+            bullets.push(new Bullet(this.x+this.w/2-4, this.y+chw*16-32, behaviorSpd, 0, false));
+            bullets.push(new Bullet(this.x+this.w/2-4, this.y+chw*16-32, -behaviorSpd, 0, false));
+          }
+          this.atkTimer = enraged ? 40 : 65;
+        } else if (chPat === 3) {
+          // Stomp + ring
+          screenFlash = 6;
+          for (var chs = 0; chs < 8; chs++) {
+            var chsang = chs*Math.PI/4;
+            bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(chsang)*behaviorSpd*0.9, Math.sin(chsang)*behaviorSpd*0.9, false));
+          }
+          this.atkTimer = enraged ? 50 : 80;
+        } else {
+          // Teleport + mega burst
+          this.x = (BOSS_ARENA_START + 2 + Math.random()*12)*TILE;
+          this.y = (3 + Math.random()*8)*TILE;
+          screenFlash = 8;
+          for (var chm = 0; chm < 20; chm++) {
+            var chmang = chm*Math.PI/10;
+            bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(chmang)*behaviorSpd*1.2, Math.sin(chmang)*behaviorSpd*1.2, false));
+          }
+          this.atkTimer = enraged ? 60 : 100;
+        }
+        this.atkPattern++;
+      }
       this.vy += GRAVITY * 0.12;
       this.vy = Math.max(-3, Math.min(3, this.vy));
       this.x += this.vx; resolveX(this);
@@ -1353,6 +1550,47 @@ const vimmanGame = (function() {
     }
     // 'ground' behavior falls through to existing type-specific logic below
     this.facing = player.x < this.x ? -1 : 1;
+    // Ground: pattern rotation attack system
+    if (this.behavior === 'ground' && this.atkTimer <= 0) {
+      var gPat = this.atkPattern % 4;
+      if (gPat === 0) {
+        // Aimed burst — 5 bullets spread at player
+        if (player) {
+          for (var ga = -2; ga <= 2; ga++) {
+            var gdx = (player.x+8) - (this.x+this.w/2);
+            var gdy = (player.y+8) - (this.y+this.h/2);
+            var gd = Math.sqrt(gdx*gdx+gdy*gdy)||1;
+            var gspd = behaviorSpd * 0.9;
+            var gsp = ga * 0.25;
+            bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, gdx/gd*gspd+gsp, gdy/gd*gspd+gsp, false));
+          }
+        }
+        this.atkTimer = enraged ? 60 : 90;
+      } else if (gPat === 1) {
+        // Shockwave — 8-direction spread
+        for (var gi = 0; gi < 8; gi++) {
+          var gang = gi * Math.PI/4;
+          bullets.push(new Bullet(this.x+this.w/2-4, this.y+this.h/2-4, Math.cos(gang)*behaviorSpd*0.8, Math.sin(gang)*behaviorSpd*0.8, false));
+        }
+        this.atkTimer = enraged ? 80 : 120;
+      } else if (gPat === 2) {
+        // Wall of bullets — horizontal line
+        for (var grow = 0; grow < 3; grow++) {
+          var goy = (grow-1) * 20;
+          bullets.push(new Bullet(this.x + (this.vx>=0?-10:this.w+10), this.y+goy+16, this.vx>=0?-behaviorSpd:behaviorSpd, 0, false));
+        }
+        this.atkTimer = enraged ? 50 : 80;
+      } else {
+        // Ground slam — spawn small bouncing bullets
+        for (var gbi = 0; gbi < 4; gbi++) {
+          var gb = new Bullet(this.x+this.w/2-4+gbi*12-24, this.y+this.h-4, (gbi-1.5)*1.5, -6, false);
+          gb.gravity = 0.4; gb.bounceLeft = 2;
+          bullets.push(gb);
+        }
+        this.atkTimer = enraged ? 70 : 110;
+      }
+      this.atkPattern++;
+    }
     const bx = this.x + this.w/2, by2 = this.y + this.h/2;
     const px = player.x + player.w/2, py = player.y + player.h/2;
     const dx = px - bx, dy = py - by2;
@@ -1570,6 +1808,10 @@ const vimmanGame = (function() {
   };
   VimBoss.prototype.takeDamage = function(n) {
     if (this.invTimer>0) return;
+    if (this.shieldTimer > 0) {
+      spawnExplosion(this.x + this.w/2, this.y + this.h/2, 3, '#4488ff');
+      return;
+    }
     this.health-=n; this.invTimer=30;
     if (this.health<=0) { this.health=0; this.dead=true; spawnExplosion(this.x+this.w/2,this.y+this.h/2,20); }
   };
@@ -1578,10 +1820,36 @@ const vimmanGame = (function() {
     if (this.invTimer>0 && Math.floor(this.invTimer/4)%2===0) return;
     const def = BOSS_DEFS[this.type];
     const x=this.x, y=this.y, BW=this.w, BH=this.h;
-    const pc = this.phase===2 ? def.color2 : def.color;
+    // Theme color override
+    var themeColors = {
+      robot:   { body: '#448888', detail: '#00ffff', eye: '#ff4444' },
+      dragon:  { body: '#884422', detail: '#ff6600', eye: '#ffff00' },
+      mage:    { body: '#442266', detail: '#aa44ff', eye: '#ff00ff' },
+      machine: { body: '#334455', detail: '#44aaff', eye: '#ff2200' },
+      void:    { body: '#110022', detail: '#cc00ff', eye: '#ffffff' },
+    };
+    var tc = themeColors[this.theme] || themeColors.robot;
+    const pc = this.phase===2 ? def.color2 : tc.body;
     ctx.save();
     if (this.dead) ctx.globalAlpha=0.5+0.5*Math.sin(this.deathTimer*0.3);
     if (this.facing===1) { ctx.translate(x+BW/2,y); ctx.scale(-1,1); ctx.translate(-(x+BW/2),-y); }
+
+    // Dragon theme wings (behind body)
+    if (this.theme === 'dragon') {
+      ctx.fillStyle = tc.detail;
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(x, y+BH/2);
+      ctx.lineTo(x-40, y-20);
+      ctx.lineTo(x-10, y+BH*0.3);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x+BW, y+BH/2);
+      ctx.lineTo(x+BW+40, y-20);
+      ctx.lineTo(x+BW+10, y+BH*0.3);
+      ctx.closePath(); ctx.fill();
+      ctx.globalAlpha = this.dead ? 0.5+0.5*Math.sin(this.deathTimer*0.3) : 1;
+    }
 
     // Phase 2 aura
     if (this.phase===2) {
@@ -1594,6 +1862,14 @@ const vimmanGame = (function() {
     ctx.fillStyle=pc; ctx.fillRect(x,y+16,BW,BH-30);
     ctx.fillStyle=def.color2; ctx.fillRect(x,y+20,BW,4); ctx.fillRect(x,y+34,BW,4);
     ctx.fillStyle=pc; ctx.fillRect(x+4,y,BW-8,20);
+    // Robot/machine theme mechanical details
+    if (this.theme === 'robot' || this.theme === 'machine') {
+      ctx.fillStyle = tc.detail;
+      ctx.fillRect(x+4, y+4, BW-8, 4);
+      ctx.fillRect(x+4, y+BH-8, BW-8, 4);
+      ctx.fillStyle = tc.eye;
+      ctx.beginPath(); ctx.arc(x+BW/2, y+BH*0.35, 6, 0, Math.PI*2); ctx.fill();
+    }
     // Type-specific head details
     if (this.type===1) { // NullPointer — angular visor
       ctx.fillStyle='#002233'; ctx.fillRect(x+4,y,BW-8,20);
@@ -1611,8 +1887,8 @@ const vimmanGame = (function() {
       ctx.fillRect(x+4,y+7,8,6); ctx.fillRect(x+BW-12,y+7,8,6);
       ctx.fillRect(x+BW/2-4,y+3,8,5);
     }
-    // Eyes
-    ctx.fillStyle=def.eyeCol;
+    // Eyes — use theme eye color
+    ctx.fillStyle=tc.eye;
     ctx.fillRect(x+8,y+7,10,8); ctx.fillRect(x+BW-18,y+7,10,8);
     ctx.fillStyle='#000000';
     ctx.fillRect(x+10,y+9,4,5); ctx.fillRect(x+BW-14,y+9,4,5);
@@ -1621,10 +1897,42 @@ const vimmanGame = (function() {
     ctx.fillStyle='#330011'; ctx.fillRect(x,y-10,BW,6);
     ctx.fillStyle=hpPct>0.5?'#ff4444':hpPct>0.25?'#ff8800':'#ff0000';
     ctx.fillRect(x,y-10,BW*hpPct,6);
-    // Boss name + behavior label
+    // Enrage aura
+    if (this.enrageTimer > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = '#ff2200';
+      ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 30;
+      ctx.beginPath();
+      ctx.arc(x+BW/2, y+BH/2, BW*0.8, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1; ctx.restore();
+    }
+    // Shield visual
+    if (this.shieldTimer > 0) {
+      ctx.save();
+      ctx.globalAlpha = 0.5 + 0.3 * Math.sin(Date.now()*0.02);
+      ctx.strokeStyle = '#4488ff';
+      ctx.lineWidth = 4;
+      ctx.shadowColor = '#4488ff'; ctx.shadowBlur = 16;
+      ctx.beginPath();
+      ctx.arc(x + BW/2, y + BH/2, Math.max(BW,BH)*0.65, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
+    // Boss name + behavior label + theme icon
     ctx.fillStyle=def.color; ctx.font='bold 8px monospace'; ctx.textAlign='center';
-    const behaviorLabel = {'flying':'✈','giant':'⚡','teleporter':'⚡','summoner':'🔮','chaos':'💥','ground':''}[this.behavior]||'';
-    ctx.fillText(behaviorLabel + ' ' + def.name, x+BW/2, y-13);
+    const behaviorLabel = {flying:'F',giant:'G',teleporter:'T',summoner:'S',chaos:'X',ground:''}[this.behavior]||'';
+    var themeLabel = {robot:'[R]',dragon:'[D]',mage:'[M]',machine:'[MC]',void:'[V]'}[this.theme]||'';
+    ctx.fillText(themeLabel + behaviorLabel + ' ' + def.name, x+BW/2, y-13);
+    // Weakness indicator
+    ctx.save();
+    ctx.globalAlpha = 0.5 + 0.3*Math.sin(Date.now()*0.004);
+    ctx.fillStyle = '#ffff44';
+    ctx.font = '8px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('weak:' + (this.weakness||'?'), x+BW/2, y - 22);
+    ctx.restore();
     // Behavior-specific visuals
     if (this.behavior === 'flying') {
       // Draw wings
@@ -1762,8 +2070,8 @@ const vimmanGame = (function() {
     def.bees.forEach(function(d)  { vm_enemies.push(new Bee(d[0]*TILE, d[1]*TILE, spd)); });
     def.tanks.forEach(function(c) { vm_enemies.push(new Tank(c*TILE, 7*TILE, spd)); });
     // Only spawn boss if isBoss (last stage of world)
-    if (def.bossHPMul > 0) vm_boss = new VimBoss(def.bossHPMul, def._bossType || 0, def._bossBehavior || 'ground');
-    else vm_boss = new VimBoss(0.3, 0, 'ground');
+    if (def.bossHPMul > 0) vm_boss = new VimBoss(def.bossHPMul, def._bossType || 0, def._bossBehavior || 'ground', def._bossTheme || 'robot', def._bossWeakness || 'vimman');
+    else vm_boss = new VimBoss(0.3, 0, 'ground', 'robot', 'vimman');
   }
 
   // ── Special moves ─────────────────────────────────────────
@@ -3140,7 +3448,13 @@ const vimmanGame = (function() {
         }
       });
       if (vm_bossTriggered&&vm_boss&&!vm_boss.dead&&!b.dead&&overlaps(b,vm_boss)) {
-        vm_boss.takeDamage(dmg); b.dead=true; score+=50; addVimXP(1);
+        var bossDmg = dmg;
+        var charId = (window.SAVE && window.SAVE.character) || 'vimman';
+        if (vm_boss.weakness === charId) {
+          bossDmg *= 2;
+          addFlash('WEAKNESS HIT! ' + charId + ' 2x damage!');
+        }
+        vm_boss.takeDamage(bossDmg); b.dead=true; score+=50; addVimXP(1);
         spawnExplosion(b.x,b.y,3);
       }
     }
