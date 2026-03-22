@@ -7,7 +7,7 @@ body {
   color: #aabbcc;
   display: flex;
   justify-content: center;
-  padding: 8px 0 24px;
+  padding: 8px 0 100px; /* bottom pad for sticky ad */
 }
 
 /* ── App wrapper ── */
@@ -265,6 +265,41 @@ body {
   width: 100%;
 }
 .ad-placeholder-side { min-height: 250px; width: 150px; }
+
+/* 300x250 rectangle slot */
+.ad-slot-rect {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0;
+}
+
+/* ── スティッキーボトムバナー ── */
+#sticky-ad-bottom {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0, 0, 16, 0.97);
+  border-top: 1px solid rgba(85,153,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 6px 40px 6px 8px;
+  min-height: 70px;
+}
+#sticky-ad-close {
+  position: absolute;
+  top: 4px; right: 8px;
+  background: rgba(40,40,80,0.8);
+  border: 1px solid #334;
+  color: #8899aa;
+  font-size: 14px;
+  width: 22px; height: 22px;
+  border-radius: 3px;
+  cursor: pointer;
+  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+#sticky-ad-close:hover { color: #fff; background: rgba(80,40,80,0.8); }
 
 /* ── Game area ── */
 #game-area {
@@ -835,7 +870,7 @@ body {
 
 /* ── Mobile responsive ── */
 @media (max-width: 600px) {
-  body { padding: 0; }
+  body { padding: 0 0 70px; }
   #app-wrapper { gap: 4px; }
   #toolbar { padding: 4px 8px; }
   #toolbar-title { font-size: 13px; }

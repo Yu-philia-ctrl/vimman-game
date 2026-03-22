@@ -137,7 +137,7 @@
 
     <!-- Main game area -->
     <div id="game-area">
-      <canvas id="gameCanvas" width="512" height="480" tabindex="0" autofocus></canvas>
+      <canvas id="gameCanvas" width="640" height="600" tabindex="0" autofocus></canvas>
     </div>
 
     <!-- AdSense サイドバー（160×600 デスクトップのみ） -->
@@ -688,6 +688,15 @@
     </div><!-- end community-body -->
   </div><!-- end community-section -->
 
+  <!-- ── 追加広告スロット: キャンバス下 300x250 ── -->
+  <div class="ad-slot ad-slot-rect" id="ad-rect">
+    <ins class="adsbygoogle"
+         style="display:inline-block;width:300px;height:250px"
+         data-ad-client="ca-pub-3016615146886765"
+         data-ad-slot="auto"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
   <!-- Site footer -->
   <footer id="site-footer">
     <div class="footer-inner">
@@ -705,6 +714,18 @@
   </footer>
 
 </div><!-- end app-wrapper -->
+
+<!-- ── スティッキーボトムバナー（常時固定表示） ── -->
+<div id="sticky-ad-bottom">
+  <button id="sticky-ad-close" onclick="this.parentElement.style.display='none'" title="閉じる">×</button>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-3016615146886765"
+       data-ad-slot="auto"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
 
 <script src="audio.js"></script>
 <script src="core.js"></script>
