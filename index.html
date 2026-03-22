@@ -12,6 +12,8 @@
   <meta property="og:description" content="Vimコマンドで戦うアクションRPG — 無料ブラウザゲーム">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="style.css">
+  <!-- ★ Google AdSense: ca-pub-XXXXXXXXXXXXXXXX を自分のIDに差し替え -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
   <!-- Auth early-redirect: runs before DOM renders -->
   <script src="auth.js"></script>
   <script src="premium.js"></script>
@@ -119,14 +121,15 @@
     </div>
   </div>
 
-  <!-- Ad banner slot (top) — replace with actual AdSense tag -->
+  <!-- Ad banner slot (top) — ★ data-ad-slot="XXXXXXXXXX" を実際のスロットIDに差し替え -->
   <div class="ad-slot ad-slot-top" id="ad-top">
-    <!-- Google AdSense: 728x90 leaderboard
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-         data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+         data-ad-slot="1111111111"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    -->
-    <div class="ad-placeholder">広告スペース — Sponsor this space</div>
   </div>
 
   <!-- Main layout: game + optional side ad -->
@@ -137,15 +140,44 @@
       <canvas id="gameCanvas" width="512" height="480" tabindex="0" autofocus></canvas>
     </div>
 
-    <!-- Side ad slot — desktop only -->
+    <!-- Side ad slot — desktop only ★ data-ad-slot="XXXXXXXXXX" を差し替え -->
     <div class="ad-slot ad-slot-side" id="ad-side">
-      <!-- Google AdSense: 300x250
-      <ins class="adsbygoogle" ...></ins>
-      -->
-      <div class="ad-placeholder ad-placeholder-side">広告スペース<br>300×250</div>
+      <ins class="adsbygoogle"
+           style="display:inline-block;width:160px;height:600px"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+           data-ad-slot="2222222222"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
 
   </div><!-- end main-layout -->
+
+  <!-- ── Amazon アソシエイト おすすめ書籍バー ── -->
+  <!-- ★ ?tag=YOURTAG-22 の「YOURTAG」をAmazonアソシエイトのトラッキングIDに差し替え -->
+  <div id="amzn-bar">
+    <div class="amzn-bar-label">📚 VimManプレイヤーにおすすめ</div>
+    <div class="amzn-books">
+      <a class="amzn-book" href="https://www.amazon.co.jp/s?k=実践vim&tag=YOURTAG-22" target="_blank" rel="noopener sponsored">
+        <div class="amzn-book-icon">📗</div>
+        <div class="amzn-book-title">実践 Vim</div>
+        <div class="amzn-book-sub">Amazonで見る →</div>
+      </a>
+      <a class="amzn-book" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門&tag=YOURTAG-22" target="_blank" rel="noopener sponsored">
+        <div class="amzn-book-icon">🐧</div>
+        <div class="amzn-book-title">Linux コマンド入門</div>
+        <div class="amzn-book-sub">Amazonで見る →</div>
+      </a>
+      <a class="amzn-book" href="https://www.amazon.co.jp/s?k=プログラマー+キーボード&tag=YOURTAG-22" target="_blank" rel="noopener sponsored">
+        <div class="amzn-book-icon">⌨</div>
+        <div class="amzn-book-title">プログラマー向けキーボード</div>
+        <div class="amzn-book-sub">Amazonで見る →</div>
+      </a>
+      <a class="amzn-book" href="https://www.amazon.co.jp/s?k=シェルスクリプト+入門&tag=YOURTAG-22" target="_blank" rel="noopener sponsored">
+        <div class="amzn-book-icon">💻</div>
+        <div class="amzn-book-title">シェルスクリプト入門</div>
+        <div class="amzn-book-sub">Amazonで見る →</div>
+      </a>
+    </div>
+  </div>
 
   <!-- ── Mobile touch controls (below canvas, touch devices only) ── -->
   <div id="mobile-controls" class="hidden">
