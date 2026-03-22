@@ -2,7 +2,7 @@
 
 const canvas = document.getElementById('gameCanvas');
 const ctx    = canvas.getContext('2d');
-const W = 640;
+const W = 800;
 const H = 600;
 
 const keys = {}, prevKeys = {};

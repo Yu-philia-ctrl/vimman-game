@@ -38,11 +38,22 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-// Init audio (resumes on user interaction per browser policy)
+// Init audio (Web Audio API requires user gesture before playback)
 if (window.GameAudio) {
   window.GameAudio.init();
-  document.addEventListener('click',  function(){ window.GameAudio.resume(); });
-  document.addEventListener('keydown', function(){ window.GameAudio.resume(); });
+  var _audioUnlocked = false;
+  function _unlockAudio() {
+    if (_audioUnlocked) return;
+    _audioUnlocked = true;
+    window.GameAudio.resume();
+    // Small delay to let AudioContext.resume() settle, then start BGM
+    setTimeout(function() {
+      if (currentGame === 'menu') window.GameAudio.playBGM('home');
+    }, 150);
+  }
+  document.addEventListener('click',   _unlockAudio);
+  document.addEventListener('keydown',  _unlockAudio);
+  document.addEventListener('touchstart', _unlockAudio);
 }
 
 menuModule.init();

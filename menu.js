@@ -8,7 +8,8 @@ const menuModule = (function() {
     STARS.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()<0.3?2:1 });
 
   // ── State ─────────────────────────────────────────────────────────
-  let tab = 'home';  // 'home' | 'character' | 'codex' | 'claudecode' | 'shell'
+  let tab = 'home';  // 'home' | 'character' | 'codex' | 'claudecode' | 'shell' | 'community'
+  let commScroll = 0;
 
   // HOME tab
   const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'linuxbattle', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'shell'];
@@ -494,12 +495,19 @@ const menuModule = (function() {
       const cw = crCardW - 4;
       const ch2 = 62;
       const isActive = (curCharId === ch.id);
-      const isPremiumChar = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
-      const hasPremium = window.GamePremium && window.GamePremium.isPremium();
+      const isPremiumChar = (ch.id === 'mage' || ch.id === 'berserker');
+      const isSponsorChar = (ch.unlockCondition === 'sponsor');
+      const isLbChar     = (ch.unlockCondition === 'lb30');
+      const hasPremium   = window.GamePremium && window.GamePremium.isPremium();
+      const lbChCleared  = (window.SAVE && window.SAVE.lb_chapter) || 0;
       const isLocked = isPremiumChar
         ? !hasPremium
-        : (ch.unlockReq !== null && clearedCount2 < ch.unlockReq);
-      const isPremium = isPremiumChar;
+        : isSponsorChar
+          ? !hasPremium
+          : isLbChar
+            ? lbChCleared < 30
+            : (ch.unlockReq !== null && clearedCount2 < ch.unlockReq);
+      const isPremium = isPremiumChar || isSponsorChar;
 
       ctx.fillStyle = isActive ? 'rgba(20,60,30,0.85)' : (isLocked ? 'rgba(20,10,10,0.6)' : 'rgba(10,15,40,0.7)');
       ctx.fillRect(cx, cy, cw, ch2);
@@ -741,6 +749,51 @@ const menuModule = (function() {
       ctx.fillStyle='#888888'; ctx.fillRect(5,-8,3,20);
       ctx.fillStyle='#eeeeee'; ctx.fillRect(6,-8,1,20);
       ctx.fillStyle='#ffff44'; ctx.fillRect(5,-10,3,3);
+    } else if (charId === 'ninja') {
+      // Ninja — dark grey with blue scarf, shuriken
+      ctx.fillStyle='#1a1a2a'; ctx.fillRect(-7,4,14,13);
+      ctx.fillStyle='#2a2a3a'; ctx.fillRect(-6,-8,12,14);
+      ctx.fillStyle='#1a1a2a'; ctx.fillRect(-6,-10,12,4);
+      ctx.fillStyle='#3366aa'; ctx.fillRect(-8,-3,16,3); // scarf
+      ctx.fillStyle='#aabbcc'; ctx.fillRect(-2,-5,4,3);  // eyes visible
+      ctx.fillStyle='#88aaff'; ctx.fillRect(-1,-4,2,1); ctx.fillRect(1,-4,2,1);
+      // Shuriken (right hand)
+      ctx.fillStyle='#888888'; ctx.fillRect(6,-2,5,5);
+      ctx.fillStyle='#cccccc'; ctx.fillRect(7,-3,3,7); ctx.fillRect(4,0,9,1);
+    } else if (charId === 'hacker') {
+      // Hacker — hoodie with green terminal glow
+      ctx.fillStyle='#111122'; ctx.fillRect(-7,4,14,13);
+      ctx.fillStyle='#1a1a2a'; ctx.fillRect(-6,-8,12,14);
+      ctx.fillStyle='#111122'; ctx.fillRect(-7,-10,14,4); // hood
+      ctx.fillStyle='#00cc66'; ctx.fillRect(-4,-6,8,2);   // terminal glow on face
+      ctx.fillStyle='#00ff88'; ctx.fillRect(-3,-5,2,2); ctx.fillRect(1,-5,2,2); // eyes
+      // Laptop / terminal
+      ctx.fillStyle='#222233'; ctx.fillRect(5,2,7,5);
+      ctx.fillStyle='#00ff44'; ctx.fillRect(6,3,5,3);
+      ctx.fillStyle='#00cc33'; ctx.fillRect(7,4,1,1); ctx.fillRect(9,4,1,1);
+    } else if (charId === 'monk') {
+      // Monk — golden robes, holy aura
+      ctx.fillStyle='#aa8800'; ctx.fillRect(-7,4,14,13);
+      ctx.fillStyle='#ccaa00'; ctx.fillRect(-6,-8,12,14);
+      ctx.fillStyle='#ffdd44'; ctx.fillRect(-6,-12,12,6); // head
+      ctx.fillStyle='#ffeeaa'; ctx.fillRect(-4,-10,8,5);  // face
+      ctx.fillStyle='#8b6914'; ctx.fillRect(-3,-7,3,2); ctx.fillRect(0,-7,3,2);
+      // Staff
+      ctx.fillStyle='#884400'; ctx.fillRect(5,-14,3,26);
+      ctx.fillStyle='#ffdd00'; ctx.fillRect(3,-15,7,4);
+      ctx.fillStyle='#ffffff'; ctx.fillRect(5,-16,3,2);
+    } else if (charId === 'berserker') {
+      // Berserker — massive blood-red brute
+      ctx.fillStyle='#6a0000'; ctx.fillRect(-9,3,18,14);
+      ctx.fillStyle='#880000'; ctx.fillRect(-8,-8,16,13);
+      ctx.fillStyle='#440000'; ctx.fillRect(-8,-12,16,6); // horned helmet
+      ctx.fillStyle='#660000'; ctx.fillRect(-12,-8,4,6); ctx.fillRect(8,-8,4,6); // pauldrons
+      ctx.fillStyle='#ff4444'; ctx.fillRect(-4,-6,4,3); ctx.fillRect(0,-6,4,3); // eyes
+      ctx.fillStyle='#cc0000'; ctx.fillRect(-2,-5,2,2); ctx.fillRect(2,-5,2,2);
+      // Axe
+      ctx.fillStyle='#555555'; ctx.fillRect(7,-14,3,26);
+      ctx.fillStyle='#888888'; ctx.fillRect(5,-16,8,8);
+      ctx.fillStyle='#aaaaaa'; ctx.fillRect(6,-15,6,6);
     } else {
       // vimman (default)
       ctx.fillStyle='#2255ff'; ctx.fillRect(-8,4,16,12);
@@ -775,9 +828,13 @@ const menuModule = (function() {
       const bh = 80;
       const isActive = (curCharId === ch.id);
       const isSel = (charSelectCursor === i);
-      const isPremCh2 = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
-      const hasPrem2 = window.GamePremium && window.GamePremium.isPremium();
-      const isLocked = isPremCh2 ? !hasPrem2 : (ch.unlockReq !== null && clearedWorlds < ch.unlockReq);
+      const _isPrem2   = (ch.id === 'mage' || ch.id === 'berserker' || ch.unlockCondition === 'sponsor');
+      const _isLb2     = (ch.unlockCondition === 'lb30');
+      const _prem2     = window.GamePremium && window.GamePremium.isPremium();
+      const _lbCh2     = (window.SAVE && window.SAVE.lb_chapter) || 0;
+      const isPremCh2  = _isPrem2;
+      const hasPrem2   = _prem2;
+      const isLocked   = _isPrem2 ? !_prem2 : _isLb2 ? _lbCh2 < 30 : (ch.unlockReq !== null && clearedWorlds < ch.unlockReq);
 
       ctx.fillStyle = isSel ? 'rgba(50,90,180,0.8)' : (isActive ? 'rgba(20,60,30,0.7)' : 'rgba(10,10,40,0.5)');
       ctx.fillRect(bx, by, bw, bh);
@@ -816,7 +873,11 @@ const menuModule = (function() {
       } else if (isLocked && isPremCh2) {
         ctx.fillStyle = '#ffaa44';
         ctx.font = '8px monospace';
-        ctx.fillText('💎 プレミアム限定キャラ', bx + 52, by + 28);
+        ctx.fillText('💎 プレミアム限定', bx + 52, by + 28);
+      } else if (isLocked && ch.unlockCondition === 'lb30') {
+        ctx.fillStyle = '#44ff88';
+        ctx.font = '8px monospace';
+        ctx.fillText('🐧 LB30章クリアで解放', bx + 52, by + 28);
       } else if (isLocked) {
         ctx.fillStyle = '#cc6622';
         ctx.font = '8px monospace';
@@ -1071,13 +1132,17 @@ const menuModule = (function() {
         const ch = chars[charSelectCursor];
         if (ch) {
           const clearedWorlds = window.SAVE ? Object.keys(window.SAVE.clearedWorlds).length : 0;
-          const isPremCh = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
-          const hasPrem = window.GamePremium && window.GamePremium.isPremium();
-          const locked = isPremCh ? !hasPrem : (ch.unlockReq !== null && clearedWorlds < ch.unlockReq);
-          if (locked && isPremCh) {
-            addFlash('💎 プレミアムキャラです。Supportからコードを入力して解放！');
+          const _isPremCh = (ch.id === 'mage' || ch.id === 'berserker' || ch.unlockCondition === 'sponsor');
+          const _isLbCh  = (ch.unlockCondition === 'lb30');
+          const _hasPrem = window.GamePremium && window.GamePremium.isPremium();
+          const _lbCh    = (window.SAVE && window.SAVE.lb_chapter) || 0;
+          const locked   = _isPremCh ? !_hasPrem : _isLbCh ? _lbCh < 30 : (ch.unlockReq !== null && clearedWorlds < ch.unlockReq);
+          if (locked && _isPremCh) {
+            addFlash('💎 プレミアム限定キャラです。Supportからコードを入力して解放！');
+          } else if (locked && _isLbCh) {
+            addFlash('🐧 LinuxBattle 30章クリアで解放されます！ 現在: ' + _lbCh + '/30');
           } else if (locked) {
-            addFlash('World ' + ch.unlockReq + ' を制覇するとアンロックされます！');
+            addFlash('World ' + ch.unlockReq + ' を制覇するとアンロックされます！ 現在: ' + clearedWorlds + '/' + ch.unlockReq);
           } else {
             window.SAVE.character = ch.id;
             window.saveSave();
@@ -1637,6 +1702,139 @@ const menuModule = (function() {
   }
 
   // ─────────────────────────────────────────────────────────────────
+  // ── COMMUNITY TAB ────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────
+
+  function updateCommunityTab() {
+    if (justPressed('KeyJ') || justPressed('ArrowDown')) commScroll++;
+    if (justPressed('KeyK') || justPressed('ArrowUp'))   commScroll = Math.max(0, commScroll - 1);
+    if (justPressed('Escape') || justPressed('Digit1'))  tab = 'home';
+  }
+
+  function drawCommunityTab() {
+    drawStarBg();
+    drawHeader();
+
+    // Tab bar
+    const tabs = [
+      {k:'1', l:'HOME'},
+      {k:'2', l:'キャラ'},
+      {k:'3', l:'VIM'},
+      {k:'4', l:'CLAUDE'},
+      {k:'5', l:'SHELL'},
+      {k:'6', l:'コミュニティ'},
+    ];
+    const tw = Math.floor(W / tabs.length);
+    tabs.forEach(function(t, i) {
+      const active = (i === 5);
+      ctx.fillStyle = active ? 'rgba(80,120,220,0.7)' : 'rgba(10,15,40,0.5)';
+      ctx.fillRect(i * tw, 18, tw - 1, 18);
+      ctx.fillStyle = active ? '#aaccff' : '#334466';
+      ctx.font = (active ? 'bold ' : '') + '9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(t.k + ':' + t.l, i * tw + tw / 2, 31);
+    });
+
+    const startY = 42;
+    ctx.fillStyle = '#aaccff';
+    ctx.font = 'bold 14px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('🌐 VIM ARCADE コミュニティ', W / 2, startY + 14);
+
+    // Leaderboard from community module
+    const lbData = (window._communityLB || []);
+    const tips    = (window._communityTips || []);
+
+    // Leaderboard box
+    const lbBoxY = startY + 28;
+    ctx.fillStyle = 'rgba(5,10,30,0.85)';
+    ctx.fillRect(8, lbBoxY, W / 2 - 14, 220);
+    ctx.strokeStyle = '#2244aa';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(8, lbBoxY, W / 2 - 14, 220);
+    ctx.fillStyle = '#5599ff';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('🏆 ランキング', 16, lbBoxY + 14);
+
+    if (lbData.length === 0) {
+      ctx.fillStyle = '#334455';
+      ctx.font = '9px monospace';
+      ctx.fillText('データなし（Firebaseを設定してください）', 16, lbBoxY + 35);
+    } else {
+      lbData.slice(commScroll, commScroll + 10).forEach(function(entry, i) {
+        const ey = lbBoxY + 26 + i * 18;
+        const rankColors = ['#ffdd44','#aaaaaa','#cc8844'];
+        ctx.fillStyle = rankColors[i + commScroll] || '#556677';
+        ctx.font = 'bold 9px monospace';
+        ctx.fillText('#' + (i + 1 + commScroll), 14, ey);
+        ctx.fillStyle = '#ddeeff';
+        ctx.fillText((entry.name || '???').slice(0, 12), 38, ey);
+        ctx.fillStyle = '#44ff88';
+        ctx.textAlign = 'right';
+        ctx.fillText(entry.score || 0, W / 2 - 18, ey);
+        ctx.textAlign = 'left';
+      });
+    }
+
+    // Tips box
+    const tipsBoxX = W / 2 + 4;
+    const tipsBoxW = W / 2 - 14;
+    ctx.fillStyle = 'rgba(5,10,30,0.85)';
+    ctx.fillRect(tipsBoxX, lbBoxY, tipsBoxW, 220);
+    ctx.strokeStyle = '#224422';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(tipsBoxX, lbBoxY, tipsBoxW, 220);
+    ctx.fillStyle = '#44ff88';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('💬 攻略Tips', tipsBoxX + 8, lbBoxY + 14);
+
+    if (tips.length === 0) {
+      ctx.fillStyle = '#334455';
+      ctx.font = '9px monospace';
+      ctx.fillText('Tipsなし（コミュニティに投稿しよう！）', tipsBoxX + 8, lbBoxY + 35);
+    } else {
+      tips.slice(commScroll, commScroll + 9).forEach(function(tip, i) {
+        const ey = lbBoxY + 26 + i * 21;
+        ctx.fillStyle = '#88aacc';
+        ctx.font = '8px monospace';
+        // word wrap tips at ~35 chars
+        var txt = (tip.text || tip).slice(0, 34);
+        ctx.fillText(txt, tipsBoxX + 8, ey);
+        if (tip.author) {
+          ctx.fillStyle = '#445566';
+          ctx.fillText('— ' + (tip.author).slice(0, 10), tipsBoxX + 8, ey + 11);
+        }
+      });
+    }
+
+    // Player stats box
+    const statY = lbBoxY + 230;
+    const myXP = (window.SAVE && window.SAVE.vimXP) || 0;
+    const myWorld = (window.SAVE && window.SAVE.clearedWorlds) ? Object.keys(window.SAVE.clearedWorlds).length : 0;
+    const myLv  = (window.SAVE && window.SAVE.level) || 1;
+    const myChar = (window.SAVE && window.SAVE.character) || 'vimman';
+    ctx.fillStyle = 'rgba(10,20,50,0.8)';
+    ctx.fillRect(8, statY, W - 16, 52);
+    ctx.strokeStyle = '#334466';
+    ctx.strokeRect(8, statY, W - 16, 52);
+    ctx.fillStyle = '#5599ff';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('📊 あなたのステータス', 18, statY + 14);
+    ctx.fillStyle = '#aaccdd';
+    ctx.font = '9px monospace';
+    ctx.fillText('Lv.' + myLv + '  |  VimXP: ' + myXP + '  |  World: ' + myWorld + '/50  |  キャラ: ' + myChar, 18, statY + 28);
+    ctx.fillStyle = '#334455';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('j/k: スクロール   Esc/1: HOME   6: このタブ', W / 2, statY + 44);
+
+    drawVimStatusline();
+  }
+
+  // ─────────────────────────────────────────────────────────────────
   // ── Public interface ─────────────────────────────────────────────
   // ─────────────────────────────────────────────────────────────────
 
@@ -1654,7 +1852,7 @@ const menuModule = (function() {
     window._cmdLineHandler = null;
     if (window.loadSave) window.loadSave();
     if (window.GameAudio) window.GameAudio.playBGM('home');
-    addFlash('VIM ARCADE HOME  j/k:移動  Enter:決定  2:キャラ  3:VIM CODEX  4:CLAUDE CODE');
+    addFlash('VIM ARCADE  1:HOME  2:キャラ  3:VIM  4:CLAUDE  5:SHELL  6:コミュニティ  j/k:移動');
   }
 
   function update() {
@@ -1663,12 +1861,14 @@ const menuModule = (function() {
     else if (tab === 'codex')      updateCodex();
     else if (tab === 'claudecode') updateClaudeCode();
     else if (tab === 'shell')      updateShell();
+    else if (tab === 'community')  updateCommunityTab();
 
-    // Global tab shortcuts (only apply if not already handled per-tab)
+    // Global tab shortcuts
     if (tab !== 'home'      && justPressed('Digit1')) tab = 'home';
     if (tab !== 'character' && justPressed('Digit2')) { tab = 'character'; charSubState = 'main'; charCursor = 0; }
     if (tab !== 'codex'     && justPressed('Digit3')) { tab = 'codex'; codexScroll = 0; codexCursor = 0; }
     if (tab !== 'claudecode'&& justPressed('Digit4')) { tab = 'claudecode'; claudeScroll = 0; claudeCursor = 0; }
+    if (tab !== 'community' && justPressed('Digit6')) { tab = 'community'; commScroll = 0; }
   }
 
   function draw() {
@@ -1678,6 +1878,7 @@ const menuModule = (function() {
     else if (tab === 'codex')      drawCodex();
     else if (tab === 'claudecode') drawClaudeCode();
     else if (tab === 'shell')      drawShell();
+    else if (tab === 'community')  drawCommunityTab();
     ctx.globalAlpha = 1;
   }
 
