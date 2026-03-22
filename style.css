@@ -443,6 +443,51 @@ body {
 .support-btn:hover { background: rgba(100,50,140,0.9); color: #fff; }
 .support-btn-featured { background: rgba(180,50,100,0.5) !important; border-color: #ff88cc !important; color: #ffddee !important; }
 .support-social { color: #556677; font-size: 11px; margin: 12px 0; }
+
+/* ── VIP code redemption box ── */
+.support-code-box {
+  background: rgba(10,10,40,0.7);
+  border: 1px solid rgba(255,170,50,0.3);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 16px 0 8px;
+}
+.support-code-title { font-size: 13px; font-weight: bold; color: #ffcc66; margin-bottom: 6px; }
+.support-code-desc  { font-size: 11px; color: #778899; margin-bottom: 10px; }
+.support-code-row   { display: flex; gap: 8px; }
+.support-code-row input {
+  flex: 1;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,170,50,0.4);
+  border-radius: 4px;
+  color: #ffdd88;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  padding: 6px 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.support-code-row input:focus { outline: none; border-color: #ffaa44; }
+.support-code-row button {
+  background: rgba(180,100,0,0.7);
+  border: 1px solid #ffaa44;
+  border-radius: 4px;
+  color: #ffdd88;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 6px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.support-code-row button:hover { background: rgba(200,120,0,0.8); }
+.support-code-msg {
+  font-size: 11px;
+  margin-top: 8px;
+  min-height: 16px;
+}
+.support-code-msg.ok  { color: #44ff88; }
+.support-code-msg.err { color: #ff6666; }
+
 #btn-close-support {
   background: rgba(20,10,40,0.9);
   border: 1px solid #443;

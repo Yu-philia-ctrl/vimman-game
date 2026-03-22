@@ -409,6 +409,9 @@
     <a class="nav-item" onclick="showPage('saves')">
       <span class="nav-icon">💾</span> セーブデータ
     </a>
+    <a class="nav-item" onclick="showPage('codes')">
+      <span class="nav-icon">🔑</span> コード管理
+    </a>
     <a class="nav-item" onclick="location.href='index.html'">
       <span class="nav-icon">🎮</span> ゲームに戻る
     </a>
@@ -491,6 +494,60 @@
     </div>
   </div>
 
+  <!-- ── Code Management ── -->
+  <div class="page" id="page-codes">
+    <div class="page-header">
+      <div>
+        <div class="page-title">🔑 コード管理</div>
+        <div class="page-sub">VIPコードの発行・管理</div>
+      </div>
+      <button class="refresh-btn" onclick="loadCodes()">↻ 更新</button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-grid" id="code-stats-grid" style="margin-bottom:16px;"></div>
+
+    <!-- Generator -->
+    <div class="table-wrap" style="margin-bottom:16px;padding:16px;">
+      <div style="font-size:13px;font-weight:bold;color:var(--gold);margin-bottom:10px;">🎟 新規コード発行</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <select id="code-type-sel" style="background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:monospace;font-size:12px;padding:6px 10px;border-radius:4px;">
+          <option value="premium">プレミアム (VIM-...)</option>
+          <option value="sponsor">スポンサー (SPO-...)</option>
+        </select>
+        <input type="number" id="code-qty" value="1" min="1" max="20" style="width:64px;background:var(--card2);border:1px solid var(--border);color:var(--text);font-family:monospace;font-size:12px;padding:6px 10px;border-radius:4px;text-align:center;">
+        <span style="font-size:11px;color:var(--sub)">枚</span>
+        <button class="btn-primary" onclick="adminGenerateCodes()" style="padding:7px 18px;">発行する</button>
+      </div>
+      <div id="code-gen-result" style="margin-top:12px;font-family:monospace;font-size:12px;color:var(--green);white-space:pre;"></div>
+    </div>
+
+    <!-- Code list -->
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <span style="font-size:12px;color:var(--sub);">発行済みコード一覧</span>
+        <button class="filter-btn active" onclick="setCodeFilter(this,'all')">全て</button>
+        <button class="filter-btn" onclick="setCodeFilter(this,'available')">未使用</button>
+        <button class="filter-btn" onclick="setCodeFilter(this,'used')">使用済</button>
+        <button class="filter-btn" onclick="setCodeFilter(this,'revoked')">無効化</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>コード</th>
+            <th>種別</th>
+            <th>発行日時</th>
+            <th>使用者</th>
+            <th>使用日時</th>
+            <th>状態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="code-table"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- ── Save Data ── -->
   <div class="page" id="page-saves">
     <div class="page-header">
@@ -544,6 +601,7 @@
 <div id="toast"></div>
 
 <script src="auth.js"></script>
+<script src="premium.js"></script>
 <script>
   // ── Auth guard ─────────────────────────────────────────────────
   if (!window.GameAuth || !window.GameAuth.isLoggedIn()) {
@@ -579,7 +637,8 @@
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('page-' + name).classList.add('active');
     event.currentTarget.classList.add('active');
-    if (name === 'saves') loadSaves();
+    if (name === 'saves')  loadSaves();
+    if (name === 'codes')  loadCodes();
   }
 
   // ── Stats ─────────────────────────────────────────────────────
@@ -639,13 +698,14 @@
 
     tbody.innerHTML = list.map((u, i) => {
       const roleBadge   = u.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : '<span class="badge badge-user">USER</span>';
+      const premBadge   = u.isPremium ? '<span class="badge" style="background:rgba(180,100,0,0.4);border-color:#ffaa44;color:#ffcc66;">💎</span>' : '';
       const statusBadge = u.banned  ? '<span class="badge badge-ban">BAN</span>'   : '<span class="badge badge-active">ACTIVE</span>';
       const lastLogin   = u.lastLogin ? fmtDate(u.lastLogin) : '<span style="color:var(--sub)">—</span>';
       const note        = u.note ? `<span title="${esc(u.note)}" style="color:var(--purple);cursor:help">📝</span>` : '';
 
       return `<tr>
         <td style="color:var(--sub);font-size:11px">${i + 1}</td>
-        <td><strong>${esc(u.username)}</strong> ${note}</td>
+        <td><strong>${esc(u.username)}</strong> ${note} ${premBadge}</td>
         <td class="td-mono" style="font-size:11px;color:var(--sub)">${esc(u.email)}</td>
         <td style="font-size:11px;color:var(--sub)">${fmtDate(u.createdAt)}</td>
         <td style="font-size:11px">${lastLogin}</td>
@@ -657,6 +717,7 @@
             <button class="act-btn act-view"  onclick="viewUser('${u.id}')">詳細</button>
             ${!u.isAdmin ? `<button class="act-btn act-ban"   onclick="toggleBan('${u.id}')">${u.banned ? '解除' : 'BAN'}</button>` : ''}
             ${!u.isAdmin ? `<button class="act-btn act-promo" onclick="promote('${u.id}')">昇格</button>` : ''}
+            ${!u.isAdmin ? `<button class="act-btn" style="color:var(--gold);border-color:var(--gold)55" onclick="${u.isPremium ? 'revokePremiumUser' : 'grantPremiumUser'}('${u.id}')">${u.isPremium ? '💎解除' : '💎付与'}</button>` : ''}
             <button class="act-btn act-note"  onclick="openNote('${u.id}','${esc(u.username)}','${esc(u.note||'')}')">メモ</button>
             ${!u.isAdmin ? `<button class="act-btn act-del"   onclick="deleteUser('${u.id}')">削除</button>` : ''}
           </div>
@@ -709,6 +770,104 @@
     }).join('');
   }
 
+  // ── Code Management ───────────────────────────────────────────
+  let allCodes     = [];
+  let codeFilter   = 'all';
+
+  function loadCodes() {
+    if (!window.GamePremium) return;
+    allCodes = window.GamePremium.getAllCodes();
+    renderCodeStats();
+    renderCodes();
+  }
+
+  function renderCodeStats() {
+    if (!window.GamePremium) return;
+    const s = window.GamePremium.getStats();
+    const grid = document.getElementById('code-stats-grid');
+    if (!grid) return;
+    grid.innerHTML = [
+      { label: '発行済み合計', val: s.total,     cls: 'c-blue',   icon: '🎟' },
+      { label: '未使用',       val: s.available, cls: 'c-green',  icon: '✅' },
+      { label: '使用済み',     val: s.used,      cls: 'c-purple', icon: '✔' },
+      { label: '無効化済み',   val: s.revoked,   cls: 'c-red',    icon: '🚫' },
+    ].map(c => `
+      <div class="stat-card">
+        <div class="stat-label">${c.icon} ${c.label}</div>
+        <div class="stat-value ${c.cls}">${c.val}</div>
+      </div>
+    `).join('');
+  }
+
+  function setCodeFilter(btn, mode) {
+    codeFilter = mode;
+    document.querySelectorAll('#page-codes .filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCodes();
+  }
+
+  function renderCodes() {
+    const tbody = document.getElementById('code-table');
+    if (!tbody) return;
+    let list = allCodes;
+    if (codeFilter === 'available') list = list.filter(c => !c.usedBy && !c.revoked);
+    if (codeFilter === 'used')      list = list.filter(c => !!c.usedBy);
+    if (codeFilter === 'revoked')   list = list.filter(c => c.revoked);
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">🔑</div>コードがありません</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = list.map(c => {
+      const statusBadge = c.revoked
+        ? '<span class="badge badge-ban">無効</span>'
+        : c.usedBy
+          ? '<span class="badge badge-admin" style="background:rgba(80,40,120,0.4);border-color:#9955ff;color:#cc88ff;">使用済</span>'
+          : '<span class="badge badge-active">未使用</span>';
+      const typeBadge = c.type === 'sponsor'
+        ? '<span class="badge badge-admin">SPO</span>'
+        : '<span class="badge badge-user" style="color:var(--gold);border-color:var(--gold)80;">VIM</span>';
+      return `<tr>
+        <td class="td-mono" style="font-size:12px;color:var(--gold);letter-spacing:1px;">${esc(c.code)}</td>
+        <td>${typeBadge}</td>
+        <td style="font-size:11px;color:var(--sub)">${fmtDate(c.createdAt)}</td>
+        <td style="color:var(--purple)">${c.usedBy ? esc(c.usedBy) : '<span style="color:var(--sub)">—</span>'}</td>
+        <td style="font-size:11px;color:var(--sub)">${c.usedAt ? fmtDate(c.usedAt) : '<span style="color:var(--sub)">—</span>'}</td>
+        <td>${statusBadge}</td>
+        <td>
+          ${!c.revoked && !c.usedBy ? `<button class="act-btn act-ban" onclick="adminRevokeCode('${esc(c.code)}')">無効化</button>` : ''}
+          <button class="act-btn act-view" onclick="copyCode('${esc(c.code)}')">コピー</button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function adminGenerateCodes() {
+    if (!window.GamePremium) return;
+    const type = document.getElementById('code-type-sel').value;
+    const qty  = Math.min(20, Math.max(1, parseInt(document.getElementById('code-qty').value) || 1));
+    const codes = window.GamePremium.generateCodes(qty, type);
+    const resultEl = document.getElementById('code-gen-result');
+    resultEl.textContent = codes.join('\n');
+    toast(`${codes.length}件のコードを発行しました`, 'green');
+    loadCodes();
+  }
+
+  function adminRevokeCode(code) {
+    if (!confirm(`コード ${code} を無効化しますか？`)) return;
+    if (!window.GamePremium) return;
+    window.GamePremium.revokeCode(code);
+    toast('コードを無効化しました', 'orange');
+    loadCodes();
+  }
+
+  function copyCode(code) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(code).then(function() { toast('コードをコピーしました'); });
+    } else {
+      toast(code);
+    }
+  }
+
   // ── Actions ───────────────────────────────────────────────────
   function toggleBan(id) {
     const user = allUsers.find(u => u.id === id);
@@ -727,6 +886,24 @@
     window.GameAuth.promoteUser(id);
     toast(`${user.username} を管理者に昇格しました`);
     loadUsers(); loadStats();
+  }
+
+  function grantPremiumUser(id) {
+    const user = allUsers.find(u => u.id === id);
+    if (!user || !window.GamePremium) return;
+    if (!confirm(`${esc(user.username)} にプレミアムを付与しますか？`)) return;
+    window.GamePremium.grantPremium(id);
+    toast(`${user.username} にプレミアムを付与しました`, 'green');
+    loadUsers();
+  }
+
+  function revokePremiumUser(id) {
+    const user = allUsers.find(u => u.id === id);
+    if (!user || !window.GamePremium) return;
+    if (!confirm(`${esc(user.username)} のプレミアムを取り消しますか？`)) return;
+    window.GamePremium.revokePremium(id);
+    toast(`${user.username} のプレミアムを取り消しました`, 'orange');
+    loadUsers();
   }
 
   function deleteUser(id) {
@@ -748,6 +925,7 @@
       ${row('ユーザー名', `<strong>${esc(u.username)}</strong>`)}
       ${row('メール', esc(u.email))}
       ${row('ロール', u.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : '<span class="badge badge-user">USER</span>')}
+      ${row('プレミアム', u.isPremium ? `<span style="color:var(--gold)">💎 有効 (${u.premiumType || 'premium'}${u.premiumCode ? ' / ' + esc(u.premiumCode) : ''})</span>` : '<span style="color:var(--sub)">なし</span>')}
       ${row('状態', u.banned ? '<span class="badge badge-ban">BAN中</span>' : '<span class="badge badge-active">ACTIVE</span>')}
       ${row('登録日時', fmtDate(u.createdAt))}
       ${row('最終ログイン', u.lastLogin ? fmtDate(u.lastLogin) : '未ログイン')}

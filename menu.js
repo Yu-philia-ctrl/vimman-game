@@ -494,8 +494,12 @@ const menuModule = (function() {
       const cw = crCardW - 4;
       const ch2 = 62;
       const isActive = (curCharId === ch.id);
-      const isLocked = ch.unlockReq !== null && clearedCount2 < ch.unlockReq;
-      const isPremium = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
+      const isPremiumChar = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
+      const hasPremium = window.GamePremium && window.GamePremium.isPremium();
+      const isLocked = isPremiumChar
+        ? !hasPremium
+        : (ch.unlockReq !== null && clearedCount2 < ch.unlockReq);
+      const isPremium = isPremiumChar;
 
       ctx.fillStyle = isActive ? 'rgba(20,60,30,0.85)' : (isLocked ? 'rgba(20,10,10,0.6)' : 'rgba(10,15,40,0.7)');
       ctx.fillRect(cx, cy, cw, ch2);
@@ -528,7 +532,7 @@ const menuModule = (function() {
       } else if (isLocked && isPremium) {
         ctx.fillStyle = '#ffaa44';
         ctx.font = '7px monospace';
-        ctx.fillText('💎World' + ch.unlockReq, cx + cw / 2, cy + 54);
+        ctx.fillText('💎PREMIUM', cx + cw / 2, cy + 54);
       } else if (isLocked) {
         ctx.fillStyle = '#886644';
         ctx.font = '7px monospace';
@@ -547,7 +551,7 @@ const menuModule = (function() {
         ctx.fillStyle = '#ffdd88';
         ctx.font = 'bold 7px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('UNLOCK', cx + cw / 2, cy + 8);
+        ctx.fillText('PREMIUM', cx + cw / 2, cy + 8);
       } else {
         ctx.fillStyle = 'rgba(0,80,0,0.7)';
         ctx.fillRect(cx, cy, cw, 10);
@@ -756,7 +760,9 @@ const menuModule = (function() {
       const bh = 80;
       const isActive = (curCharId === ch.id);
       const isSel = (charSelectCursor === i);
-      const isLocked = ch.unlockReq !== null && clearedWorlds < ch.unlockReq;
+      const isPremCh2 = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
+      const hasPrem2 = window.GamePremium && window.GamePremium.isPremium();
+      const isLocked = isPremCh2 ? !hasPrem2 : (ch.unlockReq !== null && clearedWorlds < ch.unlockReq);
 
       ctx.fillStyle = isSel ? 'rgba(50,90,180,0.8)' : (isActive ? 'rgba(20,60,30,0.7)' : 'rgba(10,10,40,0.5)');
       ctx.fillRect(bx, by, bw, bh);
@@ -792,6 +798,10 @@ const menuModule = (function() {
         ctx.fillStyle = '#44ff88';
         ctx.font = '8px monospace';
         ctx.fillText('▶ 選択中', bx + 52, by + 28);
+      } else if (isLocked && isPremCh2) {
+        ctx.fillStyle = '#ffaa44';
+        ctx.font = '8px monospace';
+        ctx.fillText('💎 プレミアム限定キャラ', bx + 52, by + 28);
       } else if (isLocked) {
         ctx.fillStyle = '#cc6622';
         ctx.font = '8px monospace';
@@ -1046,8 +1056,12 @@ const menuModule = (function() {
         const ch = chars[charSelectCursor];
         if (ch) {
           const clearedWorlds = window.SAVE ? Object.keys(window.SAVE.clearedWorlds).length : 0;
-          const locked = ch.unlockReq !== null && clearedWorlds < ch.unlockReq;
-          if (locked) {
+          const isPremCh = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
+          const hasPrem = window.GamePremium && window.GamePremium.isPremium();
+          const locked = isPremCh ? !hasPrem : (ch.unlockReq !== null && clearedWorlds < ch.unlockReq);
+          if (locked && isPremCh) {
+            addFlash('💎 プレミアムキャラです。Supportからコードを入力して解放！');
+          } else if (locked) {
             addFlash('World ' + ch.unlockReq + ' を制覇するとアンロックされます！');
           } else {
             window.SAVE.character = ch.id;

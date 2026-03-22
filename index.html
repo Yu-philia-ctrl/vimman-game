@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="style.css">
   <!-- Auth early-redirect: runs before DOM renders -->
   <script src="auth.js"></script>
+  <script src="premium.js"></script>
   <script>
     (function() {
       if (window.GameAuth && !window.GameAuth.isLoggedIn()) {
@@ -49,30 +50,44 @@
   <div id="support-panel" class="hidden">
     <div id="support-content">
       <h2>❤ VIM ARCADEを応援する</h2>
-      <p class="support-desc">VIM ARCADEは完全無料でプレイできます。<br>開発を続けるために応援してください！</p>
+      <p class="support-desc">VIM ARCADEは完全無料でプレイできます。<br>支援いただくとプレミアムキャラクター（Warrior・Mage・Archer）が解放されます！</p>
+
+      <!-- Tiers -->
       <div class="support-options">
         <div class="support-tier">
           <div class="tier-badge">☕</div>
           <div class="tier-name">コーヒー 1杯</div>
           <div class="tier-price">¥500</div>
           <div class="tier-perk">感謝の気持ち ＋ ゲーム内称号「Supporter」</div>
-          <a class="support-btn" href="https://ko-fi.com" target="_blank" rel="noopener">支援する</a>
+          <a class="support-btn" href="https://ko-fi.com/Yu_philia" target="_blank" rel="noopener">支援する →</a>
         </div>
         <div class="support-tier support-tier-featured">
           <div class="tier-badge">⭐</div>
-          <div class="tier-name">スター支援</div>
-          <div class="tier-price">¥1,500</div>
-          <div class="tier-perk">称号「Vim Master」＋ 限定キャラ解放キー</div>
-          <a class="support-btn support-btn-featured" href="https://ko-fi.com" target="_blank" rel="noopener">支援する</a>
+          <div class="tier-name">プレミアム解放</div>
+          <div class="tier-price">¥980</div>
+          <div class="tier-perk">💎 Warrior・Mage・Archer を全解放<br>称号「Vim Master」＋ VIPコード発行</div>
+          <a class="support-btn support-btn-featured" href="https://ko-fi.com/Yu_philia" target="_blank" rel="noopener">購入する →</a>
         </div>
         <div class="support-tier">
           <div class="tier-badge">🏆</div>
           <div class="tier-name">スポンサー</div>
           <div class="tier-price">¥5,000+</div>
-          <div class="tier-perk">スポンサーロール掲載 ＋ 全DLC解放</div>
+          <div class="tier-perk">スポンサーページ掲載 ＋ 全コンテンツ解放<br>開発者と直接連絡</div>
           <a class="support-btn" href="mailto:support@vimarcade.dev" target="_blank" rel="noopener">お問い合わせ</a>
         </div>
       </div>
+
+      <!-- VIP Code redemption -->
+      <div class="support-code-box" id="support-code-box">
+        <div class="support-code-title">🔑 VIPコードを持っている場合</div>
+        <p class="support-code-desc">支援後にお送りするコードを入力してください。</p>
+        <div class="support-code-row">
+          <input type="text" id="vip-code-input" placeholder="VIM-XXXX-XXXX-XXXX" maxlength="20" autocomplete="off" spellcheck="false">
+          <button id="vip-code-btn" onclick="redeemVipCode()">解放する</button>
+        </div>
+        <div id="vip-code-msg" class="support-code-msg"></div>
+      </div>
+
       <div class="support-social">
         <p>⭐ GitHubでStarをつけてシェアするだけでも助かります！</p>
       </div>
@@ -725,6 +740,26 @@ function doGameLogout() {
   }
   if (window.GameAuth) window.GameAuth.logout();
   location.href = 'login.html';
+}
+
+function redeemVipCode() {
+  var input = document.getElementById('vip-code-input');
+  var msgEl = document.getElementById('vip-code-msg');
+  if (!input || !msgEl) return;
+  var code = input.value.trim();
+  if (!window.GamePremium) {
+    msgEl.textContent = 'システムエラー: プレミアムモジュールが見つかりません。';
+    msgEl.className = 'support-code-msg err';
+    return;
+  }
+  var result = window.GamePremium.redeemCode(code);
+  msgEl.className = 'support-code-msg ' + (result.ok ? 'ok' : 'err');
+  msgEl.textContent = result.msg;
+  if (result.ok) {
+    input.value = '';
+    // Show celebration flash
+    if (window.addFlash) addFlash('💎 プレミアムキャラクターが解放されました！');
+  }
 }
 </script>
 </body>
