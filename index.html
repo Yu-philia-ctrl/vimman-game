@@ -28,6 +28,10 @@
       <button class="tb-btn" id="btn-settings" title="設定">⚙ 設定</button>
       <button class="tb-btn tb-btn-support" id="btn-support" title="応援する">❤ Support</button>
       <button class="tb-btn" id="btn-kbd-toggle" title="キーボード表示切替">⌨ KBD</button>
+      <span id="tb-user-wrap" style="display:none;align-items:center;gap:6px;margin-left:4px;">
+        <span id="tb-username" style="font-size:11px;color:#88aaff;font-family:monospace;letter-spacing:1px;"></span>
+        <button class="tb-btn" id="btn-logout" onclick="doGameLogout()" title="ログアウト" style="color:#ff8888">⏻</button>
+      </span>
     </div>
   </div>
 
@@ -645,6 +649,8 @@
 
 </div><!-- end app-wrapper -->
 
+<script src="auth.js"></script>
+<script src="audio.js"></script>
 <script src="core.js"></script>
 <script src="vimdata.js"></script>
 <script src="menu.js"></script>
@@ -653,11 +659,64 @@
 <script src="snake.js"></script>
 <script src="tetris.js"></script>
 <script src="invaders.js"></script>
+<script src="linuxbattle.js"></script>
 <script src="main.js"></script>
 <!-- Firebase SDKs (compat version for simplicity) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="mobile.js"></script>
 <script src="community.js"></script>
+<script>
+// ── Auth integration ─────────────────────────────────────────────
+(function() {
+  if (!window.GameAuth) return;
+
+  // Redirect to login if not authenticated
+  if (!window.GameAuth.isLoggedIn()) {
+    location.href = 'login.html';
+    return;
+  }
+
+  // Show user info in toolbar
+  const user = window.GameAuth.getCurrentUser();
+  if (user) {
+    const wrap = document.getElementById('tb-user-wrap');
+    const name = document.getElementById('tb-username');
+    if (wrap) wrap.style.display = 'flex';
+    if (name) name.textContent = '👤 ' + user.username;
+
+    // Load cloud save if available
+    const cloudSave = window.GameAuth.loadGameData();
+    if (cloudSave && window.SAVE) {
+      // Merge cloud save (cloud takes precedence if newer)
+      try {
+        Object.assign(window.SAVE, cloudSave);
+      } catch(e) {}
+    }
+  }
+
+  // Auto-sync save every 60 seconds
+  setInterval(function() {
+    if (window.SAVE && window.GameAuth.isLoggedIn()) {
+      window.GameAuth.saveGameData(window.SAVE);
+    }
+  }, 60000);
+
+  // Sync on page unload
+  window.addEventListener('beforeunload', function() {
+    if (window.SAVE && window.GameAuth.isLoggedIn()) {
+      window.GameAuth.saveGameData(window.SAVE);
+    }
+  });
+})();
+
+function doGameLogout() {
+  if (window.SAVE && window.GameAuth && window.GameAuth.isLoggedIn()) {
+    window.GameAuth.saveGameData(window.SAVE);
+  }
+  if (window.GameAuth) window.GameAuth.logout();
+  location.href = 'login.html';
+}
+</script>
 </body>
 </html>

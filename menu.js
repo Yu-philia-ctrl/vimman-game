@@ -11,7 +11,7 @@ const menuModule = (function() {
   let tab = 'home';  // 'home' | 'character' | 'codex' | 'claudecode' | 'shell'
 
   // HOME tab
-  const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'shell'];
+  const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'linuxbattle', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'shell'];
   let homeCursor = 0;
 
   // CHARACTER tab
@@ -308,7 +308,7 @@ const menuModule = (function() {
 
   // HOME menu items: indexes into HOME_ITEMS
   // 0=continue, 1=newgame, 2=stageselect, 3=snake, 4=invaders, 5=tetris, 6=tutorial, 7=codex, 8=character
-  const HOME_CURSOR_MAX = 9;
+  const HOME_CURSOR_MAX = 10;
 
   function drawHome() {
     drawStarBg();
@@ -325,10 +325,10 @@ const menuModule = (function() {
     // ── Main Quest: VimMan ──────────────────────────────────────
     const mqY = 68;
     ctx.fillStyle = 'rgba(0,20,60,0.85)';
-    ctx.fillRect(8, mqY, W - 16, 148);
+    ctx.fillRect(8, mqY, W - 16, 132);
     ctx.strokeStyle = '#2255aa';
     ctx.lineWidth = 1;
-    ctx.strokeRect(8, mqY, W - 16, 148);
+    ctx.strokeRect(8, mqY, W - 16, 132);
 
     // Section title
     ctx.fillStyle = '#5599ff';
@@ -351,67 +351,104 @@ const menuModule = (function() {
 
     // VimMan menu buttons
     const vmButtons = [
-      { id:'continue',    label:'► CONTINUE', sub: 'World ' + Math.min(world,50) + '-' + stage, color:'#44ff88' },
-      { id:'newgame',     label:'  NEW GAME',  sub: '最初からスタート',                          color:'#ffaa44' },
-      { id:'stageselect', label:'  STAGE SELECT', sub: 'ワールド選択',                          color:'#88aaff' },
+      { id:'continue',    label:'► CONTINUE',     sub: 'World ' + Math.min(world,50) + '-' + stage, color:'#44ff88' },
+      { id:'newgame',     label:'  NEW GAME',      sub: '最初からスタート',                          color:'#ffaa44' },
+      { id:'stageselect', label:'  STAGE SELECT',  sub: 'ワールド選択',                            color:'#88aaff' },
     ];
     vmButtons.forEach(function(btn, i) {
-      const by = mqY + 58 + i * 30;
+      const by = mqY + 50 + i * 26;
       const isSel = (homeCursor === i);
       ctx.fillStyle = isSel ? 'rgba(40,80,160,0.7)' : 'rgba(10,20,50,0.5)';
-      ctx.fillRect(14, by, W - 28, 26);
+      ctx.fillRect(14, by, W - 28, 22);
       if (isSel) {
         ctx.strokeStyle = btn.color;
         ctx.lineWidth = 1;
-        ctx.strokeRect(14, by, W - 28, 26);
+        ctx.strokeRect(14, by, W - 28, 22);
       }
       ctx.fillStyle = isSel ? btn.color : btn.color + '88';
       ctx.font = 'bold 12px monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(btn.label, 24, by + 17);
+      ctx.fillText(btn.label, 24, by + 15);
       ctx.fillStyle = '#556677';
       ctx.font = '10px monospace';
       ctx.textAlign = 'right';
-      ctx.fillText(btn.sub, W - 20, by + 17);
+      ctx.fillText(btn.sub, W - 20, by + 15);
     });
 
+    // ── Main Quest 2: Linux Battle ────────────────────────────────
+    const lbY = mqY + 134;
+    const lbXP  = (window.SAVE && window.SAVE.lb_xp)  || 0;
+    const lbLv  = Math.max(1, Math.floor(Math.sqrt(lbXP / 5)));
+    const lbCh  = (window.SAVE && window.SAVE.lb_chapter) || 0;
+    const lbAreaNames = ['渋谷','新宿','原宿','秋葉原','浅草','上野','お台場','六本木','銀座','東京タワー'];
+    ctx.fillStyle = 'rgba(40,10,0,0.85)';
+    ctx.fillRect(8, lbY, W - 16, 76);
+    ctx.strokeStyle = '#883322';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(8, lbY, W - 16, 76);
+    ctx.fillStyle = '#ff6622';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('◉ MAIN QUEST 2', 18, lbY + 14);
+    ctx.fillStyle = '#ffcc44';
+    ctx.font = 'bold 15px monospace';
+    ctx.fillText('Linux Battle', 148, lbY + 14);
+    ctx.fillStyle = '#cc8866';
+    ctx.font = '10px monospace';
+    ctx.fillText('ターミナルを武器に悪意あるプロセスから東京を守れ！', 18, lbY + 30);
+    ctx.fillStyle = '#ff9966';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText('Lv.' + lbLv + '  LB-XP:' + lbXP + '  エリア:' + (lbAreaNames[Math.min(lbCh,9)] || '-'), 18, lbY + 46);
+    const lbSel = (homeCursor === 3);
+    ctx.fillStyle = lbSel ? 'rgba(80,30,0,0.8)' : 'rgba(30,10,0,0.5)';
+    ctx.fillRect(14, lbY + 48, W - 28, 20);
+    if (lbSel) { ctx.strokeStyle = '#ff8844'; ctx.lineWidth = 1; ctx.strokeRect(14, lbY + 48, W - 28, 20); }
+    ctx.fillStyle = lbSel ? '#ff8844' : '#aa5522';
+    ctx.font = 'bold 12px monospace';
+    ctx.fillText(lbSel ? '► LINUX BATTLE START' : '  LINUX BATTLE START', 24, lbY + 62);
+    ctx.fillStyle = '#556677';
+    ctx.font = '10px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('Chapter ' + (lbCh + 1) + '/10', W - 20, lbY + 62);
+    ctx.textAlign = 'left';
+
     // ── Sub Games ────────────────────────────────────────────────
-    const sgY = mqY + 156;
+    const sgY = lbY + 80;
     ctx.fillStyle = '#445566';
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
     ctx.fillText('── SUB GAMES ─────────────────────────────────', 12, sgY);
 
     const subGames = [
-      { id:'snake',    label:'VimSnake',    color:'#00ffee', cursor:3 },
-      { id:'invaders', label:'VimInvaders', color:'#ff4444', cursor:4 },
-      { id:'tetris',   label:'VimTetris',   color:'#cc44ff', cursor:5 },
-      { id:'tutorial', label:'Tutorial',    color:'#44ff88', cursor:6 },
+      { id:'snake',    label:'VimSnake',    color:'#00ffee', cursor:4 },
+      { id:'invaders', label:'VimInvaders', color:'#ff4444', cursor:5 },
+      { id:'tetris',   label:'VimTetris',   color:'#cc44ff', cursor:6 },
+      { id:'tutorial', label:'Tutorial',    color:'#44ff88', cursor:7 },
     ];
     const sgBW = (W - 24) / 4;
     subGames.forEach(function(sg, i) {
       const bx = 12 + i * sgBW;
-      const by2 = sgY + 8;
+      const by2 = sgY + 6;
       const isSel = (homeCursor === sg.cursor);
       ctx.fillStyle = isSel ? 'rgba(40,80,140,0.7)' : 'rgba(10,10,40,0.5)';
-      ctx.fillRect(bx, by2, sgBW - 4, 32);
+      ctx.fillRect(bx, by2, sgBW - 4, 26);
       if (isSel) {
         ctx.strokeStyle = sg.color;
         ctx.lineWidth = 1;
-        ctx.strokeRect(bx, by2, sgBW - 4, 32);
+        ctx.strokeRect(bx, by2, sgBW - 4, 26);
       }
       ctx.fillStyle = isSel ? sg.color : sg.color + '88';
       ctx.font = 'bold 10px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(sg.label, bx + (sgBW - 4) / 2, by2 + 20);
+      ctx.fillText(sg.label, bx + (sgBW - 4) / 2, by2 + 17);
     });
 
     // ── Codex / Character / Community shortcuts ───────────────────
-    const shortY = sgY + 48;
+    const shortY = sgY + 36;
     const shortcuts = [
-      { id:'codex',     label:'📖 Vim CODEX',  color:'#ffaa44', cursor:7 },
-      { id:'character', label:'⚔ キャラ装備',  color:'#ff88ff', cursor:8 },
-      { id:'shell',     label:'$ SHELL100選',  color:'#44ff88', cursor:9 },
+      { id:'codex',     label:'📖 Vim CODEX',  color:'#ffaa44', cursor:8 },
+      { id:'character', label:'⚔ キャラ装備',  color:'#ff88ff', cursor:9 },
+      { id:'shell',     label:'$ SHELL100選',  color:'#44ff88', cursor:10 },
     ];
     const shBW = Math.floor((W - 24) / 3);
     shortcuts.forEach(function(sh, i) {
@@ -419,25 +456,25 @@ const menuModule = (function() {
       const bw = shBW - 4;
       const isSel = (homeCursor === sh.cursor);
       ctx.fillStyle = isSel ? 'rgba(60,30,80,0.7)' : 'rgba(20,10,40,0.5)';
-      ctx.fillRect(bx, shortY, bw, 28);
+      ctx.fillRect(bx, shortY, bw, 24);
       if (isSel) {
         ctx.strokeStyle = sh.color;
         ctx.lineWidth = 1;
-        ctx.strokeRect(bx, shortY, bw, 28);
+        ctx.strokeRect(bx, shortY, bw, 24);
       }
       ctx.fillStyle = isSel ? sh.color : sh.color + '88';
       ctx.font = 'bold 9px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(sh.label, bx + bw / 2, shortY + 18);
+      ctx.fillText(sh.label, bx + bw / 2, shortY + 16);
     });
 
     // ── Character Roster ─────────────────────────────────────────
-    const crY = shortY + 36;
+    const crY = shortY + 28;
     ctx.fillStyle = 'rgba(0,0,20,0.7)';
-    ctx.fillRect(8, crY, W - 16, 96);
+    ctx.fillRect(8, crY, W - 16, 84);
     ctx.strokeStyle = '#223355';
     ctx.lineWidth = 1;
-    ctx.strokeRect(8, crY, W - 16, 96);
+    ctx.strokeRect(8, crY, W - 16, 84);
     ctx.fillStyle = '#5577aa';
     ctx.font = '9px monospace';
     ctx.textAlign = 'left';
@@ -453,9 +490,9 @@ const menuModule = (function() {
     const crCardW = Math.floor((W - 20) / Math.min(chars.length, 6));
     chars.slice(0, 6).forEach(function(ch, i) {
       const cx = 12 + i * crCardW;
-      const cy = crY + 18;
+      const cy = crY + 12;
       const cw = crCardW - 4;
-      const ch2 = 72;
+      const ch2 = 62;
       const isActive = (curCharId === ch.id);
       const isLocked = ch.unlockReq !== null && clearedCount2 < ch.unlockReq;
       const isPremium = (ch.id === 'warrior' || ch.id === 'mage' || ch.id === 'archer');
@@ -471,9 +508,9 @@ const menuModule = (function() {
         ctx.fillStyle = '#445566';
         ctx.font = '16px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('🔒', cx + cw / 2, cy + 32);
+        ctx.fillText('🔒', cx + cw / 2, cy + 26);
       } else {
-        _drawCharPortrait(ch.id, cx + cw / 2, cy + 30, 1.1);
+        _drawCharPortrait(ch.id, cx + cw / 2, cy + 24, 1.0);
       }
 
       // Name
@@ -481,26 +518,26 @@ const menuModule = (function() {
       ctx.font = isActive ? 'bold 8px monospace' : '8px monospace';
       ctx.textAlign = 'center';
       const shortName = (ch.name || ch.id).split(' ')[0].slice(0, 7);
-      ctx.fillText(shortName, cx + cw / 2, cy + 52);
+      ctx.fillText(shortName, cx + cw / 2, cy + 44);
 
       // Status badge
       if (isActive) {
         ctx.fillStyle = '#44ff88';
         ctx.font = '7px monospace';
-        ctx.fillText('▶使用中', cx + cw / 2, cy + 62);
+        ctx.fillText('▶使用中', cx + cw / 2, cy + 54);
       } else if (isLocked && isPremium) {
         ctx.fillStyle = '#ffaa44';
         ctx.font = '7px monospace';
-        ctx.fillText('💎World' + ch.unlockReq, cx + cw / 2, cy + 62);
+        ctx.fillText('💎World' + ch.unlockReq, cx + cw / 2, cy + 54);
       } else if (isLocked) {
         ctx.fillStyle = '#886644';
         ctx.font = '7px monospace';
-        ctx.fillText('W' + ch.unlockReq + '制覇', cx + cw / 2, cy + 62);
+        ctx.fillText('W' + ch.unlockReq + '制覇', cx + cw / 2, cy + 54);
       } else {
         // Stats mini
         ctx.fillStyle = '#556688';
         ctx.font = '7px monospace';
-        ctx.fillText('HP' + ch.hp + ' ATK' + ch.atk, cx + cw / 2, cy + 62);
+        ctx.fillText('HP' + ch.hp + ' ATK' + ch.atk, cx + cw / 2, cy + 54);
       }
 
       // FREE / PREMIUM tag
@@ -549,6 +586,8 @@ const menuModule = (function() {
       } else if (item === 'stageselect') {
         // Go to VimMan stage select
         switchGame('vimman');
+      } else if (item === 'linuxbattle') {
+        switchGame('linuxbattle');
       } else if (item === 'snake') {
         switchGame('snake');
       } else if (item === 'invaders') {
@@ -1508,10 +1547,24 @@ const menuModule = (function() {
       ctx.fillStyle = '#44aa44'; ctx.fillRect(sbX, thumbY, 4, thumbH);
     }
 
+    // Terminal preview panel (selected command)
+    const selectedItem = items[shellCursor];
+    if (selectedItem) {
+      const termY = H - 68;
+      ctx.fillStyle = 'rgba(0,12,0,0.95)';
+      ctx.fillRect(4, termY, W - 8, 40);
+      ctx.strokeStyle = '#226622'; ctx.lineWidth = 1;
+      ctx.strokeRect(4, termY, W - 8, 40);
+      ctx.fillStyle = '#44ff44'; ctx.font = 'bold 8px monospace'; ctx.textAlign = 'left';
+      ctx.fillText('user@vimarcade:~$ ' + (selectedItem.cmd.length > 50 ? selectedItem.cmd.slice(0,48)+'…' : selectedItem.cmd), 8, termY + 14);
+      ctx.fillStyle = '#88ffaa'; ctx.font = '8px monospace';
+      ctx.fillText('# ' + selectedItem.desc + '   [Enter:クリップボードにコピー]', 8, termY + 28);
+    }
+
     // Bottom hint
     ctx.fillStyle = '#336633';
     ctx.font = '9px monospace'; ctx.textAlign = 'center';
-    ctx.fillText('j/k:移動  h/l:カテゴリ  1-5:タブ  Enter:コピーして実行(ゲーム内コマンド適用)', W / 2, H - 26);
+    ctx.fillText('j/k:移動  h/l:カテゴリ  Enter:コピー  :wq=HOME', W / 2, H - 26);
 
     drawVimStatusline();
   }
@@ -1571,6 +1624,7 @@ const menuModule = (function() {
     claudeCatIdx = 0;
     window._cmdLineHandler = null;
     if (window.loadSave) window.loadSave();
+    if (window.GameAudio) window.GameAudio.playBGM('home');
     addFlash('VIM ARCADE HOME  j/k:移動  Enter:決定  2:キャラ  3:VIM CODEX  4:CLAUDE CODE');
   }
 

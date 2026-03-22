@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIM ARCADE — ログイン</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #070714;
+      --card:      rgba(14, 14, 32, 0.85);
+      --border:    rgba(85, 153, 255, 0.25);
+      --border-h:  rgba(85, 153, 255, 0.7);
+      --blue:      #5599ff;
+      --green:     #44ff88;
+      --gold:      #ffcc00;
+      --red:       #ff4466;
+      --text:      #ddeeff;
+      --sub:       #6688aa;
+      --input-bg:  rgba(10, 15, 40, 0.9);
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'Courier New', Courier, monospace;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── Animated background ── */
+    .bg-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Grid overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(85,153,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(85,153,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Card ── */
+    .auth-wrap {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 440px;
+      padding: 16px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .logo h1 {
+      font-size: 32px;
+      font-weight: bold;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #5599ff, #44ff88, #ffcc00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+    }
+    .logo p {
+      color: var(--sub);
+      font-size: 11px;
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      backdrop-filter: blur(20px);
+      box-shadow:
+        0 0 40px rgba(85,153,255,0.08),
+        0 20px 60px rgba(0,0,0,0.5);
+      transition: border-color 0.3s;
+    }
+    .card:hover { border-color: var(--border-h); }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      background: rgba(0,0,20,0.6);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 28px;
+      border: 1px solid rgba(85,153,255,0.15);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: transparent;
+      color: var(--sub);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border-radius: 7px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #1a2a5a, #0d1a40);
+      color: var(--blue);
+      box-shadow: 0 0 12px rgba(85,153,255,0.3);
+    }
+    .tab-btn:hover:not(.active) { color: var(--text); }
+
+    /* ── Form panel ── */
+    .form-panel { display: none; }
+    .form-panel.active { display: block; }
+
+    /* ── Fields ── */
+    .field {
+      margin-bottom: 18px;
+    }
+    .field label {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--sub);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .field-wrap {
+      position: relative;
+    }
+    .field-icon {
+      position: absolute;
+      left: 12px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+    .field input {
+      width: 100%;
+      padding: 12px 12px 12px 38px;
+      background: var(--input-bg);
+      border: 1px solid rgba(85,153,255,0.2);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .field input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(85,153,255,0.15);
+      background: rgba(15, 22, 55, 0.95);
+    }
+    .field input::placeholder { color: var(--sub); font-size: 13px; }
+
+    /* ── Submit button ── */
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      margin-top: 6px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1a4aaa, #5599ff);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-submit::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .btn-submit:hover::before { opacity: 1; }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(85,153,255,0.4); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Alert ── */
+    .alert {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .alert.show { display: flex; }
+    .alert.error {
+      background: rgba(255, 50, 80, 0.12);
+      border: 1px solid rgba(255, 50, 80, 0.4);
+      color: #ff8899;
+    }
+    .alert.success {
+      background: rgba(68, 255, 136, 0.1);
+      border: 1px solid rgba(68, 255, 136, 0.3);
+      color: var(--green);
+    }
+    .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Divider ── */
+    .divider {
+      text-align: center;
+      color: var(--sub);
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin: 20px 0;
+      position: relative;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%; width: calc(50% - 30px);
+      height: 1px;
+      background: rgba(85,153,255,0.15);
+    }
+    .divider::before { left: 0; }
+    .divider::after  { right: 0; }
+
+    /* ── Footer note ── */
+    .auth-note {
+      text-align: center;
+      font-size: 10px;
+      color: var(--sub);
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+
+    /* ── Password strength ── */
+    .pw-strength {
+      height: 3px;
+      border-radius: 2px;
+      margin-top: 6px;
+      background: rgba(255,255,255,0.05);
+      overflow: hidden;
+    }
+    .pw-bar {
+      height: 100%;
+      border-radius: 2px;
+      transition: all 0.3s;
+      width: 0%;
+    }
+
+    /* ── First-user note ── */
+    .admin-note {
+      background: rgba(255, 204, 0, 0.08);
+      border: 1px solid rgba(255, 204, 0, 0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 11px;
+      color: #ccaa44;
+      margin-bottom: 18px;
+      display: none;
+    }
+
+    /* ── Particles ── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.4; }
+      50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas class="bg-canvas" id="bgCanvas"></canvas>
+
+<div class="auth-wrap">
+  <div class="logo">
+    <h1>VIM ARCADE</h1>
+    <p>TERMINAL CHRONICLES</p>
+  </div>
+
+  <div class="card">
+    <!-- Tab switcher -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">ログイン</button>
+      <button class="tab-btn"        id="tab-reg"   onclick="switchTab('reg')">新規登録</button>
+    </div>
+
+    <!-- Login form -->
+    <div class="form-panel active" id="panel-login">
+      <div class="alert error" id="login-err">
+        <span class="alert-icon">⚠</span><span id="login-err-msg"></span>
+      </div>
+      <div class="alert success" id="login-ok">
+        <span class="alert-icon">✓</span><span>ログイン成功！ゲームへ移動します…</span>
+      </div>
+
+      <div class="field">
+        <label>ユーザー名 または メールアドレス</label>
+        <div class="field-wrap">
+          <span class="field-icon">👤</span>
+          <input type="text" id="login-id" placeholder="username / email" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>パスワード</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password">
+        </div>
+      </div>
+
+      <button class="btn-submit" id="login-btn" onclick="doLogin()">ログイン</button>
+    </div>
+
+    <!-- Register form -->
+    <div class="form-panel" id="panel-reg">
+      <div class="admin-note" id="admin-note">
+        ⭐ 最初のアカウントは自動的に管理者になります
+      </div>
+
+      <div class="alert error" id="reg-err">
+        <span class="alert-icon">⚠</span><span id="reg-err-msg"></span>
+      </div>
+      <div class="alert success" id="reg-ok">
+        <span class="alert-icon">✓</span><span>登録完了！ゲームへ移動します…</span>
+      </div>
+
+      <div class="field">
+        <label>ユーザー名</label>
+        <div class="field-wrap">
+          <span class="field-icon">👤</span>
+          <input type="text" id="reg-name" placeholder="3文字以上 (英数字・日本語)" autocomplete="username">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>メールアドレス</label>
+        <div class="field-wrap">
+          <span class="field-icon">✉</span>
+          <input type="email" id="reg-email" placeholder="you@example.com" autocomplete="email">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>パスワード</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="reg-pw" placeholder="6文字以上" autocomplete="new-password" oninput="checkStrength(this.value)">
+        </div>
+        <div class="pw-strength"><div class="pw-bar" id="pw-bar"></div></div>
+      </div>
+
+      <div class="field">
+        <label>パスワード（確認）</label>
+        <div class="field-wrap">
+          <span class="field-icon">🔒</span>
+          <input type="password" id="reg-pw2" placeholder="••••••••" autocomplete="new-password">
+        </div>
+      </div>
+
+      <button class="btn-submit" id="reg-btn" onclick="doRegister()">アカウント作成</button>
+    </div>
+
+    <div class="divider">VIM ARCADE</div>
+    <div class="auth-note">
+      ゲームデータはアカウントに紐付けて保存されます<br>
+      登録情報は他のユーザーには公開されません
+    </div>
+  </div>
+</div>
+
+<script src="auth.js"></script>
+<script>
+  // ── Background canvas animation ───────────────────────────────
+  (function() {
+    const canvas = document.getElementById('bgCanvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < 60; i++) {
+        particles.push({
+          x: Math.random() * W, y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4,
+          r: Math.random() * 1.5 + 0.5,
+          a: Math.random(),
+          col: ['#5599ff','#44ff88','#ffcc00','#ff6644'][Math.floor(Math.random()*4)],
+        });
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Gradient bg
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, '#070714');
+      g.addColorStop(1, '#0a0a20');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+
+      // Glow orbs
+      ['rgba(85,153,255,0.04)','rgba(68,255,136,0.03)'].forEach((c, i) => {
+        const gx = ctx.createRadialGradient(W*(i?0.8:0.2), H*(i?0.7:0.3), 0, W*(i?0.8:0.2), H*(i?0.7:0.3), W*0.4);
+        gx.addColorStop(0, c);
+        gx.addColorStop(1, 'transparent');
+        ctx.fillStyle = gx;
+        ctx.fillRect(0, 0, W, H);
+      });
+
+      // Particles
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        p.a += 0.008;
+        if (p.x < 0 || p.x > W) p.vx *= -1;
+        if (p.y < 0 || p.y > H) p.vy *= -1;
+        ctx.save();
+        ctx.globalAlpha = (Math.sin(p.a) * 0.5 + 0.5) * 0.5;
+        ctx.fillStyle = p.col;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+    resize(); initParticles(); draw();
+  })();
+
+  // ── Auth check ────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', function() {
+    if (window.GameAuth && window.GameAuth.isLoggedIn()) {
+      location.href = 'index.html';
+      return;
+    }
+
+    // Check if first user (show admin note)
+    try {
+      const users = JSON.parse(localStorage.getItem('va_users') || '[]');
+      if (users.length === 0) {
+        document.getElementById('admin-note').style.display = 'block';
+      }
+    } catch(e) {}
+
+    // Enter key support
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Enter') return;
+      const panel = document.querySelector('.form-panel.active').id;
+      if (panel === 'panel-login') doLogin();
+      else doRegister();
+    });
+  });
+
+  // ── Tab switch ────────────────────────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  // ── Password strength ─────────────────────────────────────────
+  function checkStrength(pw) {
+    const bar = document.getElementById('pw-bar');
+    let score = 0;
+    if (pw.length >= 6)  score++;
+    if (pw.length >= 10) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    const pct   = (score / 5) * 100;
+    const color = score <= 1 ? '#ff4466' : score <= 3 ? '#ffcc00' : '#44ff88';
+    bar.style.width = pct + '%';
+    bar.style.background = color;
+  }
+
+  // ── Alert helpers ─────────────────────────────────────────────
+  function showErr(prefix, msg) {
+    const el = document.getElementById(prefix + '-err');
+    document.getElementById(prefix + '-err-msg').textContent = msg;
+    el.classList.add('show');
+    document.getElementById(prefix + '-ok').classList.remove('show');
+    // Shake animation
+    const card = document.querySelector('.card');
+    card.style.animation = 'none';
+    requestAnimationFrame(() => { card.style.animation = ''; });
+  }
+
+  function showOk(prefix) {
+    document.getElementById(prefix + '-ok').classList.add('show');
+    document.getElementById(prefix + '-err').classList.remove('show');
+  }
+
+  function setLoading(btnId, loading, label) {
+    const btn = document.getElementById(btnId);
+    btn.disabled = loading;
+    btn.innerHTML = loading
+      ? '<span class="spinner"></span>処理中…'
+      : label;
+  }
+
+  // ── Login ─────────────────────────────────────────────────────
+  async function doLogin() {
+    const id = document.getElementById('login-id').value.trim();
+    const pw = document.getElementById('login-pw').value;
+
+    if (!id || !pw) { showErr('login', '全項目を入力してください'); return; }
+
+    setLoading('login-btn', true, 'ログイン');
+    const res = await window.GameAuth.login(id, pw);
+    setLoading('login-btn', false, 'ログイン');
+
+    if (!res.ok) { showErr('login', res.error); return; }
+
+    showOk('login');
+    setTimeout(() => { location.href = 'index.html'; }, 800);
+  }
+
+  // ── Register ──────────────────────────────────────────────────
+  async function doRegister() {
+    const name  = document.getElementById('reg-name').value;
+    const email = document.getElementById('reg-email').value;
+    const pw    = document.getElementById('reg-pw').value;
+    const pw2   = document.getElementById('reg-pw2').value;
+
+    if (pw !== pw2) { showErr('reg', 'パスワードが一致しません'); return; }
+
+    setLoading('reg-btn', true, 'アカウント作成');
+    const res = await window.GameAuth.register(name, email, pw);
+    setLoading('reg-btn', false, 'アカウント作成');
+
+    if (!res.ok) { showErr('reg', res.error); return; }
+
+    showOk('reg');
+    setTimeout(() => { location.href = 'index.html'; }, 800);
+  }
+</script>
+</body>
+</html>

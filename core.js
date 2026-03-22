@@ -280,5 +280,6 @@ function _handleCommandKey(e) {
     return;
   }
   if (e.code === 'Backspace') { cmdInput = cmdInput.slice(0, -1); return; }
-  if (e.key.length === 1)     cmdInput += e.key;
+  // Skip ':' so entering command mode doesn't prepend a colon to cmdInput
+  if (e.key.length === 1 && e.key !== ':') cmdInput += e.key;
 }

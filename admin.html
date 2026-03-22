@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIM ARCADE — 管理画面</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #060610;
+      --side:     #0a0a1e;
+      --card:     #0d0d22;
+      --card2:    #111128;
+      --border:   rgba(85,153,255,0.15);
+      --border-h: rgba(85,153,255,0.5);
+      --blue:     #5599ff;
+      --green:    #44ff88;
+      --gold:     #ffcc00;
+      --red:      #ff4466;
+      --orange:   #ff8844;
+      --purple:   #cc66ff;
+      --text:     #ddeeff;
+      --sub:      #5577aa;
+      --sidebar-w: 220px;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'Courier New', Courier, monospace;
+      color: var(--text);
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: var(--side);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed; left: 0; top: 0; bottom: 0;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo h2 {
+      font-size: 14px;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #5599ff, #44ff88);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .sidebar-logo p {
+      font-size: 10px;
+      color: var(--sub);
+      margin-top: 4px;
+      letter-spacing: 1px;
+    }
+
+    .sidebar-admin {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+    }
+    .sidebar-admin .label { color: var(--sub); font-size: 9px; letter-spacing: 2px; margin-bottom: 4px; }
+    .sidebar-admin .name  { color: var(--gold); font-weight: bold; }
+
+    .nav { padding: 12px 0; flex: 1; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 20px;
+      font-size: 12px;
+      color: var(--sub);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: rgba(85,153,255,0.06); color: var(--text); }
+    .nav-item.active { border-left-color: var(--blue); background: rgba(85,153,255,0.08); color: var(--blue); }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-logout {
+      width: 100%;
+      padding: 9px;
+      background: rgba(255,68,102,0.1);
+      border: 1px solid rgba(255,68,102,0.3);
+      border-radius: 6px;
+      color: #ff6680;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 1px;
+    }
+    .btn-logout:hover { background: rgba(255,68,102,0.2); border-color: var(--red); }
+
+    /* ── Main ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      padding: 28px;
+      overflow-y: auto;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Page header ── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-title { font-size: 18px; font-weight: bold; letter-spacing: 2px; }
+    .page-sub   { font-size: 11px; color: var(--sub); margin-top: 3px; }
+
+    /* ── Stat cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .stat-card:hover { border-color: var(--border-h); transform: translateY(-2px); }
+    .stat-label { font-size: 9px; letter-spacing: 2px; color: var(--sub); margin-bottom: 10px; text-transform: uppercase; }
+    .stat-value { font-size: 30px; font-weight: bold; line-height: 1; }
+    .stat-note  { font-size: 10px; color: var(--sub); margin-top: 6px; }
+    .c-blue   { color: var(--blue); }
+    .c-green  { color: var(--green); }
+    .c-gold   { color: var(--gold); }
+    .c-red    { color: var(--red); }
+    .c-purple { color: var(--purple); }
+    .c-orange { color: var(--orange); }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .table-toolbar input {
+      flex: 1; min-width: 160px;
+      padding: 8px 12px;
+      background: rgba(10,15,40,0.8);
+      border: 1px solid rgba(85,153,255,0.2);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      outline: none;
+    }
+    .table-toolbar input:focus { border-color: var(--blue); }
+    .filter-btn {
+      padding: 7px 12px;
+      background: rgba(85,153,255,0.08);
+      border: 1px solid rgba(85,153,255,0.2);
+      border-radius: 6px;
+      color: var(--sub);
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 1px;
+    }
+    .filter-btn.active, .filter-btn:hover { border-color: var(--blue); color: var(--blue); background: rgba(85,153,255,0.12); }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--sub);
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    tbody tr { border-bottom: 1px solid rgba(85,153,255,0.07); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: rgba(85,153,255,0.04); }
+    tbody td { padding: 10px 14px; font-size: 12px; vertical-align: middle; }
+    .td-mono { font-family: monospace; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 9px;
+      letter-spacing: 1px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .badge-admin  { background: rgba(255,204,0,0.15); color: var(--gold); border: 1px solid rgba(255,204,0,0.3); }
+    .badge-user   { background: rgba(85,153,255,0.1); color: var(--blue); border: 1px solid rgba(85,153,255,0.2); }
+    .badge-ban    { background: rgba(255,68,102,0.12); color: var(--red);  border: 1px solid rgba(255,68,102,0.3); }
+    .badge-active { background: rgba(68,255,136,0.1); color: var(--green); border: 1px solid rgba(68,255,136,0.2); }
+
+    /* ── Action buttons ── */
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .act-btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid;
+      transition: all 0.15s;
+      letter-spacing: 0.5px;
+    }
+    .act-ban    { background: rgba(255,136,68,0.1); border-color: rgba(255,136,68,0.3); color: var(--orange); }
+    .act-ban:hover { background: rgba(255,136,68,0.22); }
+    .act-del    { background: rgba(255,68,102,0.1); border-color: rgba(255,68,102,0.3); color: var(--red); }
+    .act-del:hover { background: rgba(255,68,102,0.22); }
+    .act-promo  { background: rgba(255,204,0,0.08); border-color: rgba(255,204,0,0.25); color: var(--gold); }
+    .act-promo:hover { background: rgba(255,204,0,0.16); }
+    .act-view   { background: rgba(85,153,255,0.08); border-color: rgba(85,153,255,0.25); color: var(--blue); }
+    .act-view:hover { background: rgba(85,153,255,0.18); }
+    .act-note   { background: rgba(204,102,255,0.08); border-color: rgba(204,102,255,0.25); color: var(--purple); }
+    .act-note:hover { background: rgba(204,102,255,0.18); }
+
+    /* ── Modal ── */
+    .modal-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: var(--card2);
+      border: 1px solid var(--border-h);
+      border-radius: 14px;
+      padding: 28px;
+      max-width: 540px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    }
+    .modal h3 { font-size: 15px; margin-bottom: 18px; letter-spacing: 2px; }
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      color: var(--sub);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .detail-row { display: flex; gap: 12px; margin-bottom: 10px; font-size: 12px; }
+    .detail-label { color: var(--sub); min-width: 120px; flex-shrink: 0; }
+    .detail-value { color: var(--text); word-break: break-all; }
+
+    .save-json {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 10px;
+      color: var(--green);
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+
+    .note-input {
+      width: 100%;
+      padding: 10px;
+      background: rgba(10,15,40,0.8);
+      border: 1px solid rgba(85,153,255,0.2);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 12px;
+      outline: none;
+      resize: vertical;
+      min-height: 70px;
+      margin-top: 6px;
+    }
+    .note-input:focus { border-color: var(--blue); }
+
+    .btn-primary {
+      padding: 9px 18px;
+      background: linear-gradient(135deg, #1a4aaa, #5599ff);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-family: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 12px;
+      letter-spacing: 1px;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+
+    /* ── Empty state ── */
+    .empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--sub);
+      font-size: 13px;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 700px) {
+      .sidebar { transform: translateX(-100%); }
+      .main { margin-left: 0; padding: 16px; }
+    }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: rgba(14,14,32,0.97);
+      border: 1px solid var(--border-h);
+      border-radius: 8px;
+      padding: 12px 18px;
+      font-size: 12px;
+      color: var(--green);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(85,153,255,0.2); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(85,153,255,0.4); }
+
+    .refresh-btn {
+      padding: 7px 14px;
+      background: rgba(68,255,136,0.08);
+      border: 1px solid rgba(68,255,136,0.25);
+      border-radius: 6px;
+      color: var(--green);
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .refresh-btn:hover { background: rgba(68,255,136,0.16); }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <h2>VIM ARCADE</h2>
+    <p>ADMIN PANEL</p>
+  </div>
+  <div class="sidebar-admin">
+    <div class="label">LOGGED IN AS</div>
+    <div class="name" id="admin-name">—</div>
+  </div>
+  <nav class="nav">
+    <a class="nav-item active" onclick="showPage('dashboard')">
+      <span class="nav-icon">📊</span> ダッシュボード
+    </a>
+    <a class="nav-item" onclick="showPage('users')">
+      <span class="nav-icon">👥</span> ユーザー管理
+    </a>
+    <a class="nav-item" onclick="showPage('saves')">
+      <span class="nav-icon">💾</span> セーブデータ
+    </a>
+    <a class="nav-item" onclick="location.href='index.html'">
+      <span class="nav-icon">🎮</span> ゲームに戻る
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="doLogout()">⏻  ログアウト</button>
+  </div>
+</aside>
+
+<!-- Main content -->
+<main class="main">
+
+  <!-- ── Dashboard ── -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <div class="page-title">📊 ダッシュボード</div>
+        <div class="page-sub">ユーザー統計とゲーム状況</div>
+      </div>
+      <button class="refresh-btn" onclick="refreshAll()">↻ 更新</button>
+    </div>
+
+    <div class="stats-grid" id="stats-grid">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <span style="font-size:12px;color:var(--sub);">最近のログイン</span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ユーザー名</th>
+            <th>最終ログイン</th>
+            <th>ログイン回数</th>
+            <th>ロール</th>
+            <th>状態</th>
+          </tr>
+        </thead>
+        <tbody id="recent-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── User Management ── -->
+  <div class="page" id="page-users">
+    <div class="page-header">
+      <div>
+        <div class="page-title">👥 ユーザー管理</div>
+        <div class="page-sub">登録ユーザーの確認・管理</div>
+      </div>
+      <button class="refresh-btn" onclick="loadUsers()">↻ 更新</button>
+    </div>
+
+    <div class="table-wrap">
+      <div class="table-toolbar">
+        <input type="text" id="user-search" placeholder="🔍 ユーザー名・メールで検索…" oninput="filterUsers()">
+        <button class="filter-btn active" onclick="setFilter(this,'all')">全員</button>
+        <button class="filter-btn" onclick="setFilter(this,'admin')">管理者</button>
+        <button class="filter-btn" onclick="setFilter(this,'banned')">BAN済</button>
+        <button class="filter-btn" onclick="setFilter(this,'active')">本日アクティブ</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ユーザー名</th>
+            <th>メールアドレス</th>
+            <th>登録日時</th>
+            <th>最終ログイン</th>
+            <th>ログイン回数</th>
+            <th>ロール</th>
+            <th>状態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="user-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Save Data ── -->
+  <div class="page" id="page-saves">
+    <div class="page-header">
+      <div>
+        <div class="page-title">💾 セーブデータ</div>
+        <div class="page-sub">ユーザーのゲーム進捗</div>
+      </div>
+      <button class="refresh-btn" onclick="loadSaves()">↻ 更新</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ユーザー名</th>
+            <th>VimMan Lv</th>
+            <th>VimMan World</th>
+            <th>LinuxBattle Ch</th>
+            <th>LB-XP</th>
+            <th>保存日時</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="save-table"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- User detail modal -->
+<div class="modal-bg" id="modal-user">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-user')">✕</button>
+    <h3 id="modal-username">ユーザー詳細</h3>
+    <div id="modal-details"></div>
+  </div>
+</div>
+
+<!-- Note modal -->
+<div class="modal-bg" id="modal-note">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeModal('modal-note')">✕</button>
+    <h3>📝 管理メモ</h3>
+    <div style="font-size:11px;color:var(--sub);margin-bottom:8px;" id="note-user-label"></div>
+    <textarea class="note-input" id="note-input" placeholder="このユーザーへのメモ…"></textarea>
+    <button class="btn-primary" onclick="saveNote()">保存</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script src="auth.js"></script>
+<script>
+  // ── Auth guard ─────────────────────────────────────────────────
+  if (!window.GameAuth || !window.GameAuth.isLoggedIn()) {
+    location.href = 'login.html';
+  }
+  if (!window.GameAuth.isAdmin()) {
+    alert('管理者権限がありません');
+    location.href = 'index.html';
+  }
+
+  // ── State ─────────────────────────────────────────────────────
+  let allUsers    = [];
+  let filterMode  = 'all';
+  let noteTarget  = null;
+
+  // ── Init ──────────────────────────────────────────────────────
+  window.addEventListener('DOMContentLoaded', function() {
+    const me = window.GameAuth.getCurrentUser();
+    document.getElementById('admin-name').textContent = me ? me.username : '—';
+    refreshAll();
+  });
+
+  function refreshAll() {
+    loadStats();
+    loadUsers();
+    loadRecentLogins();
+    if (document.getElementById('page-saves').classList.contains('active')) loadSaves();
+  }
+
+  // ── Page navigation ───────────────────────────────────────────
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (name === 'saves') loadSaves();
+  }
+
+  // ── Stats ─────────────────────────────────────────────────────
+  function loadStats() {
+    const s = window.GameAuth.getStats();
+    if (!s) return;
+    const grid = document.getElementById('stats-grid');
+    grid.innerHTML = [
+      { label: '登録ユーザー',   val: s.total,       note: '合計',         cls: 'c-blue',   icon: '👥' },
+      { label: '本日アクティブ', val: s.activeToday,  note: '24時間以内',   cls: 'c-green',  icon: '🟢' },
+      { label: '新規（7日以内）',val: s.newThisWeek,  note: '過去7日',      cls: 'c-purple', icon: '✨' },
+      { label: '管理者',         val: s.admins,       note: 'Admin権限',    cls: 'c-gold',   icon: '⭐' },
+      { label: 'BAN済み',        val: s.banned,       note: '制限中',       cls: 'c-red',    icon: '🚫' },
+      { label: 'セーブあり',     val: s.hasSave,      note: 'ゲームデータ', cls: 'c-orange', icon: '💾' },
+    ].map(c => `
+      <div class="stat-card">
+        <div class="stat-label">${c.icon} ${c.label}</div>
+        <div class="stat-value ${c.cls}">${c.val}</div>
+        <div class="stat-note">${c.note}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── Users ─────────────────────────────────────────────────────
+  function loadUsers() {
+    allUsers = window.GameAuth.getAllUsers();
+    renderUsers();
+  }
+
+  function setFilter(btn, mode) {
+    filterMode = mode;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderUsers();
+  }
+
+  function filterUsers() { renderUsers(); }
+
+  function renderUsers() {
+    const q   = (document.getElementById('user-search').value || '').toLowerCase();
+    const now = Date.now();
+    const day = 86400000;
+
+    let list = allUsers.filter(u => {
+      if (q && !u.username.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
+      if (filterMode === 'admin')  return u.isAdmin;
+      if (filterMode === 'banned') return u.banned;
+      if (filterMode === 'active') return u.lastLogin && (now - new Date(u.lastLogin).getTime()) < day;
+      return true;
+    });
+
+    const tbody = document.getElementById('user-table');
+    if (!list.length) {
+      tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-icon">🔍</div>ユーザーが見つかりません</div></td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map((u, i) => {
+      const roleBadge   = u.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : '<span class="badge badge-user">USER</span>';
+      const statusBadge = u.banned  ? '<span class="badge badge-ban">BAN</span>'   : '<span class="badge badge-active">ACTIVE</span>';
+      const lastLogin   = u.lastLogin ? fmtDate(u.lastLogin) : '<span style="color:var(--sub)">—</span>';
+      const note        = u.note ? `<span title="${esc(u.note)}" style="color:var(--purple);cursor:help">📝</span>` : '';
+
+      return `<tr>
+        <td style="color:var(--sub);font-size:11px">${i + 1}</td>
+        <td><strong>${esc(u.username)}</strong> ${note}</td>
+        <td class="td-mono" style="font-size:11px;color:var(--sub)">${esc(u.email)}</td>
+        <td style="font-size:11px;color:var(--sub)">${fmtDate(u.createdAt)}</td>
+        <td style="font-size:11px">${lastLogin}</td>
+        <td style="color:var(--blue)">${u.loginCount}</td>
+        <td>${roleBadge}</td>
+        <td>${statusBadge}</td>
+        <td>
+          <div class="action-btns">
+            <button class="act-btn act-view"  onclick="viewUser('${u.id}')">詳細</button>
+            ${!u.isAdmin ? `<button class="act-btn act-ban"   onclick="toggleBan('${u.id}')">${u.banned ? '解除' : 'BAN'}</button>` : ''}
+            ${!u.isAdmin ? `<button class="act-btn act-promo" onclick="promote('${u.id}')">昇格</button>` : ''}
+            <button class="act-btn act-note"  onclick="openNote('${u.id}','${esc(u.username)}','${esc(u.note||'')}')">メモ</button>
+            ${!u.isAdmin ? `<button class="act-btn act-del"   onclick="deleteUser('${u.id}')">削除</button>` : ''}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Recent logins ─────────────────────────────────────────────
+  function loadRecentLogins() {
+    const users = window.GameAuth.getAllUsers();
+    const sorted = users
+      .filter(u => u.lastLogin)
+      .sort((a, b) => new Date(b.lastLogin) - new Date(a.lastLogin))
+      .slice(0, 10);
+
+    const tbody = document.getElementById('recent-table');
+    if (!sorted.length) {
+      tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🕐</div>まだログインがありません</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = sorted.map(u => `<tr>
+      <td><strong>${esc(u.username)}</strong></td>
+      <td style="font-size:11px">${fmtDate(u.lastLogin)}</td>
+      <td style="color:var(--blue)">${u.loginCount}</td>
+      <td>${u.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : '<span class="badge badge-user">USER</span>'}</td>
+      <td>${u.banned ? '<span class="badge badge-ban">BAN</span>' : '<span class="badge badge-active">ACTIVE</span>'}</td>
+    </tr>`).join('');
+  }
+
+  // ── Save data ─────────────────────────────────────────────────
+  function loadSaves() {
+    const users = window.GameAuth.getAllUsers().filter(u => u.gameSave);
+    const tbody = document.getElementById('save-table');
+    if (!users.length) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">💾</div>セーブデータがありません</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = users.map(u => {
+      const s = u.gameSave || {};
+      return `<tr>
+        <td><strong>${esc(u.username)}</strong></td>
+        <td style="color:var(--green)">${s.level || '—'}</td>
+        <td style="color:var(--blue)">${s.currentWorld ? `W${s.currentWorld}-${s.currentStage||1}` : '—'}</td>
+        <td style="color:var(--gold)">${s.lb_chapter !== undefined ? 'Ch.'+(s.lb_chapter+1) : '—'}</td>
+        <td style="color:var(--purple)">${s.lb_xp !== undefined ? s.lb_xp : '—'}</td>
+        <td style="font-size:11px;color:var(--sub)">${u.gameSaveAt ? fmtDate(u.gameSaveAt) : '—'}</td>
+        <td><button class="act-btn act-view" onclick="viewSave('${u.id}')">詳細</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Actions ───────────────────────────────────────────────────
+  function toggleBan(id) {
+    const user = allUsers.find(u => u.id === id);
+    if (!user) return;
+    const action = user.banned ? '解除' : 'BAN';
+    if (!confirm(`${esc(user.username)} を${action}しますか？`)) return;
+    window.GameAuth.banUser(id);
+    toast(user.banned ? `${user.username} のBANを解除しました` : `${user.username} をBANしました`, user.banned ? 'green' : 'orange');
+    loadUsers(); loadStats();
+  }
+
+  function promote(id) {
+    const user = allUsers.find(u => u.id === id);
+    if (!user) return;
+    if (!confirm(`${esc(user.username)} を管理者に昇格しますか？`)) return;
+    window.GameAuth.promoteUser(id);
+    toast(`${user.username} を管理者に昇格しました`);
+    loadUsers(); loadStats();
+  }
+
+  function deleteUser(id) {
+    const user = allUsers.find(u => u.id === id);
+    if (!user) return;
+    if (!confirm(`⚠ ${esc(user.username)} を完全削除しますか？\nこの操作は取り消せません。`)) return;
+    window.GameAuth.deleteUser(id);
+    toast(`${user.username} を削除しました`, 'red');
+    loadUsers(); loadStats();
+  }
+
+  // ── User detail modal ─────────────────────────────────────────
+  function viewUser(id) {
+    const u = allUsers.find(u => u.id === id);
+    if (!u) return;
+    document.getElementById('modal-username').textContent = '👤 ' + u.username;
+    document.getElementById('modal-details').innerHTML = `
+      ${row('ID', u.id)}
+      ${row('ユーザー名', `<strong>${esc(u.username)}</strong>`)}
+      ${row('メール', esc(u.email))}
+      ${row('ロール', u.isAdmin ? '<span class="badge badge-admin">ADMIN</span>' : '<span class="badge badge-user">USER</span>')}
+      ${row('状態', u.banned ? '<span class="badge badge-ban">BAN中</span>' : '<span class="badge badge-active">ACTIVE</span>')}
+      ${row('登録日時', fmtDate(u.createdAt))}
+      ${row('最終ログイン', u.lastLogin ? fmtDate(u.lastLogin) : '未ログイン')}
+      ${row('ログイン回数', u.loginCount + ' 回')}
+      ${u.note ? row('メモ', `<em style="color:var(--purple)">${esc(u.note)}</em>`) : ''}
+      ${u.gameSave ? `<div style="margin-top:14px;font-size:11px;color:var(--sub);margin-bottom:4px;">セーブデータ</div>
+        <div class="save-json">${JSON.stringify(u.gameSave, null, 2)}</div>` : ''}
+    `;
+    document.getElementById('modal-user').classList.add('open');
+  }
+
+  function viewSave(id) {
+    const users = window.GameAuth.getAllUsers();
+    const u = users.find(u => u.id === id);
+    if (!u) return;
+    viewUser(id);
+  }
+
+  // ── Note modal ────────────────────────────────────────────────
+  function openNote(id, username, note) {
+    noteTarget = id;
+    document.getElementById('note-user-label').textContent = username;
+    document.getElementById('note-input').value = note || '';
+    document.getElementById('modal-note').classList.add('open');
+  }
+
+  function saveNote() {
+    if (!noteTarget) return;
+    const note = document.getElementById('note-input').value;
+    window.GameAuth.setUserNote(noteTarget, note);
+    closeModal('modal-note');
+    toast('メモを保存しました');
+    loadUsers();
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+  function row(label, val) {
+    return `<div class="detail-row"><div class="detail-label">${label}</div><div class="detail-value">${val}</div></div>`;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString('ja-JP') + ' ' + d.toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+    } catch(e) { return iso; }
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function toast(msg, type) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.color = type === 'red' ? 'var(--red)' : type === 'orange' ? 'var(--orange)' : 'var(--green)';
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2800);
+  }
+
+  function doLogout() {
+    window.GameAuth.logout();
+    location.href = 'login.html';
+  }
+
+  // Close modal on backdrop click
+  document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+  });
+</script>
+</body>
+</html>

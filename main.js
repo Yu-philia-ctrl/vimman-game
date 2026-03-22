@@ -38,5 +38,12 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
+// Init audio (resumes on user interaction per browser policy)
+if (window.GameAudio) {
+  window.GameAudio.init();
+  document.addEventListener('click',  function(){ window.GameAudio.resume(); });
+  document.addEventListener('keydown', function(){ window.GameAudio.resume(); });
+}
+
 menuModule.init();
 requestAnimationFrame(gameLoop);

@@ -48,7 +48,12 @@ const vimmanGame = (function() {
     const charBonus  = (vm_player && vm_player.atkBonus) ? Math.floor(vm_player.atkBonus / 2) : 0;
     const cid = vm_player ? vm_player.charId : 'vimman';
     const specialMul = (charSpecialActive > 0 && (cid==='claudeman' || cid==='warrior' || cid==='swordsman')) ? (cid==='claudeman' ? 2.0 : 1.5) : 1.0;
-    return (base + equipBonus + charBonus) * specialMul;
+    // :set effects
+    const setEffects = vm_player && vm_player.setEffects || {};
+    const syntaxMul  = setEffects['syntax']    ? 1.5 : 1.0;  // :set syntax → +50% dmg
+    const hlMul      = setEffects['hlsearch']  ? 1.4 : 1.0;  // :set hls → +40%
+    const ultimateMul= setEffects['nocompatible'] ? 2.0 : 1.0; // :set nocp → ×2
+    return (base + equipBonus + charBonus) * specialMul * syntaxMul * hlMul * ultimateMul;
   }
   function getMeleeDmg() {
     const equipBonus = window.getEquipStats ? window.getEquipStats().atk : 0;
@@ -392,6 +397,7 @@ const vimmanGame = (function() {
   let selectCursor = 0, specialCD = 0, undoActive = 0, yankHealCD = 0;
   let shieldActive = 0;
   let pauseCursor = 0;
+  let pauseJustOpened = false; // Guard: prevent Esc from instantly closing pause menu
   // New state variables for gameplay overhaul
   let xHoldTimer = 0;         // frames x key held — for charge shot
   let sComboCount = 0;        // sword combo counter
@@ -580,6 +586,11 @@ const vimmanGame = (function() {
     this.jumpMul   = cd.jumpMul || 1.0;
     this.atkBonus  = cd.atk     || 0;
     this.defBonus  = cd.def     || 0;
+    // MP (Mana Points) — consumed by :set commands
+    this.maxMP = 60 + (window.SAVE && window.SAVE.vimXP ? Math.floor(Math.sqrt(window.SAVE.vimXP) * 2) : 0);
+    this.mp    = this.maxMP;
+    this.mpRegenTimer = 0;
+    this.setEffects = {}; // active :set effects {id: timerFrames}
   }
   VimPlayer.prototype.update = function() {
     if (this.dead) { this.deathTimer--; return; }
@@ -637,6 +648,20 @@ const vimmanGame = (function() {
     }
     if (this.x<0) { this.x=0; this.vx=0; }
     if (this.x+this.w>COLS*TILE) { this.x=COLS*TILE-this.w; this.vx=0; }
+    // MP regen (slow)
+    this.mpRegenTimer = (this.mpRegenTimer||0) + 1;
+    if (this.mpRegenTimer >= 120) { this.mpRegenTimer=0; this.mp=Math.min(this.maxMP, this.mp+2); }
+    // :set effect timers
+    if (this.setEffects) {
+      Object.keys(this.setEffects).forEach(function(id){
+        this.setEffects[id]--;
+        if (this.setEffects[id] <= 0) delete this.setEffects[id];
+      }.bind(this));
+    }
+    // :set compatible (nocp) → HP regen
+    if (this.setEffects && this.setEffects['compatible']) {
+      if ((this.mpRegenTimer % 60) === 0) this.health = Math.min(this.maxHealth, this.health + 1);
+    }
   };
   VimPlayer.prototype.takeDamage = function(n) {
     if (this.invTimer>0) return;
@@ -2066,7 +2091,7 @@ const vimmanGame = (function() {
 
     // Attack patterns
     if (this.atkTimer > 0) { this.atkTimer--; return; }
-    var pat = this.atkPattern % 6;
+    var pat = this.atkPattern % 8;
     var spd = enraged ? 4.5 : 3.0;
 
     if (pat === 0) {
@@ -2134,18 +2159,45 @@ const vimmanGame = (function() {
       }
       addFlash('⚠ NULL DRAGON ── NULL RING!');
       this.atkTimer = enraged ? 90 : 140;
-    } else {
+    } else if (pat === 5) {
       // Phase 2: screen-filling darkness + random spray
       screenFlash = 15;
-      for (var i5 = 0; i5 < 30; i5++) {
+      for (var i5 = 0; i5 < (enraged ? 50 : 30); i5++) {
         var b5 = new Bullet(
           Math.random()*W, Math.random()<0.5 ? -8 : H+8,
           (Math.random()-0.5)*spd*2, Math.random()<0.5 ? spd*1.8 : -spd*1.8, false);
-        b5.w = 8; b5.h = 8;
+        b5.w = 10; b5.h = 10;
         vm_bullets.push(b5);
       }
       addFlash('⚠ NULL DRAGON ── VOID STORM!');
       this.atkTimer = enraged ? 55 : 85;
+    } else if (pat === 6) {
+      // CLAW SWIPE — 3 massive horizontal beams sweeping down
+      for (var cl = 0; cl < 3; cl++) {
+        var clY = (cl + 1) * H / 4;
+        for (var cli = 0; cli < 25; cli++) {
+          if (cli % 5 === 2) continue; // gap to dodge
+          var cb = new Bullet(-8 + cli * (W/24), clY + (Math.random()-0.5)*8, spd*1.8, 0, false);
+          cb.w = 16; cb.h = 16;
+          vm_bullets.push(cb);
+        }
+      }
+      addFlash('⚠ NULL DRAGON ── CLAW SWIPE!!');
+      this.atkTimer = enraged ? 65 : 100;
+    } else {
+      // TAIL SWEEP — diagonal cascade across full screen
+      var ts = enraged ? 40 : 26;
+      for (var ti = 0; ti < ts; ti++) {
+        var tb = new Bullet(W + 8, ti * (H / ts), -spd * 1.6, spd * 0.4 + Math.random()*0.5, false);
+        tb.w = 14; tb.h = 8;
+        vm_bullets.push(tb);
+        // Also from top
+        var tb2 = new Bullet(ti * (W / ts), -8, 0, spd * 1.4, false);
+        tb2.w = 8; tb2.h = 14;
+        vm_bullets.push(tb2);
+      }
+      addFlash('⚠ NULL DRAGON ── TAIL SWEEP!!');
+      this.atkTimer = enraged ? 70 : 110;
     }
     this.atkPattern++;
   };
@@ -2159,9 +2211,10 @@ const vimmanGame = (function() {
     ctx.globalAlpha = 1;
     ctx.restore();
 
-    // Massive body — fills the upper portion of screen
-    var bodyH = Math.round(H * 0.52);
-    var bodyY = -20 + Math.round(Math.sin(t*0.001)*8);
+    // Massive body — fills 70% of screen height + oscillates
+    var enraged2 = this.enrageTimer > 0;
+    var bodyH = Math.round(H * (enraged2 ? 0.72 : 0.62));
+    var bodyY = -30 + Math.round(Math.sin(t*0.001)*12);
 
     // Outer glow
     ctx.save();
@@ -2207,24 +2260,56 @@ const vimmanGame = (function() {
       ctx.fillRect(W/2 - 48 + t2*13, bodyY+80, 8, 12 + (t2%2)*6);
     }
 
-    // Dragon wings
+    // Dragon wings — enormous, span full canvas width
     ctx.save();
-    ctx.globalAlpha = 0.7 + 0.2*Math.sin(t*0.006);
-    ctx.fillStyle = '#550088';
-    // Left wing
+    ctx.globalAlpha = 0.75 + 0.2*Math.sin(t*0.006);
+    var wingFlap = Math.sin(t*0.008) * 24;
+    ctx.fillStyle = '#660099';
+    // Left wing (3 segments for detail)
     ctx.beginPath();
-    ctx.moveTo(0, bodyY+bodyH*0.5);
-    ctx.lineTo(-32, bodyY+bodyH*0.2);
-    ctx.lineTo(W*0.3, bodyY+bodyH*0.6);
+    ctx.moveTo(W*0.15, bodyY+bodyH*0.3);
+    ctx.lineTo(-W*0.15 + wingFlap, bodyY-20);
+    ctx.lineTo(-W*0.05, bodyY+bodyH*0.55);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(W*0.15, bodyY+bodyH*0.3);
+    ctx.lineTo(-W*0.05 + wingFlap*0.7, bodyY+bodyH*0.1);
+    ctx.lineTo(W*0.05, bodyY+bodyH*0.6);
     ctx.closePath(); ctx.fill();
     // Right wing
     ctx.beginPath();
-    ctx.moveTo(W, bodyY+bodyH*0.5);
-    ctx.lineTo(W+32, bodyY+bodyH*0.2);
-    ctx.lineTo(W*0.7, bodyY+bodyH*0.6);
+    ctx.moveTo(W*0.85, bodyY+bodyH*0.3);
+    ctx.lineTo(W*1.15 - wingFlap, bodyY-20);
+    ctx.lineTo(W*1.05, bodyY+bodyH*0.55);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(W*0.85, bodyY+bodyH*0.3);
+    ctx.lineTo(W*1.05 - wingFlap*0.7, bodyY+bodyH*0.1);
+    ctx.lineTo(W*0.95, bodyY+bodyH*0.6);
     ctx.closePath(); ctx.fill();
     ctx.globalAlpha = 1;
     ctx.restore();
+    // Tail — sweeps along bottom
+    ctx.save();
+    ctx.strokeStyle = '#770099'; ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(W*0.6, bodyY+bodyH*0.9);
+    ctx.quadraticCurveTo(W*0.85 + Math.sin(t*0.007)*30, bodyY+bodyH*1.1,
+                         W*0.9 + Math.cos(t*0.005)*20, bodyY+bodyH*1.3);
+    ctx.stroke();
+    ctx.restore();
+    // Giant claws at bottom
+    ctx.fillStyle = '#880099';
+    for (var ci = 0; ci < 6; ci++) {
+      var cx3 = W*0.2 + ci * (W*0.6/5);
+      ctx.beginPath();
+      ctx.moveTo(cx3 - 10, bodyY+bodyH);
+      ctx.lineTo(cx3 - 16, bodyY+bodyH+24+Math.sin(t*0.004+ci)*6);
+      ctx.lineTo(cx3 + 16, bodyY+bodyH+24+Math.sin(t*0.004+ci)*6);
+      ctx.lineTo(cx3 + 10, bodyY+bodyH);
+      ctx.closePath(); ctx.fill();
+    }
 
     // Shield visual
     if (this.shieldTimer > 0) {
@@ -2754,8 +2839,40 @@ const vimmanGame = (function() {
     screenFlash=15; addVimXP(killed*3);
     addFlash(':vs -- VERTICAL SPLIT! '+killed+' bugs obliterated');
   }
+  // ── :set commands database (MP-consuming abilities) ────────────
+  const SET_CMD_DB = [
+    { id:'nu',        aliases:['nu','number'],          mp:8,  dur:999,  desc:':set nu       → 行番号表示 / 弾速+20%',          effect:'bulletspd' },
+    { id:'syntax',    aliases:['syntax on','syntax'],   mp:15, dur:600,  desc:':set syntax   → 炎エフェクト / 弾ダメ+50%',      effect:'fireshot'  },
+    { id:'paste',     aliases:['paste'],                mp:12, dur:300,  desc:':set paste    → 貼り付けモード / 連射速度2倍',    effect:'fastfire'  },
+    { id:'ignorecase',aliases:['ic','ignorecase'],      mp:10, dur:450,  desc:':set ic       → 大文字無視 / 敵スピード-30%',    effect:'slowenemy' },
+    { id:'hlsearch',  aliases:['hls','hlsearch'],       mp:20, dur:360,  desc:':set hls      → 弱点ハイライト / dd範囲2倍',     effect:'ddboost'   },
+    { id:'autoindent',aliases:['ai','autoindent'],      mp:18, dur:480,  desc:':set ai       → 自動整列 / 被ダメ-40%',          effect:'armor'     },
+    { id:'spell',     aliases:['spell'],                mp:25, dur:300,  desc:':set spell    → スペルチェック / 範囲攻撃解放',   effect:'aoe'       },
+    { id:'wrap',      aliases:['wrap'],                 mp:14, dur:360,  desc:':set wrap     → 折り返し / 弾が壁で跳ね返る',    effect:'bounce'    },
+    { id:'modeline',  aliases:['ml','modeline'],        mp:30, dur:240,  desc:':set ml       → モデルライン / 全体攻撃×3',      effect:'vsboost'   },
+    { id:'compatible',aliases:['cp','compatible'],      mp:5,  dur:180,  desc:':set cp       → 互換モード / HPリジェネ',        effect:'regen'     },
+    { id:'nocompatible',aliases:['nocp','nocompatible'],mp:22, dur:480,  desc:':set nocp     → 非互換モード / 必殺攻撃解放',    effect:'ultimate'  },
+    { id:'expandtab', aliases:['et','expandtab'],       mp:10, dur:300,  desc:':set et       → タブ拡張 / 移動速度+30%',       effect:'speed'     },
+  ];
+
+  function handleSetCmd(arg) {
+    if (!vm_player) return;
+    const norm = arg.toLowerCase().trim();
+    const entry = SET_CMD_DB.find(function(e){ return e.aliases.indexOf(norm) !== -1; });
+    if (!entry) { addFlash(':set ' + arg + '  → E518: 不明なオプション。:help で一覧を確認'); return; }
+    if (vm_player.mp < entry.mp) {
+      addFlash(':set ' + arg + '  → MPが足りない！ (必要:' + entry.mp + ' 現在:' + Math.round(vm_player.mp) + ')');
+      return;
+    }
+    vm_player.mp -= entry.mp;
+    vm_player.setEffects[entry.id] = entry.dur;
+    screenFlash = 8;
+    addFlash(':set ' + arg + ' → ' + entry.desc + ' (MP-' + entry.mp + ')');
+    addVimXP(3);
+  }
+
   function handleCmdLine(cmd) {
-    const c=cmd.trim();
+    const c=cmd.replace(/^:/,'').trim();
     if (c==='w') {
       saveProgress(); lives=Math.min(lives+1,9); screenFlash=8; score+=200;
       addFlash(':w  -- Written! Progress saved. +1 BRANCH');
@@ -2823,7 +2940,9 @@ const vimmanGame = (function() {
     else if (c==='dd')            execDD();
     else if (c==='skills'||c==='equip') { state='equipment'; }
     else if (c==='menu')          { saveProgress(); switchGame('menu'); }
-    else addFlash('E492: Not an editor command: '+c+'  (try :help)');
+    else if (c.startsWith('set '))  { handleSetCmd(c.slice(4)); }
+    else if (c==='set')            { addFlash(':set オプション一覧: nu syntax paste ic hls ai spell wrap ml cp nocp et  (各オプションでMP消費して効果発動)'); }
+    else addFlash('E492: Not an editor command: '+c+'  (try :help or :set)');
   }
 
   // ── Camera ────────────────────────────────────────────────
@@ -2969,9 +3088,27 @@ const vimmanGame = (function() {
     const fillH=barH*pct;
     ctx.fillStyle=pct>0.5?'#00dd44':pct>0.25?'#ffaa00':'#ff2200';
     ctx.fillRect(barX+2, barY+barH-fillH, 12, fillH);
+    // MP bar (next to HP bar)
+    if (vm_player && vm_player.maxMP > 0) {
+      const mpBarX = barX + 20;
+      ctx.fillStyle='#4488ff'; ctx.font='bold 7px monospace'; ctx.textAlign='center';
+      ctx.fillText('MP', mpBarX+4, barY-6);
+      ctx.fillStyle='#111'; ctx.fillRect(mpBarX, barY, 10, barH);
+      ctx.strokeStyle='#224488'; ctx.lineWidth=1; ctx.strokeRect(mpBarX, barY, 10, barH);
+      const mpPct = vm_player.mp / vm_player.maxMP;
+      const mpFillH = barH * mpPct;
+      ctx.fillStyle = mpPct > 0.5 ? '#4488ff' : mpPct > 0.25 ? '#8844ff' : '#ff4488';
+      ctx.fillRect(mpBarX+1, barY+barH-mpFillH, 8, mpFillH);
+      // :set active effects indicator
+      if (vm_player.setEffects && Object.keys(vm_player.setEffects).length > 0) {
+        ctx.fillStyle='#aaccff'; ctx.font='7px monospace'; ctx.textAlign='left';
+        const efList = Object.keys(vm_player.setEffects).slice(0,3);
+        efList.forEach(function(ef, i){ ctx.fillText('▶'+ef, barX, barY+barH+14+i*10); });
+      }
+    }
     // Charge bar (VISUAL mode)
     if (vimMode==='VISUAL') {
-      const cx2=barX+20, cy2=barY;
+      const cx2=barX+34, cy2=barY;
       ctx.fillStyle='#111'; ctx.fillRect(cx2,cy2,8,barH);
       ctx.strokeStyle='#00ffff'; ctx.strokeRect(cx2,cy2,8,barH);
       const ch=barH*chargeLevel/100;
@@ -3090,7 +3227,7 @@ const vimmanGame = (function() {
     if (window.gameSettings && window.gameSettings.get('showHints') && !vm_bossTriggered) {
       ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(0,H-70,W,12);
       ctx.fillStyle='#334455'; ctx.font='9px monospace'; ctx.textAlign='center';
-      ctx.fillText(':wq=保存&HOME  :w=セーブ  :skills=装備  :q=メニューへ', W/2, H-61);
+      ctx.fillText(':wq=保存&HOME  :w=セーブ  :skills=装備  :set [op]=MPスキル  :q=メニューへ', W/2, H-61);
     }
 
     drawKeyDisplay();
@@ -3127,6 +3264,8 @@ const vimmanGame = (function() {
   }
 
   function updatePauseMenu() {
+    // Guard: skip first frame to prevent Esc from immediately closing the pause menu
+    if (pauseJustOpened) { pauseJustOpened = false; return; }
     if (justPressed('KeyJ')||justPressed('ArrowDown')) pauseCursor=(pauseCursor+1)%PAUSE_ITEMS.length;
     if (justPressed('KeyK')||justPressed('ArrowUp'))   pauseCursor=(pauseCursor-1+PAUSE_ITEMS.length)%PAUSE_ITEMS.length;
     if (justPressed('Escape')) { state='gameplay'; return; }
@@ -4119,7 +4258,7 @@ const vimmanGame = (function() {
     if (state==='pause') return; // pause handled in updatePauseMenu
     // ESC during gameplay → open pause menu (before NORMAL check so it works in any vim mode)
     if (state==='gameplay' && e.code==='Escape' && vimMode==='NORMAL') {
-      state='pause'; pauseCursor=0; return;
+      state='pause'; pauseCursor=0; pauseJustOpened=true; return;
     }
     if (state!=='gameplay') return;
     if (vimMode!=='NORMAL') return;
