@@ -362,50 +362,78 @@
 
     <!-- ── サイドパネル (PC: 右カラム / モバイル: 非表示) ── -->
     <div id="side-panel">
-      <!-- Amazon アフィリエイト（収益化） -->
+
+      <!-- ── メタバース仮想空間 ── -->
+      <div id="metaverse-panel">
+        <div class="meta-header">
+          <span class="meta-title">🌐 VIM ARCADE メタバース</span>
+          <span id="meta-online-badge">● 0 人オンライン</span>
+        </div>
+        <canvas id="metaverse-canvas" style="display:block;width:100%;image-rendering:pixelated;border:1px solid #1a3a6a;border-radius:0 0 0 0;background:#060e1a;cursor:crosshair;"></canvas>
+        <!-- Join form -->
+        <div id="meta-join-form">
+          <input type="text" id="meta-name-input" placeholder="ユーザー名を入力..." maxlength="16" autocomplete="off" spellcheck="false">
+          <button id="meta-join-btn">参加する →</button>
+        </div>
+        <!-- Status bar (visible when joined) -->
+        <div id="meta-status" style="display:none;">
+          <span id="meta-username-label">👤</span>
+          <span class="meta-hint">WASD/矢印 移動 · Enter チャット</span>
+          <button id="meta-leave-btn">退出</button>
+        </div>
+      </div>
+
+      <!-- ── Amazon おすすめ（モダンUI） ── -->
       <div id="sidebar-amzn">
-        <div class="sidebar-amzn-header">📚 Vimプレイヤーにおすすめ</div>
-        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=実践vim&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-          <span class="sidebar-amzn-icon">📗</span>
-          <div class="sidebar-amzn-info">
-            <div class="sidebar-amzn-title">実践 Vim</div>
-            <div class="sidebar-amzn-sub">プログラマー必携バイブル</div>
+        <div class="sidebar-amzn-header">
+          <span class="samzn-title">📦 おすすめ書籍・グッズ</span>
+          <span class="samzn-badge">Amazon</span>
+        </div>
+
+        <!-- Featured card -->
+        <a class="samzn-card samzn-featured" href="https://www.amazon.co.jp/s?k=実践vim+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <div class="samzn-feat-badge">🏆 ベストセラー</div>
+          <div class="samzn-feat-top">
+            <div class="samzn-feat-icon">📗</div>
+            <div class="samzn-feat-body">
+              <div class="samzn-cat">プログラミング / Vim</div>
+              <div class="samzn-feat-title">実践 Vim</div>
+              <div class="samzn-stars">★★★★★ <span class="samzn-rev">1,200+件</span></div>
+              <div class="samzn-desc">思考の速さでコードを書く</div>
+            </div>
           </div>
-          <span class="sidebar-amzn-btn">Amazonで見る →</span>
+          <div class="samzn-cta-btn">Amazonで見る →</div>
         </a>
-        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-          <span class="sidebar-amzn-icon">🐧</span>
-          <div class="sidebar-amzn-info">
-            <div class="sidebar-amzn-title">Linux コマンド入門</div>
-            <div class="sidebar-amzn-sub">LinuxBattleの予習に最適</div>
-          </div>
-          <span class="sidebar-amzn-btn">Amazonで見る →</span>
-        </a>
-        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=プログラマー+メカニカルキーボード&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-          <span class="sidebar-amzn-icon">⌨</span>
-          <div class="sidebar-amzn-info">
-            <div class="sidebar-amzn-title">メカニカルキーボード</div>
-            <div class="sidebar-amzn-sub">Vimに最適な打鍵感</div>
-          </div>
-          <span class="sidebar-amzn-btn">Amazonで見る →</span>
-        </a>
-        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=シェルスクリプト+入門+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-          <span class="sidebar-amzn-icon">💻</span>
-          <div class="sidebar-amzn-info">
-            <div class="sidebar-amzn-title">シェルスクリプト入門</div>
-            <div class="sidebar-amzn-sub">ターミナル上級者への道</div>
-          </div>
-          <span class="sidebar-amzn-btn">Amazonで見る →</span>
-        </a>
-        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=python+プログラミング+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-          <span class="sidebar-amzn-icon">🐍</span>
-          <div class="sidebar-amzn-info">
-            <div class="sidebar-amzn-title">Python プログラミング</div>
-            <div class="sidebar-amzn-sub">LinuxBattle Python面攻略</div>
-          </div>
-          <span class="sidebar-amzn-btn">Amazonで見る →</span>
-        </a>
+
+        <!-- Mini product grid -->
+        <div class="samzn-grid">
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <div class="samzn-mini-icon">🐧</div>
+            <div class="samzn-mini-title">Linux コマンド</div>
+            <div class="samzn-mini-stars">★★★★☆</div>
+            <div class="samzn-mini-cta">見る →</div>
+          </a>
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=メカニカルキーボード+プログラマー&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <div class="samzn-mini-icon">⌨</div>
+            <div class="samzn-mini-title">メカニカルKBD</div>
+            <div class="samzn-mini-stars">★★★★★</div>
+            <div class="samzn-mini-cta">見る →</div>
+          </a>
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=シェルスクリプト+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <div class="samzn-mini-icon">💻</div>
+            <div class="samzn-mini-title">シェルスクリプト</div>
+            <div class="samzn-mini-stars">★★★★☆</div>
+            <div class="samzn-mini-cta">見る →</div>
+          </a>
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=python+プログラミング+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <div class="samzn-mini-icon">🐍</div>
+            <div class="samzn-mini-title">Python 入門</div>
+            <div class="samzn-mini-stars">★★★★★</div>
+            <div class="samzn-mini-cta">見る →</div>
+          </a>
+        </div>
       </div><!-- end sidebar-amzn -->
+
     </div><!-- end side-panel -->
   </div><!-- end main-layout -->
 
@@ -413,9 +441,9 @@
   <div id="vim-reference">
     <div id="vim-ref-header">
       <span>📖 Vim コマンド完全一覧</span>
-      <button id="btn-vim-ref-toggle">折りたたむ ▲</button>
+      <button id="btn-vim-ref-toggle">開く ▼</button>
     </div>
-    <div id="vim-ref-body">
+    <div id="vim-ref-body" class="hidden">
 
       <div class="vr-section">
         <div class="vr-cat-title">カーソル移動</div>
@@ -866,6 +894,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script src="mobile.js"></script>
 <script src="community.js"></script>
+<script src="metaverse.js"></script>
 <script>
 // ── Auth integration ─────────────────────────────────────────────
 (function() {

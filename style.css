@@ -113,14 +113,11 @@ body {
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  box-shadow: 0 0 32px #0044ffaa, 0 0 64px #0022aa66;
-  border: 2px solid #002266;
-  /* PC: fill game column (viewport minus side-panel). Mobile: full viewport width */
-  width: min(1380px, calc(100vw - 380px));
+  box-shadow: 0 0 40px #0044ffaa, 0 0 80px #0022aa44;
+  border: 2px solid #0033aa;
+  width: 100%;
   height: auto;
-}
-@media (max-width: 1100px) {
-  #gameCanvas { width: 100vw !important; height: auto !important; }
+  max-width: 1400px;
 }
 
 /* ── Keyboard display ── */
@@ -246,32 +243,33 @@ body {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 16px;
+  gap: 14px;
   width: 100%;
   max-width: 1800px;
   margin: 0 auto;
-  padding: 0 8px;
+  padding: 0 10px;
   box-sizing: border-box;
 }
 #game-column {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  align-items: stretch;
+  gap: 8px;
   flex: 1 1 auto;
   min-width: 0;
 }
 #side-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  flex: 0 0 340px;
-  width: 340px;
+  gap: 10px;
+  flex: 0 0 400px;
+  width: 400px;
+  min-width: 0;
 }
 /* Mobile: side panel hidden, game column full width */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   #main-layout { flex-direction: column; align-items: center; padding: 0; }
-  #game-column { width: 100%; }
+  #game-column { width: 100%; align-items: center; }
   #side-panel { display: none; }
 }
 
@@ -410,70 +408,241 @@ body {
   font-family: monospace;
 }
 
-/* ── Sidebar Amazon affiliate widget ── */
-#sidebar-amzn {
-  background: rgba(5,8,20,0.96);
-  border: 1px solid rgba(255,153,0,0.25);
-  border-radius: 8px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* ── Metaverse Panel ── */
+#metaverse-panel {
+  background: #060e1a;
+  border: 1px solid #1a3a6a;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px #001a4444;
 }
-.sidebar-amzn-header {
-  font-size: 11px;
-  color: #ff9900;
-  font-family: monospace;
-  letter-spacing: 1px;
-  font-weight: bold;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255,153,0,0.15);
-  text-align: center;
-}
-.sidebar-amzn-item {
+.meta-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: rgba(20,12,0,0.6);
-  border: 1px solid rgba(255,153,0,0.2);
-  border-radius: 6px;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: linear-gradient(90deg, #0a1e38, #0d2a50);
+  border-bottom: 1px solid #1a3a6a;
+}
+.meta-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: #4d96ff;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+#meta-online-badge {
+  font-size: 10px;
+  font-family: monospace;
+  color: #445566;
+}
+#metaverse-canvas {
+  display: block;
+  width: 100% !important;
+  height: auto;
+  cursor: crosshair;
+  background: #060e1a;
+  aspect-ratio: 4/3;
+}
+#meta-join-form {
+  display: flex;
+  gap: 6px;
   padding: 10px 12px;
+  background: rgba(4,8,20,0.9);
+  border-top: 1px solid #0e2233;
+}
+#meta-name-input {
+  flex: 1;
+  background: #080f1e;
+  border: 1px solid #1a3a6a;
+  color: #aaccff;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 7px 10px;
+  border-radius: 5px;
+  outline: none;
+}
+#meta-name-input:focus { border-color: #4d96ff; box-shadow: 0 0 6px #4d96ff33; }
+#meta-join-btn {
+  background: linear-gradient(135deg, #1a5fa0, #2472c8);
+  border: none;
+  color: #fff;
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 7px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s;
+}
+#meta-join-btn:hover { filter: brightness(1.2); }
+#meta-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(4,8,20,0.9);
+  border-top: 1px solid #0e2233;
+  gap: 8px;
+}
+#meta-username-label {
+  font-size: 11px;
+  color: #6bcb77;
+  font-family: monospace;
+  font-weight: bold;
+}
+.meta-hint {
+  font-size: 9px;
+  color: #445566;
+  font-family: monospace;
+  flex: 1;
+  text-align: center;
+}
+#meta-leave-btn {
+  background: rgba(80,20,30,0.7);
+  border: 1px solid #5a2030;
+  color: #ff8888;
+  font-family: monospace;
+  font-size: 10px;
+  padding: 4px 9px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#meta-leave-btn:hover { background: rgba(140,30,50,0.8); }
+
+/* ── Modern Amazon sidebar cards ── */
+#sidebar-amzn {
+  background: #09080d;
+  border: 1px solid rgba(255,153,0,0.18);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.sidebar-amzn-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px;
+  background: linear-gradient(90deg, #120900, #1a0e00);
+  border-bottom: 1px solid rgba(255,153,0,0.15);
+}
+.samzn-title { font-size: 12px; font-weight: bold; color: #ffaa44; font-family: monospace; }
+.samzn-badge {
+  font-size: 9px;
+  color: #ff9900;
+  font-family: monospace;
+  background: rgba(255,153,0,0.12);
+  border: 1px solid rgba(255,153,0,0.3);
+  border-radius: 3px;
+  padding: 2px 6px;
+  letter-spacing: 1px;
+}
+/* Featured card */
+.samzn-card {
+  display: block;
+  text-decoration: none;
+  margin: 10px 10px 6px;
+  background: linear-gradient(135deg, #0e1a08, #141e0a);
+  border: 1px solid rgba(105,219,124,0.25);
+  border-radius: 8px;
+  padding: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+  position: relative;
+  overflow: hidden;
+}
+.samzn-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #69db7c, #40c057);
+  opacity: 0.6;
+}
+.samzn-card:hover {
+  border-color: rgba(105,219,124,0.55);
+  box-shadow: 0 4px 16px rgba(105,219,124,0.12);
+  transform: translateY(-1px);
+}
+.samzn-feat-badge {
+  font-size: 9px;
+  color: #ffd43b;
+  font-family: monospace;
+  font-weight: bold;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.samzn-feat-top {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.samzn-feat-icon { font-size: 32px; flex-shrink: 0; }
+.samzn-feat-body { flex: 1; }
+.samzn-cat {
+  font-size: 9px;
+  color: #556677;
+  font-family: monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 3px;
+}
+.samzn-feat-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ccffcc;
+  font-family: monospace;
+  margin-bottom: 3px;
+}
+.samzn-stars {
+  font-size: 11px;
+  color: #ffd43b;
+  margin-bottom: 3px;
+}
+.samzn-rev { font-size: 9px; color: #556677; font-family: monospace; }
+.samzn-desc { font-size: 10px; color: #889988; font-family: monospace; }
+.samzn-cta-btn {
+  margin-top: 10px;
+  display: block;
+  text-align: center;
+  background: linear-gradient(135deg, #ff9900, #ffaa22);
+  color: #111;
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 8px;
+  border-radius: 5px;
+  transition: filter 0.15s;
+}
+.samzn-card:hover .samzn-cta-btn { filter: brightness(1.1); }
+/* Mini product grid */
+.samzn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px 10px 10px;
+}
+.samzn-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255,153,0,0.05);
+  border: 1px solid rgba(255,153,0,0.15);
+  border-radius: 7px;
+  padding: 10px 6px 8px;
   text-decoration: none;
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
-.sidebar-amzn-item:hover {
-  background: rgba(40,24,0,0.8);
-  border-color: rgba(255,153,0,0.55);
-  transform: translateX(2px);
-}
-.sidebar-amzn-icon { font-size: 24px; flex-shrink: 0; }
-.sidebar-amzn-info { flex: 1; min-width: 0; }
-.sidebar-amzn-title {
-  font-size: 12px;
-  color: #ffcc88;
-  font-family: monospace;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.sidebar-amzn-sub {
-  font-size: 10px;
-  color: #887766;
-  font-family: monospace;
-  margin-top: 2px;
-}
-.sidebar-amzn-btn {
-  font-size: 10px;
-  color: #ff9900;
-  font-family: monospace;
-  white-space: nowrap;
-  flex-shrink: 0;
+.samzn-mini:hover {
   background: rgba(255,153,0,0.12);
-  border: 1px solid rgba(255,153,0,0.3);
-  border-radius: 4px;
-  padding: 4px 7px;
+  border-color: rgba(255,153,0,0.4);
+  transform: translateY(-2px);
 }
+.samzn-mini-icon  { font-size: 22px; }
+.samzn-mini-title { font-size: 10px; color: #ccbb99; font-family: monospace; text-align: center; font-weight: bold; line-height: 1.3; }
+.samzn-mini-stars { font-size: 9px; color: #ffd43b; }
+.samzn-mini-cta   { font-size: 9px; color: #ff9900; font-family: monospace; background: rgba(255,153,0,0.15); border-radius: 3px; padding: 2px 6px; }
 
 /* ── Touch button base ── */
 .touch-btn {
