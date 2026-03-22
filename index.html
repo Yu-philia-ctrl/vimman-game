@@ -182,35 +182,26 @@
     </div>
   </div>
 
-  <!-- AdSense 上部バナー（レスポンシブ） -->
-  <div class="ad-slot ad-slot-top" id="ad-top">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-3016615146886765"
-         data-ad-slot="auto"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  </div>
-
-  <!-- Main layout: game + optional side ad -->
+  <!-- Main layout: game full-width, no side ads blocking canvas -->
   <div id="main-layout">
-
-    <!-- Main game area -->
     <div id="game-area">
       <canvas id="gameCanvas" width="800" height="600" tabindex="0" autofocus></canvas>
     </div>
+  </div><!-- end main-layout -->
 
-    <!-- AdSense サイドバー（160×600 デスクトップのみ） -->
-    <div class="ad-slot ad-slot-side" id="ad-side">
+  <!-- ── インタースティシャル広告オーバーレイ (ゲーム遷移時に表示) ── -->
+  <div id="interstitial-overlay" class="hidden">
+    <div id="interstitial-inner">
+      <div id="interstitial-countdown">広告 <span id="interstitial-sec">5</span>秒後にスキップ</div>
+      <button id="interstitial-skip" class="hidden">スキップ →</button>
+      <!-- AdSense スロット -->
       <ins class="adsbygoogle"
-           style="display:inline-block;width:160px;height:600px"
+           style="display:block;width:300px;height:250px"
            data-ad-client="ca-pub-3016615146886765"
            data-ad-slot="auto"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
-
-  </div><!-- end main-layout -->
+  </div>
 
   <!-- ── Amazon アソシエイト おすすめ書籍バー ── -->
   <!-- ★ ?tag=vimman-22-22 の「vimman-22」をAmazonアソシエイトのトラッキングIDに差し替え -->
@@ -876,6 +867,55 @@ document.addEventListener('DOMContentLoaded', function() {
   var btn = document.getElementById('btn-share');
   if (btn) btn.addEventListener('click', function() { shareToX(); });
 });
+
+// ── インタースティシャル広告 ──────────────────────────────────
+(function() {
+  var overlay = null, skipBtn = null, secEl = null, timer = null, skipTimer = null;
+  var lastShown = 0;
+  var MIN_INTERVAL = 60000; // 最低1分間隔
+
+  function init() {
+    overlay = document.getElementById('interstitial-overlay');
+    skipBtn = document.getElementById('interstitial-skip');
+    secEl   = document.getElementById('interstitial-sec');
+    if (!overlay) return;
+    skipBtn.addEventListener('click', hide);
+  }
+
+  function show() {
+    if (!overlay) init();
+    if (!overlay) return;
+    var now = Date.now();
+    if (now - lastShown < MIN_INTERVAL) return; // インターバル制限
+    lastShown = now;
+    overlay.classList.remove('hidden');
+    if (skipBtn) skipBtn.classList.add('hidden');
+    var sec = 5;
+    if (secEl) secEl.textContent = sec;
+    clearInterval(timer);
+    timer = setInterval(function() {
+      sec--;
+      if (secEl) secEl.textContent = Math.max(0, sec);
+      if (sec <= 0) {
+        clearInterval(timer);
+        if (skipBtn) skipBtn.classList.remove('hidden');
+      }
+    }, 1000);
+    // Auto-hide after 10s even if not skipped
+    clearTimeout(skipTimer);
+    skipTimer = setTimeout(hide, 10000);
+  }
+
+  function hide() {
+    if (overlay) overlay.classList.add('hidden');
+    clearInterval(timer);
+    clearTimeout(skipTimer);
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+  window.showInterstitial = show;
+  window.hideInterstitial = hide;
+})();
 
 function redeemVipCode() {
   var input = document.getElementById('vip-code-input');

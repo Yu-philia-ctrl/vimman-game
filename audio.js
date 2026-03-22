@@ -348,6 +348,7 @@ window.GameAudio = (function() {
   function playBGM(name) {
     if (!ac || !bgmEnabled) return;
     if (currentBgm === name) return;
+    resume(); // ensure AudioContext is running before scheduling notes
     stopBGM();
     const pat = BGM[name];
     if (!pat) return;

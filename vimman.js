@@ -3905,11 +3905,12 @@ const vimmanGame = (function() {
       }
       saveProgress();
       score+=5000;
+      if (window.showInterstitial) window.showInterstitial();
       state='stageclear'; blinkTimer=0;
     }
     if (vm_player.dead&&vm_player.deathTimer<=0) {
       lives--;
-      if (lives<=0) { state='gameover'; blinkTimer=0; }
+      if (lives<=0) { if (window.showInterstitial) window.showInterstitial(); state='gameover'; blinkTimer=0; }
       else { initStage(); state='stageintro'; }
     }
   }

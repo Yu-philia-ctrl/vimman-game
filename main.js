@@ -10,7 +10,11 @@ function switchGame(name) {
   currentGame = name;
   if (name === 'menu') {
     menuModule.init();
+    // Restore home BGM — AudioContext is already running at this point
+    if (window.GameAudio) window.GameAudio.playBGM('home');
   } else if (_gameModules[name]) {
+    // Show interstitial ad between game transitions
+    if (window.showInterstitial) window.showInterstitial();
     _gameModules[name].init();
   }
 }

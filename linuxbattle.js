@@ -633,6 +633,7 @@ var linuxBattleGame = (function() {
       endTimer++;
       if(justPressed('Enter')||justPressed('KeyZ')||endTimer>180){
         if(gainedXP>0&&pendingDrop&&!hasInv(pendingDrop)){state='equip';equipTab=0;equipCursor=0;return;}
+        if(window.showInterstitial)window.showInterstitial();
         state='overworld';if(window.GameAudio)window.GameAudio.playBGM(CHAPTERS[currentArea].bgm||'overworld');
       }
       return;
@@ -685,7 +686,7 @@ var linuxBattleGame = (function() {
     playerMoving=false;playerDir=2;playerStep=0;
     camX=playerPX-W/2;camY=playerPY-H/2;
     currentArea=0;showAreaLabel=120;areaLabelText=CHAPTERS[0].area;
-    if(window.GameAudio){if(window.GameAudio.init)window.GameAudio.init();window.GameAudio.playBGM('title');}
+    if(window.GameAudio){setTimeout(function(){window.GameAudio.playBGM('title');},200);}
   }
   function update(){
     frame++;
@@ -734,31 +735,31 @@ var linuxBattleGame = (function() {
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H-20);
     // stars
     for(var i=0;i<60;i++){var sx=(i*173+frame*0.2)%W,sy=(i*97+frame*0.05)%(H-20);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*Math.sin(frame*0.05+i))+')';ctx.fillRect(Math.floor(sx),Math.floor(sy),1,1);}
-    // Tokyo Tower
-    var tx=380,ty2=110;ctx.fillStyle='#ff4444';ctx.beginPath();ctx.moveTo(tx,ty2+130);ctx.lineTo(tx-10,ty2+130);ctx.lineTo(tx-22,ty2+65);ctx.lineTo(tx-6,ty2+40);ctx.lineTo(tx,ty2);ctx.lineTo(tx+6,ty2+40);ctx.lineTo(tx+22,ty2+65);ctx.lineTo(tx+10,ty2+130);ctx.fill();
+    // Tokyo Tower (right side, away from menu)
+    var tx=640,ty2=90;ctx.fillStyle='#ff4444';ctx.beginPath();ctx.moveTo(tx,ty2+120);ctx.lineTo(tx-10,ty2+120);ctx.lineTo(tx-20,ty2+60);ctx.lineTo(tx-6,ty2+36);ctx.lineTo(tx,ty2);ctx.lineTo(tx+6,ty2+36);ctx.lineTo(tx+20,ty2+60);ctx.lineTo(tx+10,ty2+120);ctx.fill();
     if(frame%60<30){ctx.fillStyle='#fff';ctx.fillRect(tx-1,ty2-2,3,3);}
-    // title
-    ctx.textAlign='center';ctx.font='bold 24px monospace';ctx.fillStyle='#ffcc00';ctx.fillText('LINUX BATTLE',W/2,55);
-    ctx.font='12px monospace';ctx.fillStyle='#88ccff';ctx.fillText('Terminal Chronicles — 東京コマンドRPG',W/2,74);
+    // title (left-center)
+    ctx.textAlign='center';ctx.font='bold 24px monospace';ctx.fillStyle='#ffcc00';ctx.fillText('LINUX BATTLE',W/3,55);
+    ctx.font='12px monospace';ctx.fillStyle='#88ccff';ctx.fillText('Terminal Chronicles — 東京コマンドRPG',W/3,74);
     // story blurb
-    ctx.font='9px monospace';ctx.fillStyle='#cc8866';ctx.fillText('Linuxコマンドを武器に、悪意あるプロセスから東京を守れ！',W/2,95);
-    ctx.fillStyle='#886644';ctx.fillText('LinuC試験レベルに準拠 / Python・Java・TypeScript スキル習得',W/2,108);
-    // menu
+    ctx.font='9px monospace';ctx.fillStyle='#cc8866';ctx.fillText('Linuxコマンドを武器に東京を守れ！',W/3,95);
+    ctx.fillStyle='#886644';ctx.fillText('LinuC試験レベル準拠 / Python・Java・TS',W/3,110);
+    // menu (left-center area)
     var opts=['ゲームスタート','メニューに戻る'];
     for(var oi=0;oi<opts.length;oi++){
-      var oy=185+oi*36;
+      var oy=150+oi*40;
       var sel2=(oi===charCursor);
-      ctx.fillStyle=sel2?'rgba(60,50,0,0.85)':'rgba(20,20,50,0.7)';
-      ctx.fillRect(W/2-110,oy-16,220,22);
+      ctx.fillStyle=sel2?'rgba(60,50,0,0.92)':'rgba(20,20,50,0.88)';
+      ctx.fillRect(W/3-120,oy-16,240,26);
       ctx.strokeStyle=sel2?'#ffcc00':'#445566';
-      ctx.lineWidth=1;ctx.strokeRect(W/2-110,oy-16,220,22);
+      ctx.lineWidth=1;ctx.strokeRect(W/3-120,oy-16,240,26);
       ctx.font=(sel2?'bold ':'')+'14px monospace';
       ctx.fillStyle=sel2?'#ffff00':'#bbbbcc';
-      ctx.fillText((sel2?'▶ ':' ')+opts[oi],W/2,oy);
+      ctx.fillText((sel2?'▶ ':' ')+opts[oi],W/3,oy);
     }
     ctx.font='9px monospace';ctx.fillStyle='#444466';
-    ctx.fillText('↑↓/jk:選択  Enter/Z:決定  hjkl:移動  Tab/M:ステージ  E:装備',W/2,H-38);
-    ctx.fillText('草むら歩行でエンカウント → クイズ付きバトル → 装備ドロップ',W/2,H-26);
+    ctx.fillText('↑↓/jk:選択  Enter/Z:決定  hjkl:移動  Tab/M:ステージ  E:装備',W/2,H-44);
+    ctx.fillText('草むら歩行でエンカウント → クイズ付きバトル → 装備ドロップ',W/2,H-32);
   }
 
   // ── drawStory ───────────────────────────────────────────────────
@@ -837,10 +838,10 @@ var linuxBattleGame = (function() {
     if(overworldMsgTimer>0){
       var msgAlpha=Math.min(1,overworldMsgTimer/20);
       ctx.globalAlpha=msgAlpha;
-      ctx.fillStyle='rgba(0,0,0,0.85)';ctx.fillRect(4,H-66,W-8,28);
-      ctx.strokeStyle='#446688';ctx.lineWidth=1;ctx.strokeRect(4,H-66,W-8,28);
-      ctx.font='bold 9px monospace';ctx.textAlign='left';ctx.fillStyle='#ffff88';ctx.fillText('▶',8,H-50);
-      ctx.font='9px monospace';ctx.fillStyle='#ffffff';ctx.fillText(overworldMsg,20,H-50);
+      ctx.fillStyle='rgba(0,0,0,0.85)';ctx.fillRect(4,H-80,W-86,28);
+      ctx.strokeStyle='#446688';ctx.lineWidth=1;ctx.strokeRect(4,H-80,W-86,28);
+      ctx.font='bold 9px monospace';ctx.textAlign='left';ctx.fillStyle='#ffff88';ctx.fillText('▶',8,H-64);
+      ctx.font='9px monospace';ctx.fillStyle='#ffffff';ctx.fillText(overworldMsg,20,H-64);
       ctx.globalAlpha=1;
     }
     // mini HUD (top-left)
@@ -856,14 +857,14 @@ var linuxBattleGame = (function() {
     var tdx=(tp.ax+7)*TILE, tdy=(tp.ay+14)*TILE;
     var ang2=Math.atan2(tdy-playerPY, tdx-playerPX);
     if(currentArea!==targetCh){
-      // Objective bar at bottom
-      ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(4,H-42,W-8,14);
+      // Objective bar at bottom (leave right side for minimap)
+      ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(4,H-52,W-86,16);
       ctx.font='bold 8px monospace';ctx.textAlign='left';ctx.fillStyle='#ffff00';
-      ctx.fillText('目標: ',6,H-31);
+      ctx.fillText('目標: ',6,H-40);
       ctx.font='8px monospace';ctx.fillStyle='#ffffff';
       var objText=CHAPTERS[targetCh].area+'へ → '+CHAPTERS[targetCh].objective;
-      if(objText.length>52)objText=objText.slice(0,50)+'…';
-      ctx.fillText(objText,44,H-31);
+      if(objText.length>46)objText=objText.slice(0,44)+'…';
+      ctx.fillText(objText,44,H-40);
       // Arrow near player
       if(frame%40<25){
         var ppx2=Math.floor(playerPX-icx)+8, ppy2=Math.floor(playerPY-icy)+4;
@@ -877,12 +878,12 @@ var linuxBattleGame = (function() {
       }
     } else {
       // In target area: show objective
-      ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(4,H-42,W-8,14);
+      ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(4,H-52,W-86,16);
       ctx.font='8px monospace';ctx.textAlign='left';ctx.fillStyle='#44ff88';
-      ctx.fillText('★ '+CHAPTERS[currentArea].area+': '+CHAPTERS[currentArea].objective.slice(0,48),6,H-31);
+      ctx.fillText('★ '+CHAPTERS[currentArea].area+': '+CHAPTERS[currentArea].objective.slice(0,44),6,H-40);
     }
-    // Mini-map (bottom-right)
-    var mx=W-76,my=H-66,mw=72,mh=50;
+    // Mini-map (bottom-right, sized to fit above statusline)
+    var mx=W-76,my=H-78,mw=70,mh=42;
     ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(mx-2,my-10,mw+4,mh+12);
     ctx.strokeStyle='#334455';ctx.lineWidth=1;ctx.strokeRect(mx-2,my-10,mw+4,mh+12);
     ctx.font='6px monospace';ctx.textAlign='center';ctx.fillStyle='#556677';ctx.fillText('MAP',mx+mw/2,my-2);
@@ -900,7 +901,7 @@ var linuxBattleGame = (function() {
     var tp2=DISTRICT_POS[targetCh];
     var tdotx=mx+Math.floor((tp2.ax+7)*sx2), tdoty=my+Math.floor((tp2.ay+14)*sy2);
     if(frame%20<10){ctx.fillStyle='#ffff00';ctx.fillRect(tdotx-2,tdoty-2,5,5);}
-    ctx.font='8px monospace';ctx.fillStyle='#444466';ctx.textAlign='center';ctx.fillText('hjkl:移動  Tab:ステージ  E:装備  Esc:メニュー',W/2,H-26);
+    ctx.font='8px monospace';ctx.fillStyle='#444466';ctx.textAlign='center';ctx.fillText('hjkl:移動  Tab:ステージ  E:装備  Esc:メニュー',W/2-40,H-34);
   }
   function drawTile(sx,sy,t,tx,ty){
     switch(t){
@@ -1037,28 +1038,28 @@ var linuxBattleGame = (function() {
     // enemy
     if(currentEnemy){
       ctx.save();ctx.translate(sx,sy);
-      drawEnemySprite(W-125,Math.floor(H*0.06)+battleEnemyY,currentEnemy);
+      drawEnemySprite(W-125,Math.floor(H*0.28)+battleEnemyY,currentEnemy);
       ctx.restore();
-      // enemy HP bar
+      // enemy HP bar (name above, bar below)
+      ctx.font='bold 7px monospace';ctx.textAlign='left';ctx.fillStyle='#fff';ctx.fillText(currentEnemy.name,W-140,8);
+      if(scanRevealed){ctx.fillStyle='#aaffaa';ctx.textAlign='right';ctx.font='7px monospace';ctx.fillText(enemyHP+'/'+enemyMaxHP,W-14,8);}
       hpBar(W-142,10,130,11,enemyHP,enemyMaxHP,'#44cc44');
-      ctx.font='bold 8px monospace';ctx.textAlign='left';ctx.fillStyle='#fff';ctx.fillText(currentEnemy.name,W-140,9);
-      if(scanRevealed){ctx.fillStyle='#aaffaa';ctx.textAlign='right';ctx.font='8px monospace';ctx.fillText(enemyHP+'/'+enemyMaxHP,W-14,9);}
-      if(currentEnemy.isBoss){ctx.fillStyle='#ff4444';ctx.font='bold 8px monospace';ctx.textAlign='center';ctx.fillText('★ BOSS ★',W-77,24);}
+      if(currentEnemy.isBoss){ctx.fillStyle='#ff4444';ctx.font='bold 7px monospace';ctx.textAlign='center';ctx.fillText('★ BOSS ★',W-77,26);}
     }
     // player
     var cd=window.CHARACTER_DEFS&&window.CHARACTER_DEFS.find(function(d){return d.id===((window.SAVE&&window.SAVE.character)||'vimman');});
-    drawCharSprite(62,Math.floor(H*0.5),cd,frame,2.2);
-    // player bars
+    drawCharSprite(62,Math.floor(H*0.57),cd,frame,2.2);
+    // player bars (labels above bars)
+    ctx.font='7px monospace';ctx.textAlign='left';ctx.fillStyle='#aaffaa';ctx.fillText('HP '+playerHP+'/'+playerMaxHP,10,8);
     hpBar(8,10,118,10,playerHP,playerMaxHP,'#44cc44');
-    hpBar(8,23,118,8,playerMP,playerMaxMP,'#4488ff');
-    ctx.font='8px monospace';ctx.textAlign='left';ctx.fillStyle='#aaffaa';ctx.fillText('HP '+playerHP+'/'+playerMaxHP,10,9);
-    ctx.fillStyle='#88aaff';ctx.fillText('MP '+playerMP+'/'+playerMaxMP,10,22);
-    // status icons
-    var si=132;
-    if(playerShield>0){ctx.fillStyle='#88ccff';ctx.font='8px monospace';ctx.textAlign='left';ctx.fillText('[盾'+playerShield+']',si,9);si+=32;}
-    if(playerIronwall>0){ctx.fillStyle='#ffaa44';ctx.fillText('[鉄壁'+playerIronwall+']',si,9);si+=42;}
-    if(tsNullifyNext){ctx.fillStyle='#66ffff';ctx.fillText('[TS無効]',si,9);}
-    if(javaCharge>0){ctx.fillStyle='#ffcc00';ctx.fillText('[Java+'+javaCharge+']',8,35);}
+    ctx.fillStyle='#88aaff';ctx.fillText('MP '+playerMP+'/'+playerMaxMP,10,23);
+    hpBar(8,25,118,8,playerMP,playerMaxMP,'#4488ff');
+    // status icons (row below HP/MP bars)
+    var si=8;
+    if(playerShield>0){ctx.fillStyle='#88ccff';ctx.font='7px monospace';ctx.textAlign='left';ctx.fillText('[盾'+playerShield+']',si,36);si+=36;}
+    if(playerIronwall>0){ctx.fillStyle='#ffaa44';ctx.font='7px monospace';ctx.fillText('[鉄壁'+playerIronwall+']',si,36);si+=46;}
+    if(tsNullifyNext){ctx.fillStyle='#66ffff';ctx.font='7px monospace';ctx.fillText('[TS無効]',si,36);}
+    if(javaCharge>0){ctx.fillStyle='#ffcc00';ctx.font='7px monospace';ctx.fillText('[Java+'+javaCharge+']',si+(tsNullifyNext?40:0),36);}
     // battle panel
     var panY=Math.floor(H*0.69);
     ctx.fillStyle='rgba(0,0,16,0.94)';ctx.fillRect(0,panY,W,H-20-panY);ctx.strokeStyle='#334488';ctx.lineWidth=1;ctx.strokeRect(0,panY,W,H-20-panY);
@@ -1171,14 +1172,14 @@ var linuxBattleGame = (function() {
       ctx.fillText((equipped?'✓ ':' ')+it.name+(slot==='weapon'?' ATK+'+it.atk:slot==='armor'?' HP+'+it.hp+' DEF+'+it.def:' MP+'+it.mp),10,y2+ii*22+14);
       ctx.font='8px monospace';ctx.fillStyle='#556677';ctx.textAlign='right';ctx.fillText('Lv.'+it.lv+' '+it.desc,W-8,y2+ii*22+14);ctx.textAlign='left';
     }
-    // current stats preview
+    // current stats preview (positioned to leave room for control hint)
     var st=getStats();
-    var sy4=H-75;ctx.fillStyle='rgba(0,0,30,0.85)';ctx.fillRect(4,sy4,W-8,52);ctx.strokeStyle='#334';ctx.lineWidth=1;ctx.strokeRect(4,sy4,W-8,52);
+    var sy4=H-90;ctx.fillStyle='rgba(0,0,30,0.85)';ctx.fillRect(4,sy4,W-8,52);ctx.strokeStyle='#334';ctx.lineWidth=1;ctx.strokeRect(4,sy4,W-8,52);
     ctx.font='9px monospace';ctx.fillStyle='#88aaff';ctx.textAlign='left';
     ctx.fillText('現在の装備ステータス: HP '+st.hp+' / ATK '+st.atk+' / DEF '+st.def+' / MP '+st.mp,10,sy4+14);
     var langs=getAvailLangs();ctx.fillStyle='#88ff88';ctx.fillText('解放済み言語: '+(langs.length>0?langs.map(function(l){return l.icon+l.id;}).join(' '):'(なし)'),10,sy4+28);
     ctx.fillStyle='#ffaa44';ctx.fillText('LinuC Lv.'+CHAPTERS[Math.min(getLbCh(),9)].tier+' / 現在エリア: '+CHAPTERS[currentArea].area,10,sy4+42);
-    ctx.font='9px monospace';ctx.fillStyle='#444466';ctx.textAlign='center';ctx.fillText('↑↓:選択  Enter:装備  ←→:タブ  Esc:戻る',W/2,H-35);
+    ctx.font='9px monospace';ctx.fillStyle='#444466';ctx.textAlign='center';ctx.fillText('↑↓:選択  Enter:装備  ←→:タブ  Esc:戻る',W/2,H-34);
   }
 
   var _mod={init:init,update:update,draw:draw,onKey:onKey};

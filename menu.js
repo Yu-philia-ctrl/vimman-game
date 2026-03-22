@@ -1851,7 +1851,6 @@ const menuModule = (function() {
     claudeCatIdx = 0;
     window._cmdLineHandler = null;
     if (window.loadSave) window.loadSave();
-    if (window.GameAudio) window.GameAudio.playBGM('home');
     addFlash('VIM ARCADE  1:HOME  2:キャラ  3:VIM  4:CLAUDE  5:SHELL  6:コミュニティ  j/k:移動');
   }
 
