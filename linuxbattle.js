@@ -735,27 +735,27 @@ var linuxBattleGame = (function() {
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H-20);
     // stars
     for(var i=0;i<60;i++){var sx=(i*173+frame*0.2)%W,sy=(i*97+frame*0.05)%(H-20);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*Math.sin(frame*0.05+i))+')';ctx.fillRect(Math.floor(sx),Math.floor(sy),1,1);}
-    // Tokyo Tower (right side, away from menu)
-    var tx=640,ty2=90;ctx.fillStyle='#ff4444';ctx.beginPath();ctx.moveTo(tx,ty2+120);ctx.lineTo(tx-10,ty2+120);ctx.lineTo(tx-20,ty2+60);ctx.lineTo(tx-6,ty2+36);ctx.lineTo(tx,ty2);ctx.lineTo(tx+6,ty2+36);ctx.lineTo(tx+20,ty2+60);ctx.lineTo(tx+10,ty2+120);ctx.fill();
+    // Tokyo Tower (far right edge, decorative)
+    var tx=W-60,ty2=80;ctx.fillStyle='#ff4444';ctx.beginPath();ctx.moveTo(tx,ty2+140);ctx.lineTo(tx-12,ty2+140);ctx.lineTo(tx-24,ty2+70);ctx.lineTo(tx-7,ty2+42);ctx.lineTo(tx,ty2);ctx.lineTo(tx+7,ty2+42);ctx.lineTo(tx+24,ty2+70);ctx.lineTo(tx+12,ty2+140);ctx.fill();
     if(frame%60<30){ctx.fillStyle='#fff';ctx.fillRect(tx-1,ty2-2,3,3);}
-    // title (left-center)
-    ctx.textAlign='center';ctx.font='bold 24px monospace';ctx.fillStyle='#ffcc00';ctx.fillText('LINUX BATTLE',W/3,55);
-    ctx.font='12px monospace';ctx.fillStyle='#88ccff';ctx.fillText('Terminal Chronicles — 東京コマンドRPG',W/3,74);
+    // title (centered)
+    ctx.textAlign='center';ctx.font='bold 26px monospace';ctx.fillStyle='#ffcc00';ctx.fillText('LINUX BATTLE',W/2,55);
+    ctx.font='12px monospace';ctx.fillStyle='#88ccff';ctx.fillText('Terminal Chronicles — 東京コマンドRPG',W/2,76);
     // story blurb
-    ctx.font='9px monospace';ctx.fillStyle='#cc8866';ctx.fillText('Linuxコマンドを武器に東京を守れ！',W/3,95);
-    ctx.fillStyle='#886644';ctx.fillText('LinuC試験レベル準拠 / Python・Java・TS',W/3,110);
-    // menu (left-center area)
+    ctx.font='10px monospace';ctx.fillStyle='#cc8866';ctx.fillText('Linuxコマンドを武器に東京を守れ！',W/2,100);
+    ctx.fillStyle='#886644';ctx.fillText('LinuC試験レベル準拠 / Python・Java・TS',W/2,116);
+    // menu (centered)
     var opts=['ゲームスタート','メニューに戻る'];
     for(var oi=0;oi<opts.length;oi++){
-      var oy=150+oi*40;
+      var oy=160+oi*46;
       var sel2=(oi===charCursor);
       ctx.fillStyle=sel2?'rgba(60,50,0,0.92)':'rgba(20,20,50,0.88)';
-      ctx.fillRect(W/3-120,oy-16,240,26);
+      ctx.fillRect(W/2-130,oy-18,260,30);
       ctx.strokeStyle=sel2?'#ffcc00':'#445566';
-      ctx.lineWidth=1;ctx.strokeRect(W/3-120,oy-16,240,26);
-      ctx.font=(sel2?'bold ':'')+'14px monospace';
+      ctx.lineWidth=1;ctx.strokeRect(W/2-130,oy-18,260,30);
+      ctx.font=(sel2?'bold ':'')+'15px monospace';
       ctx.fillStyle=sel2?'#ffff00':'#bbbbcc';
-      ctx.fillText((sel2?'▶ ':' ')+opts[oi],W/3,oy);
+      ctx.fillText((sel2?'▶ ':' ')+opts[oi],W/2,oy);
     }
     ctx.font='9px monospace';ctx.fillStyle='#444466';
     ctx.fillText('↑↓/jk:選択  Enter/Z:決定  hjkl:移動  Tab/M:ステージ  E:装備',W/2,H-44);

@@ -182,12 +182,12 @@
     </div>
   </div>
 
-  <!-- Main layout: game full-width, no side ads blocking canvas -->
+  <!-- Main layout: game column (left) + side panel (right on PC) -->
   <div id="main-layout">
-    <div id="game-area">
-      <canvas id="gameCanvas" width="800" height="600" tabindex="0" autofocus></canvas>
-    </div>
-  </div><!-- end main-layout -->
+    <div id="game-column">
+      <div id="game-area">
+        <canvas id="gameCanvas" width="800" height="600" tabindex="0" autofocus></canvas>
+      </div>
 
   <!-- ── インタースティシャル広告オーバーレイ (ゲーム遷移時に表示) ── -->
   <div id="interstitial-overlay" class="hidden">
@@ -358,8 +358,58 @@
       <span class="leg-cmd">:コマンド</span>
     </div>
   </div>
+    </div><!-- end game-column -->
 
-  <!-- ── Vim Command Reference (HTML, scrollable) ── -->
+    <!-- ── サイドパネル (PC: 右カラム / モバイル: 非表示) ── -->
+    <div id="side-panel">
+      <!-- Amazon アフィリエイト（収益化） -->
+      <div id="sidebar-amzn">
+        <div class="sidebar-amzn-header">📚 Vimプレイヤーにおすすめ</div>
+        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=実践vim&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <span class="sidebar-amzn-icon">📗</span>
+          <div class="sidebar-amzn-info">
+            <div class="sidebar-amzn-title">実践 Vim</div>
+            <div class="sidebar-amzn-sub">プログラマー必携バイブル</div>
+          </div>
+          <span class="sidebar-amzn-btn">Amazonで見る →</span>
+        </a>
+        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <span class="sidebar-amzn-icon">🐧</span>
+          <div class="sidebar-amzn-info">
+            <div class="sidebar-amzn-title">Linux コマンド入門</div>
+            <div class="sidebar-amzn-sub">LinuxBattleの予習に最適</div>
+          </div>
+          <span class="sidebar-amzn-btn">Amazonで見る →</span>
+        </a>
+        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=プログラマー+メカニカルキーボード&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <span class="sidebar-amzn-icon">⌨</span>
+          <div class="sidebar-amzn-info">
+            <div class="sidebar-amzn-title">メカニカルキーボード</div>
+            <div class="sidebar-amzn-sub">Vimに最適な打鍵感</div>
+          </div>
+          <span class="sidebar-amzn-btn">Amazonで見る →</span>
+        </a>
+        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=シェルスクリプト+入門+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <span class="sidebar-amzn-icon">💻</span>
+          <div class="sidebar-amzn-info">
+            <div class="sidebar-amzn-title">シェルスクリプト入門</div>
+            <div class="sidebar-amzn-sub">ターミナル上級者への道</div>
+          </div>
+          <span class="sidebar-amzn-btn">Amazonで見る →</span>
+        </a>
+        <a class="sidebar-amzn-item" href="https://www.amazon.co.jp/s?k=python+プログラミング+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <span class="sidebar-amzn-icon">🐍</span>
+          <div class="sidebar-amzn-info">
+            <div class="sidebar-amzn-title">Python プログラミング</div>
+            <div class="sidebar-amzn-sub">LinuxBattle Python面攻略</div>
+          </div>
+          <span class="sidebar-amzn-btn">Amazonで見る →</span>
+        </a>
+      </div><!-- end sidebar-amzn -->
+    </div><!-- end side-panel -->
+  </div><!-- end main-layout -->
+
+  <!-- ── Vim Command Reference (HTML, scrollable, full width) ── -->
   <div id="vim-reference">
     <div id="vim-ref-header">
       <span>📖 Vim コマンド完全一覧</span>
@@ -893,7 +943,7 @@ document.addEventListener('DOMContentLoaded', function() {
 (function() {
   var overlay = null, skipBtn = null, secEl = null, timer = null, skipTimer = null;
   var lastShown = 0;
-  var MIN_INTERVAL = 60000; // 最低1分間隔
+  var MIN_INTERVAL = 30000; // 最低30秒間隔
 
   function init() {
     overlay = document.getElementById('interstitial-overlay');
