@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /vimman-game/
+Disallow: /vimman-game/admin.html
+
+Sitemap: https://yu-philia-ctrl.github.io/vimman-game/sitemap.xml

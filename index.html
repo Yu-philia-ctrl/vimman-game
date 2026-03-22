@@ -6,12 +6,72 @@
   <meta name="theme-color" content="#000011">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>VIM ARCADE — Vimコマンドで戦うアクションRPG</title>
-  <meta name="description" content="Vimのコマンドを使って戦うアクションRPG。50ワールドを制覇してNULL DRAGONを倒せ！無料でブラウザからプレイ。">
-  <meta property="og:title" content="VIM ARCADE">
-  <meta property="og:description" content="Vimコマンドで戦うアクションRPG — 無料ブラウザゲーム">
+  <title>VIM ARCADE — Vimコマンドで戦う無料ブラウザRPG</title>
+
+  <!-- ── SEO ── -->
+  <meta name="description" content="Vimコマンド（hjkl・dd・yy・:wq）で戦うブラウザRPG。50ワールドを制覇してNULL DRAGONを倒せ！登録無料・完全無料でプレイ。LinuxコマンドRPGも同時収録。">
+  <meta name="keywords" content="vim,vimゲーム,vimコマンド練習,ブラウザゲーム,無料RPG,linuxコマンド,プログラマーゲーム,vim arcade">
+  <meta name="author" content="VIM ARCADE Project">
+  <link rel="canonical" href="https://yu-philia-ctrl.github.io/vimman-game/">
+
+  <!-- ── OGP (Facebook / LINE) ── -->
+  <meta property="og:title" content="VIM ARCADE — Vimコマンドで戦う無料ブラウザRPG">
+  <meta property="og:description" content="hjkl移動・dd攻撃・:wqセーブ。Vimを使って50ワールドを制覇せよ！無料プレイ。">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yu-philia-ctrl.github.io/vimman-game/">
+  <meta property="og:image" content="https://yu-philia-ctrl.github.io/vimman-game/ogp.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="VIM ARCADE">
+  <meta property="og:locale" content="ja_JP">
+
+  <!-- ── Twitter Card ── -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="VIM ARCADE — Vimコマンドで戦う無料ブラウザRPG">
+  <meta name="twitter:description" content="hjkl移動・dd攻撃・:wqセーブ。Vimを使って50ワールドを制覇せよ！無料プレイ。">
+  <meta name="twitter:image" content="https://yu-philia-ctrl.github.io/vimman-game/ogp.png">
+
+  <!-- ── PWA ── -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- ── Structured Data (JSON-LD) ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "name": "VIM ARCADE",
+    "description": "Vimコマンドで戦う無料ブラウザアクションRPG。50ワールドを制覇してNULL DRAGONを倒せ。",
+    "url": "https://yu-philia-ctrl.github.io/vimman-game/",
+    "image": "https://yu-philia-ctrl.github.io/vimman-game/ogp.png",
+    "applicationCategory": "Game",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "JPY",
+      "availability": "https://schema.org/InStock"
+    },
+    "genre": ["RPG", "Action", "Educational"],
+    "inLanguage": "ja"
+  }
+  </script>
+
   <link rel="stylesheet" href="style.css">
+
+  <!-- ── Google Analytics GA4 ── -->
+  <!-- ★ G-XXXXXXXXXX を自分のGA4測定IDに差し替え (Googleアナリティクスで取得) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+    // ヘルパー: ゲームイベント計測
+    window.gaEvent = function(name, params) {
+      try { gtag('event', name, params || {}); } catch(e) {}
+    };
+  </script>
+
   <!-- Google AdSense 自動広告 -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3016615146886765" crossorigin="anonymous"></script>
   <!-- Auth early-redirect: runs before DOM renders -->
@@ -39,6 +99,7 @@
     <div id="toolbar-right">
       <button class="tb-btn" id="btn-home" title="メニューへ (Esc)">🏠 HOME</button>
       <button class="tb-btn" id="btn-settings" title="設定">⚙ 設定</button>
+      <button class="tb-btn tb-btn-share" id="btn-share" title="Xでシェア">𝕏 Share</button>
       <button class="tb-btn tb-btn-support" id="btn-support" title="応援する">❤ Support</button>
       <button class="tb-btn" id="btn-kbd-toggle" title="キーボード表示切替">⌨ KBD</button>
       <span id="tb-user-wrap" style="display:none;align-items:center;gap:6px;margin-left:4px;">
@@ -794,6 +855,27 @@ function doGameLogout() {
   if (window.GameAuth) window.GameAuth.logout();
   location.href = 'login.html';
 }
+
+// ── Xシェア ────────────────────────────────────────────────────
+function shareToX(customText) {
+  var text = customText;
+  if (!text) {
+    var save = window.SAVE || {};
+    var lv   = save.level || 1;
+    var xp   = save.vimXP || 0;
+    var w    = save.clearedWorlds ? Object.keys(save.clearedWorlds).length : 0;
+    text = 'VIM ARCADEプレイ中！ Lv' + lv + ' / World' + w + '制覇 / VimXP:' + xp +
+           '\nVimコマンドで戦う無料RPG👾 #VIMARCADE #Vim\nhttps://yu-philia-ctrl.github.io/vimman-game/';
+  }
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text),
+    '_blank', 'noopener,noreferrer,width=560,height=420');
+  if (window.gaEvent) gaEvent('share_click', { source: 'toolbar' });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var btn = document.getElementById('btn-share');
+  if (btn) btn.addEventListener('click', function() { shareToX(); });
+});
 
 function redeemVipCode() {
   var input = document.getElementById('vip-code-input');

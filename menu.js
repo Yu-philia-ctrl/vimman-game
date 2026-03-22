@@ -562,6 +562,21 @@ const menuModule = (function() {
       }
     });
 
+    // ── プレミアムCTAバナー（未解放の場合のみ表示） ───────────────
+    const _hasPrem = window.GamePremium && window.GamePremium.isPremium();
+    if (!_hasPrem) {
+      const bannerY = H - 56;
+      ctx.fillStyle = 'rgba(180,100,0,0.18)';
+      ctx.fillRect(8, bannerY, W - 16, 18);
+      ctx.strokeStyle = 'rgba(255,170,50,0.4)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(8, bannerY, W - 16, 18);
+      ctx.fillStyle = '#ffcc55';
+      ctx.font = 'bold 9px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('💎 Warrior・Mage・Archerを解放 → Support から ¥980  |  既にお持ちの方はVIPコード入力', W / 2, bannerY + 12);
+    }
+
     // ── Bottom hint ───────────────────────────────────────────────
     ctx.fillStyle = '#334455';
     ctx.font = '9px monospace';

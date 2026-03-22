@@ -1,0 +1,27 @@
+{
+  "name": "VIM ARCADE",
+  "short_name": "VIMARCADE",
+  "description": "Vimコマンドで戦うアクションRPG。50ワールドを制覇してNULL DRAGONを倒せ！",
+  "start_url": "/vimman-game/",
+  "display": "standalone",
+  "background_color": "#000011",
+  "theme_color": "#000011",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "lang": "ja",
+  "screenshots": []
+}

@@ -3655,7 +3655,10 @@ const vimmanGame = (function() {
     blinkTimer++;
     if (Math.floor(blinkTimer/30)%2===0) {
       ctx.fillStyle='#ffffff'; ctx.font='bold 12px monospace'; ctx.textAlign='center';
-      ctx.fillText('Enter: 次のワールドへ   Esc: ワールド選択', W/2, H-18);
+      ctx.fillText('Enter: 次のワールドへ   Esc: ワールド選択', W/2, H-30);
+    } else {
+      ctx.fillStyle='#1da1f2'; ctx.font='bold 11px monospace'; ctx.textAlign='center';
+      ctx.fillText('𝕏 T: World' + worldNum + 'クリアをXでシェア！ #VIMARCADE', W/2, H-30);
     }
     drawVimStatusline();
   }
@@ -4212,16 +4215,28 @@ const vimmanGame = (function() {
         }
       }
       if (justPressed('Escape')) { saveProgress(); state='worldselect'; }
+      if (justPressed('KeyT')) {
+        var bname = window.WORLD_DEFS ? window.WORLD_DEFS[worldNum-1].bossName : 'ボス';
+        var txt = 'VIM ARCADE — World' + worldNum + '「' + bname + '」撃破！\nVimコマンドで戦う無料RPG👾 #VIMARCADE #Vim\nhttps://yu-philia-ctrl.github.io/vimman-game/';
+        window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(txt), '_blank', 'noopener,noreferrer,width=560,height=420');
+        if (window.gaEvent) gaEvent('share_click', { source: 'stageclear', world: worldNum });
+      }
     }
     else if (state==='reward') {
       blinkTimer++;
       if (isEnter()||justPressed('Escape')) {
         score=0; lives=3;
-        // Advance to next world
         const nextW = Math.min(worldNum + 1, 50);
         worldSelectCursor = nextW - 1;
         worldSelectScroll = Math.max(0, worldSelectCursor - 4);
         state='worldselect';
+      }
+      if (justPressed('KeyT')) {
+        var bname2 = window.WORLD_DEFS ? window.WORLD_DEFS[worldNum-1].bossName : 'ボス';
+        var cmdUnlocked = rewardData && rewardData.cmd ? ' コマンド「' + rewardData.cmd.cmd + '」解放！' : '';
+        var txt2 = 'VIM ARCADE — World' + worldNum + '「' + bname2 + '」撃破！' + cmdUnlocked + '\nVimXP: ' + (window.SAVE ? window.SAVE.vimXP : 0) + '\n👾 #VIMARCADE #Vim\nhttps://yu-philia-ctrl.github.io/vimman-game/';
+        window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(txt2), '_blank', 'noopener,noreferrer,width=560,height=420');
+        if (window.gaEvent) gaEvent('share_click', { source: 'reward', world: worldNum });
       }
     }
     else if (state==='gameover') {
