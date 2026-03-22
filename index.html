@@ -192,7 +192,7 @@
   <!-- ── インタースティシャル広告オーバーレイ (ゲーム遷移時に表示) ── -->
   <div id="interstitial-overlay" class="hidden">
     <div id="interstitial-inner">
-      <div id="interstitial-countdown">広告 <span id="interstitial-sec">5</span>秒後にスキップ</div>
+      <div id="interstitial-countdown">広告 <span id="interstitial-sec">3</span>秒後にスキップ</div>
       <button id="interstitial-skip" class="hidden">スキップ →</button>
       <!-- AdSense スロット -->
       <ins class="adsbygoogle"
@@ -200,6 +200,27 @@
            data-ad-client="ca-pub-3016615146886765"
            data-ad-slot="auto"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      <!-- Amazon アソシエイト おすすめ -->
+      <div id="interstitial-amzn">
+        <div class="interstitial-amzn-label">📚 Vimプレイヤーにおすすめ</div>
+        <div class="interstitial-amzn-items">
+          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=実践vim&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <span class="interstitial-amzn-icon">📗</span>
+            <span class="interstitial-amzn-title">実践 Vim</span>
+            <span class="interstitial-amzn-cta">Amazonで見る →</span>
+          </a>
+          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <span class="interstitial-amzn-icon">🐧</span>
+            <span class="interstitial-amzn-title">Linux コマンド入門</span>
+            <span class="interstitial-amzn-cta">Amazonで見る →</span>
+          </a>
+          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=プログラマー+キーボード&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <span class="interstitial-amzn-icon">⌨</span>
+            <span class="interstitial-amzn-title">プログラマー向けキーボード</span>
+            <span class="interstitial-amzn-cta">Amazonで見る →</span>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -890,7 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
     lastShown = now;
     overlay.classList.remove('hidden');
     if (skipBtn) skipBtn.classList.add('hidden');
-    var sec = 5;
+    var sec = 3;
     if (secEl) secEl.textContent = sec;
     clearInterval(timer);
     timer = setInterval(function() {

@@ -759,7 +759,7 @@ var linuxBattleGame = (function() {
     }
     ctx.font='9px monospace';ctx.fillStyle='#444466';
     ctx.fillText('↑↓/jk:選択  Enter/Z:決定  hjkl:移動  Tab/M:ステージ  E:装備',W/2,H-44);
-    ctx.fillText('草むら歩行でエンカウント → クイズ付きバトル → 装備ドロップ',W/2,H-32);
+    ctx.fillText('草むら歩行でエンカウント → クイズ付きバトル → 装備ドロップ',W/2,H-40);
   }
 
   // ── drawStory ───────────────────────────────────────────────────
