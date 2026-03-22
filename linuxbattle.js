@@ -8,86 +8,157 @@ var linuxBattleGame = (function() {
   // ── Story chapters ──────────────────────────────────────────────
   var CHAPTERS = [
     { id:0, area:'渋谷',      title:'Chapter 1: 初めてのターミナル',
-      story:['年は20XX年。東京のデジタルインフラが崩壊の危機に瀕していた。','悪意あるプロセス軍団が都市システムを侵食し始めた。','君は新人Linuxエンジニアとして採用された。','「まずは基本を覚えろ。ターミナルは君の剣だ」——師匠 Torvalds'],
+      story:[
+        '──年は20XX年。東京のデジタルインフラが静かに蝕まれていた。',
+        '渋谷スクランブル交差点。人々は気づいていない——街を支えるサーバーが感染しつつあることを。',
+        '「君が新人エンジニアか。急いでターミナルを開け」老師匠 Torvalds が端末を差し出した。',
+        '黒い画面。緑の文字が点滅する。これが君の剣だ、盾だ、そして世界への窓だ。',
+        '「ls で現状を確認しろ。cat でログを読め。まず現実を直視することだ」',
+        '最初のコマンドを打った瞬間——君の伝説が、静かに幕を開けた。',
+      ],
       philosophy:'Unix哲学: 一つのことをうまくやれ (Do one thing well)',
       objective:'ls・cat・echo の基本コマンドで BugProcess を撃退せよ',
       unlockCmds:['ls','cat','echo','pwd'], unlockLang:null, color:'#ff6699', bgm:'overworld', tier:1, bossName:'渋谷バグボス' },
-    { id:1, area:'新宿',      title:'Chapter 2: パターン検索の戦士',
-      story:['渋谷を制した君の前に新たな敵——DaemonBot！','「grepを使え。パターンを見つければ勝てる」','Unixパイプはコマンドをつなぐ最強の武器だ。'],
+    { id:1, area:'新宿',      title:'Chapter 2: パターンを狩る者',
+      story:[
+        '渋谷を救った翌朝。しかし新宿の地下サーバールームから異常信号——',
+        'DaemonBot。バックグラウンドで静かに増殖する悪意あるデーモンプロセスだ。',
+        '「見えない敵こそ危険だ。grepでパターンを炙り出せ」Torvalds が告げる。',
+        '|（パイプ）はコマンドをつなぐ橋。複数の命令を組み合わせることで真の力が生まれる。',
+        '「grep ERROR /var/log/*.log | head -20」——ログの海から針を見つけ出せ。',
+        '新宿の夜景に映る無数の光は、今や敵の目のようにも見えた。',
+      ],
       philosophy:'Unix哲学: テキストストリームは汎用インターフェースだ',
       objective:'grep・find で DaemonBot のエラーパターンを追跡せよ',
       unlockCmds:['grep','find','wc'], unlockLang:null, color:'#6699ff', bgm:'overworld', tier:1, bossName:'新宿デーモン' },
     { id:2, area:'原宿',      title:'Chapter 3: パーミッションの迷宮',
-      story:['原宿のファイルシステムは権限設定が狂っていた。','「chmod 777 は危険だ。最小権限の原則を守れ！」','ls -la で詳細を確認し、適切な権限に修正せよ。'],
+      story:[
+        '原宿——ファッションの街に不似合いな異変。全ファイルの権限が書き換えられていた。',
+        '777、777、777——すべてのパーミッションが開放されている。まるで無防備な扉のように。',
+        '「chmod 777 は最大の悪手だ。最小権限の原則を今こそ学べ！」',
+        'ls -la で現実を見よ。rwxrwxrwx の羅列が恐怖を物語る。',
+        '「所有者だけが書ける。グループは読める。他者には何も与えるな」',
+        '権限とは信頼の設計図。一文字の違いが、システムの命運を分ける。',
+      ],
       philosophy:'最小権限の原則: 必要最低限のアクセスのみ許可せよ',
       objective:'ls -la・chmod で権限を修正し、PermissionBug を倒せ',
       unlockCmds:['ls_la','chmod','cp','mv'], unlockLang:null, color:'#ff99cc', bgm:'overworld', tier:2, bossName:'原宿パーミッション鬼' },
-    { id:3, area:'秋葉原',    title:'Chapter 4: プロセス管理の達人',
-      story:['秋葉原の電気街に暴走プロセス軍団が出現！','ps と kill でプロセスを管理しなければシステムが落ちる。','「ゾンビプロセスを放置するな！」'],
+    { id:3, area:'秋葉原',    title:'Chapter 4: ゾンビの楽園',
+      story:[
+        '秋葉原の電気街——無数のネオンが瞬く街に、今日は異様な静けさが漂う。',
+        'PIDが跳ね上がっている。ゾンビプロセスが繁殖し、CPUを食い荒らしていた。',
+        '「ps aux で実態を掴め。kill -9 で容赦なく断ち切れ。躊躇は命取りだ」',
+        '親プロセスのいないゾンビたちが、システムリソースをじわじわと侵食する。',
+        '「top で現在を見よ。df で空間を計れ。Everything is a file——それがUnixの真実だ」',
+        'コマンドを打つたびに、電気街の灯りが一つずつ戻っていく。',
+      ],
       philosophy:'Everything is a file: Unixではすべてをファイルとして扱う',
       objective:'ps・kill -9 でゾンビプロセスを一掃せよ',
       unlockCmds:['ps','kill9','df','top'], unlockLang:null, color:'#66ccff', bgm:'overworld', tier:2, bossName:'秋葉原ゾンビプロセス' },
     { id:4, area:'浅草',      title:'Chapter 5: ネットワーク防衛戦',
-      story:['浅草のネットワークが外部から攻撃されている！','curl と ping で通信状態を診断し、侵入を防げ。','この戦いでPythonの力が目覚めた——スクリプトは武器だ。'],
+      story:[
+        '浅草——伝統と現代が交差する街。しかしその地下でネットワーク戦争が始まっていた。',
+        '外部からの DDoS。パケットの洪水がゲートウェイを溢れさせようとしている。',
+        '「ping で生死を確認しろ。curl でレスポンスを見ろ。ネットワークを信頼するな」',
+        'その時、不思議なことが起きた——Pythonスクリプトが頭の中で形を成し始めた。',
+        '「スクリプトは武器だ。自動化できるものはすべて自動化しろ！」',
+        'Pythonの3行が、手作業の1時間を超える。君の力が次の段階へ進化した。',
+      ],
       philosophy:'ゼロトラスト: ネットワークは信頼しない、常に検証せよ',
-      objective:'curl・ping で NetworkTroll を追い詰めよ',
+      objective:'curl・ping で NetworkTroll を追い詰めよ。Python スキル解放！',
       unlockCmds:['curl','ping','ss','netstat'], unlockLang:'python', color:'#ffcc66', bgm:'overworld', tier:3, bossName:'浅草ネットワーク鬼' },
     { id:5, area:'上野',      title:'Chapter 6: シェルスクリプトの魔術師',
-      story:['上野公園のシステムがマルウェアに乗っ取られた！','awk と sed でデータを変換し、システムを取り戻せ。','Javaコンパイルの力が新たなスキルとして覚醒した。'],
+      story:[
+        '上野公園の桜は散り、今や葉の一枚一枚が悪性スクリプトへ変貌していた。',
+        'マルウェアがテキストに偽装している。見た目は無害、中身は破壊——巧妙な擬態だ。',
+        '「awk でフィールドを切り出せ。sed でパターンを置換しろ。データを制する者が戦場を制す」',
+        'Javaのコンパイルエラーが君の眼前で武器に変わる——型の厳密さが力になる瞬間だ。',
+        '「繰り返し作業は人間がやるな。スクリプトに任せろ。それがエンジニアの知恵だ」',
+        'sort | uniq | awk——コマンドのオーケストラが美しいシンフォニーを奏でた。',
+      ],
       philosophy:'自動化: 繰り返し作業はスクリプトに任せよ',
-      objective:'awk・sed・sort で ScriptKiddie を粉砕せよ',
+      objective:'awk・sed・sort で ScriptKiddie を粉砕せよ。Java スキル解放！',
       unlockCmds:['awk','sed','sort','uniq'], unlockLang:'java', color:'#99ff66', bgm:'overworld', tier:3, bossName:'上野スクリプト魔' },
     { id:6, area:'お台場',    title:'Chapter 7: コンテナ革命',
-      story:['お台場——最先端技術の聖地。Dockerコンテナが暴走中！','TypeScriptの型安全性が新たな防御スキルとして覚醒した。','「型は嘘をつかない——TypeScriptで敵の攻撃を無効化せよ」'],
+      story:[
+        'お台場——東京湾に浮かぶ未来都市。だが最先端の研究施設でDockerが暴走していた。',
+        'コンテナが制御不能に。数千のインスタンスが勝手に起動し、ポートを占領している。',
+        '「docker ps で現状を掴め。docker rm -f で迷わず削除しろ」',
+        'その時、TypeScriptの型システムが君の思考を鎧う感覚があった。',
+        '「型は嘘をつかない。コンパイルエラーは友達だ——バグを実行前に殺してくれる」',
+        '型安全という盾とコンテナ制御という剣——二つが揃い、君は新たな段階へ。',
+      ],
       philosophy:'コンテナ: 環境の一貫性と再現性を保証する',
-      objective:'docker コマンドで ContainerBeast を封じ込めよ',
+      objective:'docker コマンドで ContainerBeast を封じ込めよ。TypeScript 解放！',
       unlockCmds:['docker','tar','rsync'], unlockLang:'typescript', color:'#66ffcc', bgm:'overworld', tier:4, bossName:'お台場コンテナ獣' },
-    { id:7, area:'六本木',    title:'Chapter 8: セキュリティの砦',
-      story:['六本木——ハッカー集団が企業データを狙っている！','iptables と ssh-keygen でシステムを防衛せよ。','Rustの所有権システムが最強の盾となった。'],
+    { id:7, area:'六本木',    title:'Chapter 8: 鉄壁のセキュリティ',
+      story:[
+        '六本木——高層ビルの中に、エリートハッカー集団の司令部があった。',
+        'ゼロデイ攻撃。パッチの当たっていない脆弱性を突かれ、企業データが流出しかけている。',
+        '「iptables でファイアウォールを構築しろ。ssh-keygen で鍵を生成しろ。パスワードは捨てろ」',
+        'Rustの所有権システムが脳内で輝いた——メモリ安全性という概念が盾となる。',
+        '「多層防御。一つの壁を突破されても次の壁がある。それが本当のセキュリティだ」',
+        '君の指先が走るたびに、ファイアウォールのルールが積み重なっていった。',
+      ],
       philosophy:'多層防御: 一つの防御線に頼るな、多層で守れ',
-      objective:'iptables・ssh で HackerElite を撃退せよ',
+      objective:'iptables・ssh で HackerElite を撃退せよ。Rust スキル解放！',
       unlockCmds:['ssh','iptables','chmod_x'], unlockLang:'rust', color:'#cc66ff', bgm:'overworld', tier:4, bossName:'六本木ハッカー' },
-    { id:8, area:'銀座',      title:'Chapter 9: カーネルパニック',
-      story:['銀座の基幹システムでカーネルパニックが発生！','systemctl と journalctl でシステムを診断し、復旧せよ。','「ログを読めば原因がわかる」——師匠 Torvalds 最後の教え'],
+    { id:8, area:'銀座',      title:'Chapter 9: カーネルの叫び',
+      story:[
+        '銀座の地下——日本の金融インフラを支える基幹サーバー群。そこでパニックが起きていた。',
+        'Kernel panic - not syncing: VFS: Unable to mount root fs——画面に絶叫が刻まれていた。',
+        '「journalctl -xe でログを読め。systemctl status で状態を診断しろ。ログに真実がある」',
+        '「ログを読めば原因がわかる」——それが師匠 Torvalds の最後の言葉だった。',
+        'lsof でファイルを追い、df -h で空間を確認し、一つずつ謎を解いていく。',
+        '東京の心臓部が停止する寸前——君の手だけがそれを止められる。',
+      ],
       philosophy:'可観測性: ログ・メトリクス・トレースで真実を知れ',
       objective:'systemctl・journalctl で KernelPanicBoss を鎮圧せよ',
       unlockCmds:['systemctl','journalctl','lsof'], unlockLang:null, color:'#ffaa44', bgm:'overworld', tier:5, bossName:'銀座カーネルパニック' },
-    { id:9, area:'東京タワー',title:'Chapter 10: 最終決戦',
-      story:['ついに東京タワーの頂上へ——。','NULL_DRAGON が待ち構えていた。','「お前がLinuxを極めた最後のエンジニアか...」','「ターミナルがある限り、私は負けない！」'],
-      philosophy:'Unix哲学の集大成: シンプル・明確・強力',
-      objective:'全コマンド・全スキルで NULL_DRAGON を倒せ！',
+    { id:9, area:'東京タワー',title:'Chapter 10: 最終決戦 / NULL_DRAGON',
+      story:[
+        '東京タワーの頂上——333メートルの高さに、最後の敵が君を待っていた。',
+        'NULL_DRAGON。東京全体のデジタルインフラを支配する究極のウイルス存在。',
+        '「お前がLinuxを極めた最後のエンジニアか...面白い」声は静かで、恐ろしかった。',
+        '「ターミナルを閉じれば楽になれる。コマンドを捨てれば、すべてが終わる」',
+        '「断る。ターミナルがある限り——私は負けない」',
+        '10のチャプターで培ったすべての力を解き放て。東京の未来は君の手の中にある。',
+      ],
+      philosophy:'Unix哲学の集大成: シンプル・明確・強力——そして諦めない心',
+      objective:'全コマンド・全言語スキルで NULL_DRAGON を倒せ！',
       unlockCmds:['sudo','dd'], unlockLang:'go', color:'#ff4444', bgm:'boss', tier:5, bossName:'NULL_DRAGON' },
   ];
 
   // ── Command tree (unlock by player level) ───────────────────────
   var COMMAND_TREE = [
-    {id:'ls',      name:'ls',             lv:1,  atk:1.0, mpCost:0,  eff:'damage', desc:'一覧→ダメージ'},
-    {id:'cat',     name:'cat',            lv:1,  atk:0.0, mpCost:0,  eff:'heal',   desc:'内容表示→HP+15%'},
-    {id:'echo',    name:'echo',           lv:1,  atk:0.5, mpCost:0,  eff:'buff',   desc:'出力→ATK+2(2T)'},
+    {id:'ls',      name:'ls',             lv:1,  atk:1.6, mpCost:0,  eff:'damage', desc:'一覧→ダメージ'},
+    {id:'cat',     name:'cat',            lv:1,  atk:0.0, mpCost:0,  eff:'heal',   desc:'内容表示→HP+25%'},
+    {id:'echo',    name:'echo',           lv:1,  atk:0.8, mpCost:0,  eff:'buff',   desc:'出力→ATK+3(3T)'},
+    {id:'rm',      name:'rm -rf',         lv:1,  atk:2.5, mpCost:8,  eff:'damage', desc:'削除→強攻撃'},
     {id:'pwd',     name:'pwd',            lv:2,  atk:0.0, mpCost:0,  eff:'scan',   desc:'位置確認→敵HP表示'},
-    {id:'grep',    name:'grep',           lv:3,  atk:1.2, mpCost:0,  eff:'debuff', desc:'検索→敵DEF低下'},
-    {id:'find',    name:'find -name',     lv:5,  atk:0.7, mpCost:5,  eff:'multi',  desc:'検索→3ヒット'},
-    {id:'ls_la',   name:'ls -la',         lv:5,  atk:1.3, mpCost:0,  eff:'scan2',  desc:'詳細→弱点暴露'},
-    {id:'wc',      name:'wc -l',          lv:5,  atk:0.8, mpCost:0,  eff:'damage', desc:'カウント攻撃'},
-    {id:'chmod',   name:'chmod',          lv:7,  atk:0.0, mpCost:8,  eff:'shield', desc:'権限→シールド2T'},
-    {id:'cp',      name:'cp -r',          lv:6,  atk:0.0, mpCost:5,  eff:'clone',  desc:'コピー→HP+30%'},
-    {id:'mv',      name:'mv',             lv:6,  atk:1.5, mpCost:5,  eff:'swap',   desc:'移動→敵ATK↔DEF'},
-    {id:'ps',      name:'ps aux',         lv:10, atk:1.0, mpCost:5,  eff:'scan',   desc:'プロセス確認'},
-    {id:'kill9',   name:'kill -9',        lv:11, atk:3.0, mpCost:10, eff:'damage', desc:'強制終了→大ダメ'},
-    {id:'df',      name:'df -h',          lv:10, atk:0.5, mpCost:0,  eff:'scan',   desc:'ディスク確認'},
-    {id:'awk',     name:"awk '{}'",       lv:12, atk:2.0, mpCost:10, eff:'aoe',    desc:'テキスト→全体攻撃'},
-    {id:'sed',     name:"sed 's/a/b/'",   lv:13, atk:1.5, mpCost:8,  eff:'debuff', desc:'編集→弱体化'},
-    {id:'sort',    name:'sort|uniq',      lv:12, atk:0.0, mpCost:5,  eff:'stun',   desc:'整列→敵スタン2T'},
-    {id:'curl',    name:'curl --retry',   lv:8,  atk:0.0, mpCost:10, eff:'heal',   desc:'HTTP→HP+25%'},
-    {id:'ping',    name:'ping -c4',       lv:8,  atk:0.8, mpCost:5,  eff:'probe',  desc:'疎通→情報取得'},
-    {id:'ssh',     name:'ssh -i key',     lv:15, atk:2.5, mpCost:15, eff:'bypass', desc:'SSH→防御無視攻撃'},
-    {id:'tar',     name:'tar -czf',       lv:14, atk:0.0, mpCost:12, eff:'seal',   desc:'圧縮→スキル封印3T'},
-    {id:'rsync',   name:'rsync -avz',     lv:14, atk:1.0, mpCost:10, eff:'copy',   desc:'同期→直前技コピー'},
-    {id:'docker',  name:'docker rm -f',   lv:20, atk:3.5, mpCost:20, eff:'multi',  desc:'削除→3ヒット'},
-    {id:'iptables',name:'iptables -j DROP',lv:22,atk:0.0, mpCost:20, eff:'reflect',desc:'遮断→ダメージ反射'},
-    {id:'systemctl',name:'systemctl stop',lv:22, atk:4.0, mpCost:25, eff:'damage', desc:'停止→大ダメージ'},
-    {id:'sudo',    name:'sudo !!',        lv:18, atk:4.0, mpCost:30, eff:'damage', desc:'特権→超大ダメージ'},
-    {id:'dd',      name:'dd if=/dev/random',lv:20,atk:5.0,mpCost:35, eff:'random', desc:'乱数→ランダム超ダメ'},
+    {id:'grep',    name:'grep',           lv:3,  atk:1.4, mpCost:0,  eff:'debuff', desc:'検索→敵DEF低下'},
+    {id:'find',    name:'find -name',     lv:4,  atk:1.2, mpCost:5,  eff:'multi',  desc:'検索→3ヒット'},
+    {id:'ls_la',   name:'ls -la',         lv:4,  atk:1.5, mpCost:0,  eff:'scan2',  desc:'詳細→弱点暴露+ダメ'},
+    {id:'wc',      name:'wc -l',          lv:4,  atk:1.0, mpCost:0,  eff:'damage', desc:'カウント攻撃'},
+    {id:'chmod',   name:'chmod',          lv:5,  atk:0.0, mpCost:8,  eff:'shield', desc:'権限→シールド2T'},
+    {id:'cp',      name:'cp -r',          lv:5,  atk:0.0, mpCost:5,  eff:'clone',  desc:'コピー→HP+35%'},
+    {id:'mv',      name:'mv',             lv:5,  atk:1.8, mpCost:5,  eff:'swap',   desc:'移動→敵ATK↔DEF'},
+    {id:'ps',      name:'ps aux',         lv:7,  atk:1.2, mpCost:5,  eff:'scan',   desc:'プロセス確認+ダメ'},
+    {id:'kill9',   name:'kill -9',        lv:7,  atk:3.5, mpCost:10, eff:'damage', desc:'強制終了→大ダメ'},
+    {id:'df',      name:'df -h',          lv:7,  atk:0.8, mpCost:0,  eff:'scan',   desc:'ディスク確認'},
+    {id:'awk',     name:"awk '{}'",       lv:9,  atk:2.5, mpCost:10, eff:'aoe',    desc:'テキスト→全体攻撃'},
+    {id:'sed',     name:"sed 's/a/b/'",   lv:9,  atk:1.8, mpCost:8,  eff:'debuff', desc:'編集→弱体化'},
+    {id:'sort',    name:'sort|uniq',      lv:9,  atk:0.0, mpCost:5,  eff:'stun',   desc:'整列→敵スタン2T'},
+    {id:'curl',    name:'curl --retry',   lv:6,  atk:0.0, mpCost:10, eff:'heal',   desc:'HTTP→HP+30%'},
+    {id:'ping',    name:'ping -c4',       lv:6,  atk:1.2, mpCost:5,  eff:'probe',  desc:'疎通→情報+ダメ'},
+    {id:'ssh',     name:'ssh -i key',     lv:12, atk:3.0, mpCost:15, eff:'bypass', desc:'SSH→防御無視攻撃'},
+    {id:'tar',     name:'tar -czf',       lv:11, atk:0.0, mpCost:12, eff:'seal',   desc:'圧縮→スキル封印3T'},
+    {id:'rsync',   name:'rsync -avz',     lv:11, atk:1.5, mpCost:10, eff:'copy',   desc:'同期→直前技コピー'},
+    {id:'docker',  name:'docker rm -f',   lv:15, atk:4.0, mpCost:20, eff:'multi',  desc:'削除→3ヒット'},
+    {id:'iptables',name:'iptables -j DROP',lv:17,atk:0.0, mpCost:20, eff:'reflect',desc:'遮断→ダメージ反射'},
+    {id:'systemctl',name:'systemctl stop',lv:17, atk:4.5, mpCost:25, eff:'damage', desc:'停止→大ダメージ'},
+    {id:'sudo',    name:'sudo !!',        lv:14, atk:5.0, mpCost:30, eff:'damage', desc:'特権→超大ダメージ'},
+    {id:'dd',      name:'dd if=/dev/random',lv:16,atk:6.0,mpCost:35, eff:'random', desc:'乱数→超ランダムダメ'},
   ];
 
   // ── Hardware equipment DB ───────────────────────────────────────
@@ -123,11 +194,11 @@ var linuxBattleGame = (function() {
 
   // ── Language skills (unlock by chapter + level) ─────────────────
   var LANG_SKILLS = [
-    {id:'python', name:'Python スクリプト', icon:'🐍', lv:5,  mpCost:20, eff:'triple',   atk:1.5, hits:3, desc:'3連続スクリプト攻撃',     unlockCh:4},
-    {id:'java',   name:'Java コンパイル',   icon:'☕', lv:10, mpCost:25, eff:'charge',   atk:4.0,         desc:'次ターン超ダメージ蓄積',   unlockCh:5},
-    {id:'ts',     name:'TypeScript 型安全', icon:'🔷', lv:15, mpCost:20, eff:'nullify',                   desc:'次の敵攻撃を型エラーで無効', unlockCh:6},
-    {id:'rust',   name:'Rust 所有権',       icon:'⚙',  lv:20, mpCost:35, eff:'ironwall',                  desc:'3ターン完全防御',           unlockCh:7},
-    {id:'go',     name:'Go 並列処理',       icon:'🐹', lv:25, mpCost:30, eff:'goroutine',atk:1.2, hits:5, desc:'並列5回攻撃',              unlockCh:9},
+    {id:'python', name:'Python スクリプト', icon:'🐍', lv:2,  mpCost:12, eff:'triple',   atk:1.8, hits:3, desc:'3連続スクリプト攻撃',      unlockCh:0},
+    {id:'java',   name:'Java コンパイル',   icon:'☕', lv:4,  mpCost:15, eff:'charge',   atk:4.5,         desc:'次ターン超ダメージ蓄積',    unlockCh:1},
+    {id:'ts',     name:'TypeScript 型安全', icon:'🔷', lv:6,  mpCost:12, eff:'nullify',                   desc:'次の敵攻撃を型エラーで無効', unlockCh:2},
+    {id:'rust',   name:'Rust 所有権',       icon:'⚙',  lv:10, mpCost:20, eff:'ironwall',                  desc:'3ターン完全防御',            unlockCh:3},
+    {id:'go',     name:'Go 並列処理',       icon:'🐹', lv:15, mpCost:25, eff:'goroutine',atk:1.4, hits:5, desc:'並列5回攻撃',               unlockCh:5},
   ];
 
   // ── Quiz DB (LinuC-style + TypeScript + Python + Java) ──────────
@@ -166,11 +237,11 @@ var linuxBattleGame = (function() {
 
   // ── Enemy definitions ───────────────────────────────────────────
   var ENEMY_DEFS = [
-    {id:'bug',      name:'BugProcess',    hp:40,  atk:6,  def:1, xp:20,  drop:'ram_4g',  col:'#44ff44', tier:1, quizT:'linux'},
-    {id:'daemon',   name:'DaemonBot',     hp:60,  atk:10, def:3, xp:35,  drop:'cpu_i3',  col:'#4488ff', tier:1, quizT:'linux'},
-    {id:'zombie',   name:'ZombieThread',  hp:75,  atk:8,  def:2, xp:45,  drop:'ssd_sata',col:'#88ff44', tier:2, quizT:'linux'},
-    {id:'cronbomb', name:'CronBomb',      hp:55,  atk:14, def:4, xp:55,  drop:'kb_mech', col:'#ffaa44', tier:2, quizT:'linux'},
-    {id:'rootkit',  name:'RootKit',       hp:90,  atk:18, def:6, xp:80,  drop:'cpu_i5',  col:'#ff4444', tier:3, quizT:'linux'},
+    {id:'bug',      name:'BugProcess',    hp:22,  atk:3,  def:0, xp:20,  drop:'ram_4g',  col:'#44ff44', tier:1, quizT:'linux'},
+    {id:'daemon',   name:'DaemonBot',     hp:32,  atk:5,  def:1, xp:35,  drop:'cpu_i3',  col:'#4488ff', tier:1, quizT:'linux'},
+    {id:'zombie',   name:'ZombieThread',  hp:45,  atk:6,  def:1, xp:45,  drop:'ssd_sata',col:'#88ff44', tier:2, quizT:'linux'},
+    {id:'cronbomb', name:'CronBomb',      hp:38,  atk:9,  def:2, xp:55,  drop:'kb_mech', col:'#ffaa44', tier:2, quizT:'linux'},
+    {id:'rootkit',  name:'RootKit',       hp:60,  atk:12, def:4, xp:80,  drop:'cpu_i5',  col:'#ff4444', tier:3, quizT:'linux'},
     {id:'segfault', name:'Segfault',      hp:80,  atk:15, def:4, xp:70,  drop:'mon_fhd', col:'#ff8800', tier:3, quizT:'linux'},
     {id:'memleak',  name:'MemoryLeak',    hp:120, atk:9,  def:3, xp:95,  drop:'ram_16g', col:'#cc44ff', tier:4, quizT:'typescript'},
     {id:'overflow', name:'StackOverflow', hp:100, atk:20, def:6, xp:110, drop:'cpu_r5',  col:'#ff6600', tier:4, quizT:'python'},
@@ -237,7 +308,8 @@ var linuxBattleGame = (function() {
   function findHW(slot,id){var a=HARDWARE_DB[slot]||[];for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
   function getStats(){
     var lv=getLbLv(),eq=getLbEq();
-    var atk=5+lv*2,hp=50+lv*5,def=2+Math.floor(lv*0.5),mp=30+lv*3;
+    // Boosted base stats so level-1 battles are winnable from the start
+    var atk=12+lv*4,hp=100+lv*10,def=4+Math.floor(lv*0.8),mp=50+lv*5;
     var wd=findHW('weapon',eq.weapon); if(wd)atk+=wd.atk||0;
     var ad=findHW('armor',eq.armor);   if(ad){hp+=ad.hp||0;def+=ad.def||0;}
     var ac=findHW('accessory',eq.accessory); if(ac)mp+=ac.mp||0;
@@ -279,7 +351,7 @@ var linuxBattleGame = (function() {
     return pool[Math.floor(Math.random()*pool.length)];
   }
   function scaleEnemy(def,ch){
-    var mul=1+ch*0.12;
+    var mul=1+ch*0.05;
     return {id:def.id,name:def.name,col:def.col,quizT:def.quizT,isBoss:!!def.isBoss,drop:def.drop,
       hp:Math.floor(def.hp*mul),atk:Math.floor(def.atk*mul),def:Math.floor(def.def*mul),xp:Math.floor(def.xp*mul)};
   }
@@ -440,6 +512,7 @@ var linuxBattleGame = (function() {
   }
   function execLang(sk){
     if(playerMP<sk.mpCost){qMsg('MPが足りない！');return;}
+    showLangMenu=false;
     playerMP=Math.max(0,playerMP-sk.mpCost);
     if(sk.eff==='triple'){
       var tot=0;

@@ -6,7 +6,8 @@ body {
   font-family: monospace;
   color: #aabbcc;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   padding: 6px 0 80px;
   overflow-x: hidden;
 }
@@ -15,10 +16,12 @@ body {
 #app-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 6px;
   width: 100%;
-  max-width: 100vw;
+  max-width: 1800px;
+  padding: 0 10px;
+  box-sizing: border-box;
 }
 
 /* ── Toolbar ── */
@@ -26,11 +29,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: min(1800px, 99vw);
+  width: 100%;
   background: rgba(0,0,30,0.9);
   border: 1px solid #224;
   border-radius: 4px;
   padding: 6px 12px;
+  box-sizing: border-box;
 }
 #toolbar-title {
   font-size: 16px;
@@ -245,9 +249,6 @@ body {
   align-items: flex-start;
   gap: 14px;
   width: 100%;
-  max-width: 1800px;
-  margin: 0 auto;
-  padding: 0 10px;
   box-sizing: border-box;
 }
 #game-column {
@@ -268,7 +269,7 @@ body {
 }
 /* Mobile: side panel hidden, game column full width */
 @media (max-width: 1200px) {
-  #main-layout { flex-direction: column; align-items: center; padding: 0; }
+  #main-layout { flex-direction: column; align-items: stretch; }
   #game-column { width: 100%; align-items: center; }
   #side-panel { display: none; }
 }
@@ -1207,8 +1208,8 @@ body {
 /* ── Mobile responsive ── */
 @media (max-width: 600px) {
   body { padding: 0 0 70px; }
-  #app-wrapper { gap: 4px; }
-  #toolbar { padding: 4px 8px; width: 100vw; }
+  #app-wrapper { gap: 4px; padding: 0 4px; }
+  #toolbar { padding: 4px 8px; }
   #toolbar-title { font-size: 13px; }
   #toolbar-tagline { display: none; }
   .tb-btn { font-size: 11px; padding: 4px 7px; }
