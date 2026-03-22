@@ -12,6 +12,16 @@
   <meta property="og:description" content="Vimコマンドで戦うアクションRPG — 無料ブラウザゲーム">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="style.css">
+  <!-- Auth early-redirect: runs before DOM renders -->
+  <script src="auth.js"></script>
+  <script>
+    (function() {
+      if (window.GameAuth && !window.GameAuth.isLoggedIn()) {
+        document.documentElement.style.display = 'none';
+        location.replace('login.html');
+      }
+    })();
+  </script>
 </head>
 <body>
 
@@ -649,7 +659,6 @@
 
 </div><!-- end app-wrapper -->
 
-<script src="auth.js"></script>
 <script src="audio.js"></script>
 <script src="core.js"></script>
 <script src="vimdata.js"></script>
