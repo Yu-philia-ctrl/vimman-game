@@ -121,7 +121,7 @@ body {
   border: 2px solid #0033aa;
   width: 100%;
   height: auto;
-  max-width: 1400px;
+  max-width: 1600px;
 }
 
 /* ── Keyboard display ── */
@@ -512,6 +512,67 @@ body {
   transition: background 0.15s;
 }
 #meta-leave-btn:hover { background: rgba(140,30,50,0.8); }
+
+/* ── Metaverse how-to guide ── */
+#meta-howto {
+  border-top: 1px solid #0d2040;
+  background: rgba(4,10,28,0.95);
+}
+.meta-howto-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #88bbff;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.meta-howto-header:hover { background: rgba(20,50,100,0.4); }
+.meta-howto-arrow { font-size: 10px; color: #446688; }
+#meta-howto-body {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+#meta-howto-body.hidden { display: none; }
+.meta-step {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.meta-step-num {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #1a4080, #0d2855);
+  border: 1px solid #2255aa;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  color: #88ccff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.meta-step-text {
+  font-size: 10px;
+  color: #99aabb;
+  line-height: 1.5;
+}
+.meta-step-text strong { color: #cce0ff; font-size: 10px; }
+.meta-note {
+  font-size: 9px;
+  color: #556677;
+  padding: 5px 8px;
+  background: rgba(60,40,0,0.3);
+  border-left: 2px solid #885500;
+  border-radius: 0 3px 3px 0;
+  line-height: 1.5;
+}
 
 /* ── Modern Amazon sidebar cards ── */
 #sidebar-amzn {
@@ -919,7 +980,6 @@ body {
 /* ── Site footer ── */
 #site-footer {
   width: 100%;
-  max-width: 900px;
   border-top: 1px solid #112233;
   padding: 12px 0 8px;
   margin-top: 4px;
@@ -931,6 +991,9 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   padding: 0 12px;
+  max-width: 1800px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 .footer-left { display: flex; flex-direction: column; gap: 3px; }
 .footer-brand { font-size: 12px; font-weight: bold; color: #ffdd44; letter-spacing: 1px; }
@@ -1219,7 +1282,7 @@ body {
   .support-options { gap: 8px; }
   .support-tier { width: 110px; padding: 10px 8px; }
 
-  .footer-inner { flex-direction: column; align-items: flex-start; }
+  .footer-inner { flex-direction: column; align-items: center; text-align: center; }
 
   #vim-reference { border-radius: 0; border-left: none; border-right: none; }
   .vr-section { flex: 1 1 140px; min-width: 130px; }

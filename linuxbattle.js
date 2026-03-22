@@ -804,62 +804,94 @@ var linuxBattleGame = (function() {
 
   // ── drawTitle ───────────────────────────────────────────────────
   function drawTitle(){
-    var g=ctx.createLinearGradient(0,0,0,H-20);g.addColorStop(0,'#0a0022');g.addColorStop(1,'#1a0044');
-    ctx.fillStyle=g;ctx.fillRect(0,0,W,H-20);
+    var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0a0022');g.addColorStop(1,'#1a0044');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
     // stars
-    for(var i=0;i<60;i++){var sx=(i*173+frame*0.2)%W,sy=(i*97+frame*0.05)%(H-20);ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*Math.sin(frame*0.05+i))+')';ctx.fillRect(Math.floor(sx),Math.floor(sy),1,1);}
+    for(var i=0;i<60;i++){var sx=(i*173+frame*0.2)%W,sy=(i*97+frame*0.05)%H;ctx.fillStyle='rgba(255,255,255,'+(0.4+0.4*Math.sin(frame*0.05+i))+')';ctx.fillRect(Math.floor(sx),Math.floor(sy),1,1);}
     // Tokyo Tower (far right edge, decorative)
-    var tx=W-60,ty2=80;ctx.fillStyle='#ff4444';ctx.beginPath();ctx.moveTo(tx,ty2+140);ctx.lineTo(tx-12,ty2+140);ctx.lineTo(tx-24,ty2+70);ctx.lineTo(tx-7,ty2+42);ctx.lineTo(tx,ty2);ctx.lineTo(tx+7,ty2+42);ctx.lineTo(tx+24,ty2+70);ctx.lineTo(tx+12,ty2+140);ctx.fill();
+    var tx=W-60,ty2=110;ctx.fillStyle='#cc2222';ctx.beginPath();ctx.moveTo(tx,ty2+140);ctx.lineTo(tx-12,ty2+140);ctx.lineTo(tx-24,ty2+70);ctx.lineTo(tx-7,ty2+42);ctx.lineTo(tx,ty2);ctx.lineTo(tx+7,ty2+42);ctx.lineTo(tx+24,ty2+70);ctx.lineTo(tx+12,ty2+140);ctx.fill();
     if(frame%60<30){ctx.fillStyle='#fff';ctx.fillRect(tx-1,ty2-2,3,3);}
-    // title (centered)
-    ctx.textAlign='center';ctx.font='bold 26px monospace';ctx.fillStyle='#ffcc00';ctx.fillText('LINUX BATTLE',W/2,55);
-    ctx.font='12px monospace';ctx.fillStyle='#88ccff';ctx.fillText('Terminal Chronicles — 東京コマンドRPG',W/2,76);
-    // story blurb
-    ctx.font='10px monospace';ctx.fillStyle='#cc8866';ctx.fillText('Linuxコマンドを武器に東京を守れ！',W/2,100);
-    ctx.fillStyle='#886644';ctx.fillText('LinuC試験レベル準拠 / Python・Java・TS',W/2,116);
-    // menu (centered)
+    // title block (starts lower, clear of top edge)
+    ctx.textAlign='center';
+    ctx.font='bold 30px monospace';ctx.fillStyle='#ffcc00';
+    ctx.shadowColor='#ff8800';ctx.shadowBlur=18;
+    ctx.fillText('LINUX BATTLE',W/2,72);
+    ctx.shadowBlur=0;
+    ctx.font='12px monospace';ctx.fillStyle='#88ccff';
+    ctx.fillText('Terminal Chronicles — 東京コマンドRPG',W/2,96);
+    // story blurb (2 lines, 20px apart)
+    ctx.font='10px monospace';ctx.fillStyle='#cc8866';
+    ctx.fillText('Linuxコマンドを武器に東京を守れ！',W/2,124);
+    ctx.fillStyle='#886644';
+    ctx.fillText('LinuC試験レベル準拠 / Python・Java・TypeScript・Rust',W/2,142);
+    // separator
+    ctx.strokeStyle='rgba(100,80,200,0.4)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(W/2-160,158);ctx.lineTo(W/2+160,158);ctx.stroke();
+    // menu buttons (well below subtitle, generous spacing)
     var opts=['ゲームスタート','メニューに戻る'];
     for(var oi=0;oi<opts.length;oi++){
-      var oy=160+oi*46;
+      var oy=200+oi*58;
       var sel2=(oi===charCursor);
-      ctx.fillStyle=sel2?'rgba(60,50,0,0.92)':'rgba(20,20,50,0.88)';
-      ctx.fillRect(W/2-130,oy-18,260,30);
-      ctx.strokeStyle=sel2?'#ffcc00':'#445566';
-      ctx.lineWidth=1;ctx.strokeRect(W/2-130,oy-18,260,30);
-      ctx.font=(sel2?'bold ':'')+'15px monospace';
-      ctx.fillStyle=sel2?'#ffff00':'#bbbbcc';
-      ctx.fillText((sel2?'▶ ':' ')+opts[oi],W/2,oy);
+      ctx.fillStyle=sel2?'rgba(80,60,0,0.95)':'rgba(20,20,60,0.88)';
+      ctx.fillRect(W/2-150,oy-22,300,38);
+      ctx.strokeStyle=sel2?'#ffcc00':'#334488';
+      ctx.lineWidth=sel2?2:1;ctx.strokeRect(W/2-150,oy-22,300,38);
+      ctx.font=(sel2?'bold ':'')+'16px monospace';
+      ctx.fillStyle=sel2?'#ffff44':'#aabbdd';
+      ctx.fillText((sel2?'▶ ':'')+opts[oi],W/2,oy+4);
     }
-    ctx.font='9px monospace';ctx.fillStyle='#444466';
-    ctx.fillText('↑↓/jk:選択  Enter/Z:決定  hjkl:移動  Tab/M:ステージ  E:装備',W/2,H-44);
-    ctx.fillText('草むら歩行でエンカウント → クイズ付きバトル → 装備ドロップ',W/2,H-40);
+    // hint lines at bottom — spaced 16px apart
+    ctx.font='9px monospace';ctx.fillStyle='#445566';
+    ctx.fillText('↑↓ / j k : 選択    Enter / Z : 決定',W/2,H-46);
+    ctx.fillStyle='#334455';
+    ctx.fillText('hjkl: マップ移動  Tab/M: ステージ  E: 装備',W/2,H-30);
+    ctx.fillText('草むら歩行でエンカウント → バトル → 装備ドロップ',W/2,H-14);
   }
 
   // ── drawStory ───────────────────────────────────────────────────
   function drawStory(){
     var ch=CHAPTERS[getLbCh()]||CHAPTERS[0];
-    ctx.fillStyle='rgba(0,0,20,0.95)';ctx.fillRect(0,0,W,H-20);
-    ctx.textAlign='center';ctx.font='bold 13px monospace';ctx.fillStyle=ch.color||'#88aaff';ctx.fillText(ch.title,W/2,22);
-    ctx.fillStyle='rgba(255,255,255,0.08)';ctx.fillRect(8,30,W-16,2);
-    // story text
-    ctx.font='11px monospace';ctx.fillStyle='#ccccee';ctx.textAlign='left';
+    ctx.fillStyle='rgba(0,0,20,0.97)';ctx.fillRect(0,0,W,H);
+    // chapter title header
+    ctx.textAlign='center';ctx.font='bold 14px monospace';ctx.fillStyle=ch.color||'#88aaff';
+    ctx.fillText(ch.title,W/2,26);
+    ctx.fillStyle='rgba(255,255,255,0.10)';ctx.fillRect(8,34,W-16,2);
+    // story text — 16px line height, capped so it never runs into bottom box
     var lines=ch.story;
+    var lineH=16, startY=56, maxY=H-150;
+    ctx.font='11px monospace';ctx.textAlign='left';
     for(var li=0;li<lines.length;li++){
-      var alpha=li<=storyPage?1.0:0.2;
-      ctx.globalAlpha=alpha;ctx.fillText(lines[li],14,52+li*18);
+      var y=startY+li*lineH;
+      if(y>maxY)break; // safety: never draw into info box area
+      var alpha=li<=storyPage?1.0:0.18;
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle='#ccccee';
+      ctx.fillText(lines[li],14,y);
     }
     ctx.globalAlpha=1;
-    // current page highlight
-    if(storyPage<lines.length){ctx.fillStyle='#ffff88';ctx.font='11px monospace';ctx.fillText('▶ '+lines[storyPage],14,52+storyPage*18);}
-    // philosophy box
-    ctx.fillStyle='rgba(0,40,80,0.85)';rr(8,H-130,W-16,52,4);ctx.fill();
-    ctx.strokeStyle='#2244aa';ctx.lineWidth=1;rr(8,H-130,W-16,52,4);ctx.stroke();
-    ctx.font='bold 9px monospace';ctx.fillStyle='#88aaff';ctx.textAlign='left';ctx.fillText('【哲学】',12,H-116);
-    ctx.font='9px monospace';ctx.fillStyle='#aaccff';ctx.fillText(ch.philosophy,12,H-102);
-    ctx.font='bold 9px monospace';ctx.fillStyle='#ffcc44';ctx.fillText('【目的】'+ch.objective,12,H-84);
-    // progress
-    ctx.textAlign='center';ctx.font='9px monospace';ctx.fillStyle='#556677';
-    ctx.fillText('Enter/Z: 次へ  ('+( storyPage+1)+'/'+lines.length+')',W/2,H-68);
+    // current page highlight (same position)
+    if(storyPage<lines.length){
+      var hy=startY+storyPage*lineH;
+      if(hy<=maxY){
+        ctx.fillStyle='#ffff88';ctx.font='bold 11px monospace';
+        ctx.fillText('▶ '+lines[storyPage],14,hy);
+      }
+    }
+    // philosophy + objective box (fixed at bottom, 110px tall)
+    var boxY=H-116;
+    ctx.fillStyle='rgba(0,30,70,0.92)';rr(8,boxY,W-16,108,4);ctx.fill();
+    ctx.strokeStyle='#2244aa';ctx.lineWidth=1;rr(8,boxY,W-16,108,4);ctx.stroke();
+    ctx.font='bold 9px monospace';ctx.fillStyle='#88aaff';ctx.textAlign='left';
+    ctx.fillText('【哲学】',12,boxY+14);
+    ctx.font='9px monospace';ctx.fillStyle='#aaccff';
+    ctx.fillText(ch.philosophy,12,boxY+28);
+    ctx.font='bold 9px monospace';ctx.fillStyle='#ffcc44';
+    ctx.fillText('【目的】'+ch.objective,12,boxY+46);
+    // progress / hint
+    ctx.textAlign='center';ctx.font='9px monospace';ctx.fillStyle='#778899';
+    ctx.fillText('Enter / Z : 次へ   ('+( storyPage+1)+' / '+lines.length+')',W/2,boxY+68);
+    ctx.fillStyle='#445566';
+    ctx.fillText('全ページを読み終えると次のフェーズへ',W/2,boxY+84);
   }
 
   // ── drawCharSelect ──────────────────────────────────────────────

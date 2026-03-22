@@ -369,7 +369,7 @@
           <span class="meta-title">🌐 VIM ARCADE メタバース</span>
           <span id="meta-online-badge">● 0 人オンライン</span>
         </div>
-        <canvas id="metaverse-canvas" style="display:block;width:100%;image-rendering:pixelated;border:1px solid #1a3a6a;border-radius:0 0 0 0;background:#060e1a;cursor:crosshair;"></canvas>
+        <canvas id="metaverse-canvas" style="display:block;width:100%;image-rendering:pixelated;border:1px solid #1a3a6a;background:#060e1a;cursor:crosshair;"></canvas>
         <!-- Join form -->
         <div id="meta-join-form">
           <input type="text" id="meta-name-input" placeholder="ユーザー名を入力..." maxlength="16" autocomplete="off" spellcheck="false">
@@ -381,6 +381,47 @@
           <span class="meta-hint">WASD/矢印 移動 · Enter チャット</span>
           <button id="meta-leave-btn">退出</button>
         </div>
+
+        <!-- ── メタバース 使い方ガイド ── -->
+        <div id="meta-howto">
+          <div class="meta-howto-header" id="meta-howto-toggle" onclick="document.getElementById('meta-howto-body').classList.toggle('hidden');this.querySelector('.meta-howto-arrow').textContent=document.getElementById('meta-howto-body').classList.contains('hidden')?'▼':'▲'">
+            <span>📖 メタバースの使い方</span>
+            <span class="meta-howto-arrow">▼</span>
+          </div>
+          <div id="meta-howto-body" class="hidden">
+            <div class="meta-step">
+              <span class="meta-step-num">1</span>
+              <div class="meta-step-text">
+                <strong>ユーザー名を入力して「参加する」をクリック</strong><br>
+                好きな名前（最大16文字）を入力して仮想空間に入ります。
+              </div>
+            </div>
+            <div class="meta-step">
+              <span class="meta-step-num">2</span>
+              <div class="meta-step-text">
+                <strong>WASD / 矢印キーでアバターを移動</strong><br>
+                マップ上を自由に歩き回れます。他のプレイヤーのアバターがリアルタイムで表示されます。
+              </div>
+            </div>
+            <div class="meta-step">
+              <span class="meta-step-num">3</span>
+              <div class="meta-step-text">
+                <strong>Enterキーでチャット</strong><br>
+                メッセージを入力してEnterで送信。アバターの上に会話バブルが表示されます。
+              </div>
+            </div>
+            <div class="meta-step">
+              <span class="meta-step-num">4</span>
+              <div class="meta-step-text">
+                <strong>4つのゾーンを探索</strong><br>
+                🏯 VIM道場・🚪 入口広場・🐧 Linux区・🕹 アーケードエリアがあります。気になるゾーンに移動して他のプレイヤーと交流しましょう。
+              </div>
+            </div>
+            <div class="meta-note">
+              ⚠ 接続にはインターネットが必要です。オンラインのプレイヤーはバッジで確認できます。
+            </div>
+          </div>
+        </div><!-- end meta-howto -->
       </div>
 
       <!-- ── Amazon おすすめ（モダンUI） ── -->
