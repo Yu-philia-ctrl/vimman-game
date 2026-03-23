@@ -43,7 +43,10 @@ body {
   text-shadow: 0 0 12px #ff880088;
   letter-spacing: 2px;
 }
-#toolbar-right { display: flex; gap: 8px; }
+#toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#tb-size-ctrl { display: flex; align-items: center; gap: 2px; }
+#tb-size-label { font-family: monospace; font-size: 11px; color: #88aacc; min-width: 38px; text-align: center; }
+.tb-size-btn { padding: 3px 8px !important; font-size: 14px !important; line-height: 1; }
 .tb-btn {
   background: rgba(20,40,80,0.9);
   border: 1px solid #336;

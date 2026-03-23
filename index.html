@@ -102,6 +102,11 @@
       <button class="tb-btn tb-btn-share" id="btn-share" title="Xでシェア">𝕏 Share</button>
       <button class="tb-btn tb-btn-support" id="btn-support" title="応援する">❤ Support</button>
       <button class="tb-btn" id="btn-kbd-toggle" title="キーボード表示切替">⌨ KBD</button>
+      <div id="tb-size-ctrl" title="画面サイズ調整">
+        <button class="tb-btn tb-size-btn" id="btn-size-down" title="縮小">－</button>
+        <span id="tb-size-label">100%</span>
+        <button class="tb-btn tb-size-btn" id="btn-size-up" title="拡大">＋</button>
+      </div>
       <span id="tb-user-wrap" style="display:none;align-items:center;gap:6px;margin-left:4px;">
         <span id="tb-username" style="font-size:11px;color:#88aaff;font-family:monospace;letter-spacing:1px;"></span>
         <button class="tb-btn" id="btn-logout" onclick="doGameLogout()" title="ログアウト" style="color:#ff8888">⏻</button>
@@ -1019,6 +1024,7 @@
 <script src="tetris.js"></script>
 <script src="invaders.js"></script>
 <script src="linuxbattle.js"></script>
+<script src="ccaf-quiz.js"></script>
 <script src="main.js"></script>
 <!-- Firebase SDKs (compat version for simplicity) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>

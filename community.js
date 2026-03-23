@@ -154,7 +154,10 @@
         if (elOnlineCount) elOnlineCount.textContent = '● ' + cnt + ' オンライン';
       });
     } else {
-      if (elOnlineCount) elOnlineCount.textContent = '● 1 オンライン';
+      // Offline: show bots as online users
+      const botCount = BOT_USERS.length;
+      if (elOnlineCount) elOnlineCount.textContent = '● ' + (botCount + 1) + ' オンライン';
+      _startBotMessages(name);
     }
 
     // Subscribe to chat
@@ -165,6 +168,7 @@
   function leaveCommunity() {
     if (onlineRef) { onlineRef.remove(); onlineRef = null; }
     if (chatRef)   { chatRef.off(); chatRef = null; }
+    _stopBotMessages();
     currentUser = null;
     elGuestBar.classList.remove('hidden');
     elUserBar.classList.add('hidden');
@@ -175,11 +179,72 @@
     if (elMsgBox) elMsgBox.innerHTML = '';
   }
 
+  // ── Bot users (offline demo mode) ────────────────────────────────
+  const BOT_USERS = [
+    { name: 'さくら🌸',       color: '#ff6b9d', role: 'VimMaster' },
+    { name: 'ターミナル太郎',   color: '#4d96ff', role: 'LinuxPro' },
+    { name: 'ClaudeBot',      color: '#cc5de8', role: 'AI' },
+    { name: 'VimNinja',       color: '#6bcb77', role: 'Ninja' },
+    { name: 'LinuxHero',      color: '#ffd93d', role: 'Hero' },
+  ];
+  const BOT_MESSAGES = [
+    { bot: 0, text: 'hjkl移動で敵を翻弄しよう！' },
+    { bot: 1, text: 'LinuxBattle Chapter3まで来た！強敵が多い…' },
+    { bot: 2, text: 'VimのVisualモードでチャージすると必殺技が使えるよ' },
+    { bot: 3, text: ':wqコマンドでいつでもセーブできます' },
+    { bot: 4, text: 'Claude Certified Architect試験、対策ゲームがあるの知ってた？' },
+    { bot: 0, text: '新しいアップデートで装備ドロップが増えたね！' },
+    { bot: 1, text: 'ls -la | grep "vim" でvim関連ファイルを一覧表示！' },
+    { bot: 2, text: 'VimSnakeはINSERTモードで高速移動できるよ' },
+    { bot: 3, text: 'ddコマンドでレーザービームが出る！試してみて' },
+    { bot: 4, text: 'Python・TypeScript・Rustのスキルも覚えると戦いやすい' },
+    { bot: 0, text: 'このゲーム本当に楽しい！Vimの練習にもなるし最高✨' },
+    { bot: 1, text: 'sudo apt install vim で最新版に更新しておこう' },
+    { bot: 2, text: 'LinuxBattle、ボスが手強い…レベル上げが必要かも' },
+    { bot: 3, text: 'ESCキーでノーマルモードに戻るの基本！' },
+    { bot: 4, text: 'CCA-F試験は5つのドメインをしっかり対策しよう' },
+  ];
+  let _botMsgIdx  = 0;
+  let _botTimerID = null;
+
+  function _startBotMessages(joinedName) {
+    const botCount = BOT_USERS.length;
+    // Initial welcome messages
+    const welcomes = [
+      { bot: 0, text: joinedName + 'さん、ようこそ！VIM ARCADE コミュニティへ🌸' },
+      { bot: 1, text: 'はじめまして！一緒にLinuxBattleクリアしましょう！' },
+      { bot: 2, text: 'VimのキーバインドをマスターするとRPGがもっと楽しくなるよ！' },
+    ];
+    welcomes.forEach(function(w, i) {
+      setTimeout(function() {
+        const bot = BOT_USERS[w.bot];
+        appendMsg({ name: bot.name, color: bot.color, text: w.text, ts: Date.now() });
+      }, 800 + i * 1200);
+    });
+    // Periodic random messages every 12-20 seconds
+    function scheduleNext() {
+      const delay = 12000 + Math.random() * 8000;
+      _botTimerID = setTimeout(function() {
+        if (!currentUser) return;
+        const entry = BOT_MESSAGES[_botMsgIdx % BOT_MESSAGES.length];
+        _botMsgIdx++;
+        const bot = BOT_USERS[entry.bot];
+        appendMsg({ name: bot.name, color: bot.color, text: entry.text, ts: Date.now() });
+        scheduleNext();
+      }, delay);
+    }
+    scheduleNext();
+  }
+
+  function _stopBotMessages() {
+    if (_botTimerID) { clearTimeout(_botTimerID); _botTimerID = null; }
+  }
+
   // ── Chat ─────────────────────────────────────────────────────────
   function subscribeChat() {
     if (!db) {
-      // Offline demo mode
-      appendMsg({ name: '🤖 System', color: '#aaa', text: 'Firebase未設定 — オフラインモード', ts: Date.now(), system: true });
+      // Offline demo mode — show system notice only
+      appendMsg({ name: '📡 システム', color: '#7799aa', text: 'オフラインモードで動作中 — チャットはローカル表示のみ', ts: Date.now(), system: true });
       return;
     }
     chatRef = db.ref(CHAT_PATH).limitToLast(MAX_MSGS);

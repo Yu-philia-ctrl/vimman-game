@@ -12,7 +12,7 @@ const menuModule = (function() {
   let commScroll = 0;
 
   // HOME tab
-  const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'linuxbattle', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'shell'];
+  const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'linuxbattle', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'shell', 'ccaf'];
   let homeCursor = 0;
 
   // CHARACTER tab
@@ -308,8 +308,8 @@ const menuModule = (function() {
   // ─────────────────────────────────────────────────────────────────
 
   // HOME menu items: indexes into HOME_ITEMS
-  // 0=continue, 1=newgame, 2=stageselect, 3=snake, 4=invaders, 5=tetris, 6=tutorial, 7=codex, 8=character
-  const HOME_CURSOR_MAX = 10;
+  // 0=continue, 1=newgame, 2=stageselect, 3=linuxbattle, 4=snake, 5=invaders, 6=tetris, 7=tutorial, 8=codex, 9=character, 10=shell, 11=ccaf
+  const HOME_CURSOR_MAX = 11;
 
   function drawHome() {
     drawStarBg();
@@ -450,8 +450,9 @@ const menuModule = (function() {
       { id:'codex',     label:'📖 Vim CODEX',  color:'#ffaa44', cursor:8 },
       { id:'character', label:'⚔ キャラ装備',  color:'#ff88ff', cursor:9 },
       { id:'shell',     label:'$ SHELL100選',  color:'#44ff88', cursor:10 },
+      { id:'ccaf',      label:'🎓 CCA-F試験対策', color:'#ff6b6b', cursor:11 },
     ];
-    const shBW = Math.floor((W - 24) / 3);
+    const shBW = Math.floor((W - 24) / shortcuts.length);
     shortcuts.forEach(function(sh, i) {
       const bx = 12 + i * shBW;
       const bw = shBW - 4;
@@ -629,6 +630,8 @@ const menuModule = (function() {
         tab = 'character'; charCursor = 0; charSubState = 'main';
       } else if (item === 'shell') {
         tab = 'shell'; shellScroll = 0; shellCursor = 0;
+      } else if (item === 'ccaf') {
+        switchGame('ccaf');
       }
     }
 

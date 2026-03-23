@@ -214,6 +214,35 @@ function _initToolbar() {
   wireChk('chk-kbd',       'showKbd');
   wireChk('chk-hints',     'showHints');
 
+  // Canvas size control
+  (function() {
+    const SIZES = [60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
+    const KEY = 'vimarcade_canvas_size';
+    let sizeIdx = SIZES.indexOf(parseInt(localStorage.getItem(KEY) || '100', 10));
+    if (sizeIdx < 0) sizeIdx = 4; // default 100%
+
+    function applySize() {
+      const pct = SIZES[sizeIdx];
+      const col = document.getElementById('game-column');
+      if (col) col.style.width = pct + 'vw';
+      const lbl = document.getElementById('tb-size-label');
+      if (lbl) lbl.textContent = pct + '%';
+      localStorage.setItem(KEY, String(pct));
+    }
+
+    const btnUp   = document.getElementById('btn-size-up');
+    const btnDown = document.getElementById('btn-size-down');
+    if (btnUp) btnUp.addEventListener('click', function() {
+      sizeIdx = Math.min(sizeIdx + 1, SIZES.length - 1);
+      applySize(); canvas.focus();
+    });
+    if (btnDown) btnDown.addEventListener('click', function() {
+      sizeIdx = Math.max(sizeIdx - 1, 0);
+      applySize(); canvas.focus();
+    });
+    applySize();
+  })();
+
   // Reset XP
   const btnResetXP = document.getElementById('btn-reset-xp');
   if (btnResetXP) {

@@ -814,23 +814,23 @@ var linuxBattleGame = (function() {
     // title block (starts lower, clear of top edge)
     ctx.textAlign='center';
     ctx.font='bold 30px monospace';ctx.fillStyle='#ffcc00';
-    ctx.shadowColor='#ff8800';ctx.shadowBlur=18;
+    ctx.shadowColor='#ff8800';ctx.shadowBlur=6;
     ctx.fillText('LINUX BATTLE',W/2,72);
     ctx.shadowBlur=0;
     ctx.font='12px monospace';ctx.fillStyle='#88ccff';
-    ctx.fillText('Terminal Chronicles — 東京コマンドRPG',W/2,96);
+    ctx.fillText('Terminal Chronicles — 東京コマンドRPG',W/2,108);
     // story blurb (2 lines, 20px apart)
     ctx.font='10px monospace';ctx.fillStyle='#cc8866';
-    ctx.fillText('Linuxコマンドを武器に東京を守れ！',W/2,124);
+    ctx.fillText('Linuxコマンドを武器に東京を守れ！',W/2,136);
     ctx.fillStyle='#886644';
-    ctx.fillText('LinuC試験レベル準拠 / Python・Java・TypeScript・Rust',W/2,142);
+    ctx.fillText('LinuC試験レベル準拠 / Python・Java・TypeScript・Rust',W/2,154);
     // separator
     ctx.strokeStyle='rgba(100,80,200,0.4)';ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(W/2-160,158);ctx.lineTo(W/2+160,158);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(W/2-160,168);ctx.lineTo(W/2+160,168);ctx.stroke();
     // menu buttons (well below subtitle, generous spacing)
     var opts=['ゲームスタート','メニューに戻る'];
     for(var oi=0;oi<opts.length;oi++){
-      var oy=200+oi*58;
+      var oy=210+oi*58;
       var sel2=(oi===charCursor);
       ctx.fillStyle=sel2?'rgba(80,60,0,0.95)':'rgba(20,20,60,0.88)';
       ctx.fillRect(W/2-150,oy-22,300,38);
