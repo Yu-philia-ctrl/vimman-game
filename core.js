@@ -219,8 +219,8 @@ function _initToolbar() {
     const ZOOMS  = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
     const LABELS = ['70%','80%','90%','100%','110%','120%','130%','140%','150%'];
     const KEY = 'vimarcade_zoom_idx';
-    let zIdx = parseInt(localStorage.getItem(KEY) || '3', 10);
-    if (zIdx < 0 || zIdx >= ZOOMS.length) zIdx = 3;
+    let zIdx = parseInt(localStorage.getItem(KEY) || '7', 10); // default 140%
+    if (zIdx < 0 || zIdx >= ZOOMS.length) zIdx = 7;
 
     function applyZoom() {
       // Apply to <html> root — unaffected by flex layout rules

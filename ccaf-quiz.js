@@ -509,7 +509,7 @@ const ccafQuizGame = (function () {
 
     // Exam stats bar
     fillRR(60, 102, W - 120, 36, 8, 'rgba(255,255,255,0.04)');
-    const stats = '60 questions  ·  120 minutes  ·  Score 100-1000  ·  Pass: 720';
+    const stats = TOTAL_Q + ' questions  ·  ' + QUIZ_SECS + ' sec/q  ·  Score 100-1000  ·  Pass: 720';
     txt(stats, W / 2, 125, '12px monospace', '#9988bb', 'center');
 
     // Domain cards
@@ -544,7 +544,7 @@ const ccafQuizGame = (function () {
     });
 
     // Nav hint
-    txt('↑↓ / k j  選択    Enter / Z  決定', W / 2, H - 18, '11px monospace', '#554466', 'center');
+    txt('クリック または ↑↓/kj 選択    Enter/Z 決定', W / 2, H - 18, '12px monospace', '#8866aa', 'center');
   }
 
   // ── DRAW QUIZ ─────────────────────────────────────────────────
@@ -658,7 +658,7 @@ const ccafQuizGame = (function () {
 
     // Nav hint
     if (!answered) {
-      txt('↑↓ / k j  選択    Enter / Z  決定', W / 2, H - 12, '10px monospace', '#333355', 'center');
+      txt('クリックで選択 / ↑↓ kj で移動  Enter/Z で回答', W / 2, H - 12, '11px monospace', '#554477', 'center');
     }
   }
 
@@ -734,7 +734,50 @@ const ccafQuizGame = (function () {
     else if (state === 'result') drawResult();
   }
 
-  return { init: init, update: update, draw: draw, onKey: onKey };
+  // ── onClick — canvas click handler ───────────────────────────
+  function onClick(cx, cy) {
+    if (state === 'menu') {
+      // Button 0: 試験を開始する  (btnY = cardStartY + 5*(46+8) + 20 = 160+270+20 = 450)
+      // Button 1: メニューに戻る  (y = 450 + 44 + 10 = 504)
+      const btnW = 220, btnH = 44;
+      const bx = W / 2 - btnW / 2;
+      const btnY = 450;
+      if (cx >= bx && cx <= bx + btnW) {
+        if (cy >= btnY && cy <= btnY + btnH) { menuSel = 0; startQuiz(); return; }
+        if (cy >= btnY + 54 && cy <= btnY + 54 + btnH) { switchGame('menu'); return; }
+      }
+      return;
+    }
+    if (state === 'quiz' && !answered) {
+      // Option boxes: optX=40, optW=W-80=720, each optH=52, spacing=62
+      // optStartY depends on question wrap — estimate using stored qLines count
+      const q = QUESTIONS[qIndex];
+      const qLinesLen = wrapText(q.q, 72).length;
+      const optStartY = 78 + qLinesLen * 22 + 20;
+      const optX = 40, optW = W - 80, optH = 52;
+      for (var i = 0; i < q.opts.length; i++) {
+        const oy = optStartY + i * 62;
+        if (cx >= optX && cx <= optX + optW && cy >= oy && cy <= oy + optH) {
+          selected = i;
+          submitAnswer(i);
+          return;
+        }
+      }
+      return;
+    }
+    if (state === 'result') {
+      // Replay / Menu buttons at bottom
+      const btnW = 240, btnH = 38;
+      const bx = W / 2 - btnW / 2;
+      const b0y = H - 110, b1y = H - 64;
+      if (cx >= bx && cx <= bx + btnW) {
+        if (cy >= b0y && cy <= b0y + btnH) { init(); startQuiz(); return; }
+        if (cy >= b1y && cy <= b1y + btnH) { switchGame('menu'); return; }
+      }
+    }
+  }
+
+  return { init: init, update: update, draw: draw, onKey: onKey, onClick: onClick };
 })();
 
 registerGame('ccaf', ccafQuizGame);

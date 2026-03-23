@@ -25,6 +25,17 @@ window._vimKeyHandler = function(e) {
   if (mod && mod.onKey) mod.onKey(e);
 };
 
+// Wire up canvas click to dispatch to active game module
+canvas.addEventListener('click', function(e) {
+  const mod = currentGame === 'menu' ? null : _gameModules[currentGame];
+  if (mod && mod.onClick) {
+    const rect = canvas.getBoundingClientRect();
+    const cx = (e.clientX - rect.left) * (W / rect.width);
+    const cy = (e.clientY - rect.top)  * (H / rect.height);
+    mod.onClick(cx, cy);
+  }
+});
+
 function gameLoop() {
   // NOTE: updateInput() MUST be at END so justPressed() works correctly.
   // (prevKeys must reflect the *previous* frame when update() checks keys)

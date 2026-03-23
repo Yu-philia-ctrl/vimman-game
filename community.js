@@ -259,10 +259,17 @@
     const div = document.createElement('div');
     div.className = 'comm-msg' + (msg.system ? ' comm-msg-system' : '');
     const time = new Date(msg.ts || Date.now()).toLocaleTimeString('ja-JP', { hour:'2-digit', minute:'2-digit' });
+    const isOwn = !msg.system && currentUser && msg.name === currentUser.name;
     div.innerHTML =
       '<span class="comm-msg-time">' + time + '</span>' +
       '<span class="comm-msg-name" style="color:' + (msg.color || '#aaa') + '">' + escHtml(msg.name) + '</span>' +
-      '<span class="comm-msg-text">' + escHtml(msg.text) + '</span>';
+      '<span class="comm-msg-text">' + escHtml(msg.text) + '</span>' +
+      (isOwn ? '<button class="comm-del-btn" title="削除">×</button>' : '');
+    if (isOwn) {
+      div.querySelector('.comm-del-btn').addEventListener('click', function() {
+        div.remove();
+      });
+    }
     elMsgBox.appendChild(div);
     // Keep max msgs in DOM
     while (elMsgBox.children.length > MAX_MSGS) elMsgBox.removeChild(elMsgBox.firstChild);
