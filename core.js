@@ -216,31 +216,38 @@ function _initToolbar() {
 
   // Canvas size control
   (function() {
-    const SIZES = [60, 70, 80, 90, 100, 110, 120, 130, 140, 150];
-    const KEY = 'vimarcade_canvas_size';
-    let sizeIdx = SIZES.indexOf(parseInt(localStorage.getItem(KEY) || '100', 10));
-    if (sizeIdx < 0) sizeIdx = 4; // default 100%
+    // zoom values applied to #game-column (0.7 = 70%, 1.0 = 100%, etc.)
+    const ZOOMS  = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
+    const LABELS = ['70%','80%','90%','100%','110%','120%','130%','140%','150%'];
+    const KEY = 'vimarcade_zoom_idx';
+    let zIdx = parseInt(localStorage.getItem(KEY) || '3', 10);
+    if (zIdx < 0 || zIdx >= ZOOMS.length) zIdx = 3;
 
-    function applySize() {
-      const pct = SIZES[sizeIdx];
+    function applyZoom() {
       const col = document.getElementById('game-column');
-      if (col) col.style.width = pct + 'vw';
+      if (col) {
+        col.style.zoom = ZOOMS[zIdx];
+        // Remove any stale flex constraints so zoom takes effect
+        col.style.width = '';
+      }
       const lbl = document.getElementById('tb-size-label');
-      if (lbl) lbl.textContent = pct + '%';
-      localStorage.setItem(KEY, String(pct));
+      if (lbl) lbl.textContent = LABELS[zIdx];
+      localStorage.setItem(KEY, String(zIdx));
     }
 
     const btnUp   = document.getElementById('btn-size-up');
     const btnDown = document.getElementById('btn-size-down');
-    if (btnUp) btnUp.addEventListener('click', function() {
-      sizeIdx = Math.min(sizeIdx + 1, SIZES.length - 1);
-      applySize(); canvas.focus();
+    if (btnUp) btnUp.addEventListener('click', function(e) {
+      e.stopPropagation();
+      zIdx = Math.min(zIdx + 1, ZOOMS.length - 1);
+      applyZoom();
     });
-    if (btnDown) btnDown.addEventListener('click', function() {
-      sizeIdx = Math.max(sizeIdx - 1, 0);
-      applySize(); canvas.focus();
+    if (btnDown) btnDown.addEventListener('click', function(e) {
+      e.stopPropagation();
+      zIdx = Math.max(zIdx - 1, 0);
+      applyZoom();
     });
-    applySize();
+    applyZoom();
   })();
 
   // Reset XP

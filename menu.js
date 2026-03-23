@@ -413,8 +413,41 @@ const menuModule = (function() {
     ctx.fillText('Chapter ' + (lbCh + 1) + '/10', W - 20, lbY + 62);
     ctx.textAlign = 'left';
 
+    // ── Main Quest 3: CCA-F 試験対策 ──────────────────────────────
+    const ccafY = lbY + 80;
+    const ccafBest = parseInt(localStorage.getItem('ccaf_best_score') || '0', 10);
+    const ccafPassed = ccafBest >= 720;
+    ctx.fillStyle = 'rgba(10,5,40,0.88)';
+    ctx.fillRect(8, ccafY, W - 16, 68);
+    ctx.strokeStyle = '#664488';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(8, ccafY, W - 16, 68);
+    ctx.fillStyle = '#cc88ff';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('◉ MAIN QUEST 3', 18, ccafY + 14);
+    ctx.fillStyle = '#ffcc44';
+    ctx.font = 'bold 15px monospace';
+    ctx.fillText('CCA-F 試験対策', 164, ccafY + 14);
+    ctx.fillStyle = '#9977cc';
+    ctx.font = '10px monospace';
+    ctx.fillText('Claude Certified Architect Foundation — 5ドメイン全30問', 18, ccafY + 28);
+    ctx.fillStyle = ccafPassed ? '#44ff88' : '#aa88cc';
+    ctx.font = 'bold 10px monospace';
+    ctx.fillText(ccafBest > 0 ? 'ベストスコア: ' + ccafBest + '/1000' + (ccafPassed ? ' ✓合格済' : ' 不合格') : '未挑戦 — スコア720以上で合格', 18, ccafY + 42);
+    const ccafSel = (homeCursor === 11);
+    ctx.fillStyle = ccafSel ? 'rgba(80,20,120,0.85)' : 'rgba(30,10,60,0.5)';
+    ctx.fillRect(14, ccafY + 46, W - 28, 18);
+    if (ccafSel) { ctx.strokeStyle = '#cc88ff'; ctx.lineWidth = 1; ctx.strokeRect(14, ccafY + 46, W - 28, 18); }
+    ctx.fillStyle = ccafSel ? '#cc88ff' : '#886699';
+    ctx.font = 'bold 11px monospace';
+    ctx.fillText(ccafSel ? '► CCA-F 試験対策ゲームを開始' : '  CCA-F 試験対策ゲームを開始', 24, ccafY + 59);
+    ctx.fillStyle = '#556677'; ctx.font = '9px monospace'; ctx.textAlign = 'right';
+    ctx.fillText('合格ライン 720/1000', W - 20, ccafY + 59);
+    ctx.textAlign = 'left';
+
     // ── Sub Games ────────────────────────────────────────────────
-    const sgY = lbY + 80;
+    const sgY = ccafY + 72;
     ctx.fillStyle = '#445566';
     ctx.font = '10px monospace';
     ctx.textAlign = 'left';
@@ -450,7 +483,6 @@ const menuModule = (function() {
       { id:'codex',     label:'📖 Vim CODEX',  color:'#ffaa44', cursor:8 },
       { id:'character', label:'⚔ キャラ装備',  color:'#ff88ff', cursor:9 },
       { id:'shell',     label:'$ SHELL100選',  color:'#44ff88', cursor:10 },
-      { id:'ccaf',      label:'🎓 CCA-F試験対策', color:'#ff6b6b', cursor:11 },
     ];
     const shBW = Math.floor((W - 24) / shortcuts.length);
     shortcuts.forEach(function(sh, i) {
