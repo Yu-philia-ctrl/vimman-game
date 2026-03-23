@@ -229,6 +229,10 @@ function _initToolbar() {
 
 // ── Keydown listener ──────────────────────────────────────────
 window.addEventListener('keydown', function(e) {
+  // Never intercept events in form inputs/textareas — let them type freely
+  var tgt = e.target;
+  if (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA' || tgt.isContentEditable) return;
+
   const GC = new Set(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
     'KeyH','KeyJ','KeyK','KeyL','KeyX','KeyW','KeyB','KeyS','KeyR','KeyU',
     'KeyI','KeyV','KeyA','KeyG','KeyF','KeyN','KeyP','KeyZ','KeyD','KeyY','KeyC',

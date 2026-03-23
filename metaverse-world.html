@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIM ARCADE メタバース仮想空間</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #020810;
+      font-family: monospace;
+      color: #aabbcc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    #mw-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(0,4,20,0.95);
+      border-bottom: 1px solid #1a3a6a;
+      flex-shrink: 0;
+    }
+    #mw-header-left { display: flex; align-items: center; gap: 12px; }
+    #mw-logo { font-size: 15px; font-weight: bold; color: #ffdd44; letter-spacing: 1px; }
+    #mw-world-name { font-size: 13px; color: #88aaff; }
+    #mw-online-badge { font-size: 11px; color: #445566; }
+    #mw-back-btn {
+      background: rgba(20,40,80,0.8);
+      border: 1px solid #334466;
+      color: #88aaff;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    #mw-back-btn:hover { background: rgba(40,80,160,0.8); color: #fff; }
+    #mw-cluster-btn {
+      background: linear-gradient(135deg, #2255cc, #1133aa);
+      border: 1px solid #4477ff;
+      color: #fff;
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    #mw-cluster-btn:hover { background: linear-gradient(135deg, #3366dd, #2244cc); }
+
+    /* ── Main layout ── */
+    #mw-main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Canvas area ── */
+    #mw-canvas-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      background: #040c18;
+      position: relative;
+    }
+    #mw-canvas {
+      display: block;
+      image-rendering: pixelated;
+      border: 2px solid #1a3a6a;
+      border-radius: 6px;
+      box-shadow: 0 0 40px #0033aa55, 0 0 80px #001a5533;
+      cursor: crosshair;
+      max-width: 100%;
+      max-height: calc(100vh - 140px);
+    }
+    #mw-canvas-hint {
+      margin-top: 8px;
+      font-size: 10px;
+      color: #334455;
+      text-align: center;
+    }
+
+    /* ── Side panel ── */
+    #mw-side {
+      width: 280px;
+      flex-shrink: 0;
+      background: rgba(2,6,18,0.98);
+      border-left: 1px solid #0e1e3a;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Join / Status ── */
+    #mw-join-panel {
+      padding: 14px 12px;
+      border-bottom: 1px solid #0e1e3a;
+    }
+    #mw-join-panel h3 {
+      font-size: 12px;
+      color: #88aaff;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    #mw-name-input {
+      width: 100%;
+      background: #080f22;
+      border: 1px solid #2a4a80;
+      color: #cde;
+      font-family: monospace;
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      outline: none;
+    }
+    #mw-name-input:focus { border-color: #4477ff; box-shadow: 0 0 8px #1133ff44; }
+    #mw-join-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #1a4080, #0d2855);
+      border: 1px solid #2255aa;
+      color: #88ccff;
+      font-family: monospace;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 9px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    #mw-join-btn:hover { background: linear-gradient(135deg, #2255aa, #1a3a80); color: #fff; }
+    #mw-status-panel {
+      display: none;
+      padding: 10px 12px;
+      border-bottom: 1px solid #0e1e3a;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    #mw-status-name {
+      font-size: 12px;
+      color: #aaccff;
+      font-weight: bold;
+    }
+    #mw-leave-btn {
+      background: rgba(80,20,30,0.7);
+      border: 1px solid #5a2030;
+      color: #ff8888;
+      font-family: monospace;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    #mw-leave-btn:hover { background: rgba(140,30,50,0.8); }
+
+    /* Zone map ── */
+    #mw-zonemap {
+      padding: 10px 12px 6px;
+      border-bottom: 1px solid #0e1e3a;
+    }
+    #mw-zonemap h4 { font-size: 10px; color: #445566; margin-bottom: 6px; letter-spacing: 1px; }
+    .mw-zone-row {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .mw-zone-btn {
+      flex: 1;
+      background: rgba(10,20,50,0.7);
+      border: 1px solid #1a2a4a;
+      border-radius: 4px;
+      padding: 5px 4px;
+      font-size: 9px;
+      color: #7799bb;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      line-height: 1.4;
+    }
+    .mw-zone-btn:hover { background: rgba(30,60,120,0.7); color: #aaccff; border-color: #2a4a80; }
+    .mw-zone-btn.active { background: rgba(40,80,160,0.6); color: #ccddff; border-color: #4477aa; }
+    .mw-zone-icon { font-size: 14px; display: block; margin-bottom: 2px; }
+
+    /* Chat ── */
+    #mw-chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    #mw-chat-label {
+      padding: 8px 12px 4px;
+      font-size: 10px;
+      color: #334455;
+      letter-spacing: 1px;
+    }
+    #mw-chat-log {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 10px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #1a3a6a #040c18;
+    }
+    #mw-chat-log::-webkit-scrollbar { width: 4px; }
+    #mw-chat-log::-webkit-scrollbar-track { background: #040c18; }
+    #mw-chat-log::-webkit-scrollbar-thumb { background: #1a3a6a; border-radius: 2px; }
+    .mw-chat-msg {
+      font-size: 11px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .mw-chat-name { font-weight: bold; margin-right: 4px; }
+    .mw-chat-text { color: #99aabb; }
+    .mw-chat-system { color: #334455; font-style: italic; font-size: 10px; }
+    .mw-chat-time { color: #223344; font-size: 9px; margin-left: 4px; }
+    #mw-chat-input-row {
+      display: flex;
+      gap: 6px;
+      padding: 8px 10px;
+      border-top: 1px solid #0e1e3a;
+      flex-shrink: 0;
+    }
+    #mw-chat-input {
+      flex: 1;
+      background: #080f22;
+      border: 1px solid #1a3a6a;
+      color: #cde;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 3px;
+      outline: none;
+    }
+    #mw-chat-input:focus { border-color: #3366aa; }
+    #mw-chat-send {
+      background: rgba(30,60,120,0.8);
+      border: 1px solid #2a4a80;
+      color: #88aaff;
+      font-family: monospace;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    #mw-chat-send:hover { background: rgba(50,100,200,0.8); color: #fff; }
+
+    /* How-to overlay ── */
+    #mw-howto {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(2,6,20,0.92);
+      border: 1px solid #1a3a6a;
+      border-radius: 6px;
+      padding: 12px 14px;
+      max-width: 280px;
+      z-index: 10;
+    }
+    #mw-howto h4 { font-size: 11px; color: #88aaff; margin-bottom: 8px; }
+    .mw-howto-step {
+      font-size: 10px;
+      color: #8899bb;
+      line-height: 1.8;
+      display: flex;
+      gap: 6px;
+      align-items: flex-start;
+    }
+    .mw-howto-key {
+      background: rgba(60,80,140,0.6);
+      border: 1px solid #334488;
+      border-radius: 3px;
+      padding: 0 4px;
+      font-size: 10px;
+      color: #99bbff;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #mw-howto-close {
+      margin-top: 8px;
+      background: none;
+      border: none;
+      color: #334455;
+      font-size: 10px;
+      cursor: pointer;
+      width: 100%;
+      text-align: right;
+      font-family: monospace;
+    }
+    #mw-howto-close:hover { color: #88aaff; }
+    #mw-howto.hidden { display: none; }
+
+    /* Users list ── */
+    #mw-users-label { padding: 6px 12px 2px; font-size: 10px; color: #334455; letter-spacing: 1px; }
+    #mw-users-list {
+      padding: 0 10px 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      max-height: 60px;
+      overflow: hidden;
+    }
+    .mw-user-chip {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 10px;
+      border: 1px solid;
+      opacity: 0.9;
+    }
+
+    /* Responsive ── */
+    @media (max-width: 700px) {
+      #mw-side { width: 100%; height: 200px; border-left: none; border-top: 1px solid #0e1e3a; }
+      #mw-main { flex-direction: column; }
+      #mw-canvas-wrap { padding: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div id="mw-header">
+  <div id="mw-header-left">
+    <span id="mw-logo">⚔ VIM ARCADE</span>
+    <span id="mw-world-name">🌐 メタバース仮想空間</span>
+    <span id="mw-online-badge">● 0 人オンライン</span>
+  </div>
+  <div style="display:flex;gap:8px">
+    <!-- ★ YOUR_WORLD_ID を cluster.mu で作成したワールドIDに差し替えること -->
+    <a id="mw-cluster-btn" href="https://cluster.mu/w/YOUR_WORLD_ID" target="_blank" rel="noopener">🚀 cluster.muでも参加する</a>
+    <a id="mw-back-btn" href="index.html">← ゲームに戻る</a>
+  </div>
+</div>
+
+<!-- Main -->
+<div id="mw-main">
+
+  <!-- Canvas -->
+  <div id="mw-canvas-wrap">
+    <canvas id="mw-canvas" width="800" height="600"></canvas>
+    <div id="mw-canvas-hint">クリックでフォーカス &nbsp;|&nbsp; WASD / 矢印キー: 移動 &nbsp;|&nbsp; ゾーンをクリック: 瞬間移動</div>
+
+    <!-- How-to overlay (shown until first join) -->
+    <div id="mw-howto">
+      <h4>🎮 操作方法</h4>
+      <div class="mw-howto-step"><span class="mw-howto-key">WASD</span><span>アバターを移動する</span></div>
+      <div class="mw-howto-step"><span class="mw-howto-key">↑↓←→</span><span>矢印キーでも移動できます</span></div>
+      <div class="mw-howto-step"><span class="mw-howto-key">チャット欄</span><span>右下の入力欄からメッセージ送信</span></div>
+      <div class="mw-howto-step"><span class="mw-howto-key">ゾーン</span><span>右のZONEボタンで瞬間移動</span></div>
+      <div class="mw-howto-step"><span class="mw-howto-key">Enter</span><span>キャンバス内でもチャット入力</span></div>
+      <button id="mw-howto-close" onclick="document.getElementById('mw-howto').classList.add('hidden')">✕ 閉じる</button>
+    </div>
+  </div>
+
+  <!-- Side panel -->
+  <div id="mw-side">
+
+    <!-- Join form -->
+    <div id="mw-join-panel">
+      <h3>🌐 仮想空間に参加する</h3>
+      <input id="mw-name-input" type="text" placeholder="ユーザー名（最大16文字）" maxlength="16" autocomplete="off" spellcheck="false">
+      <button id="mw-join-btn">入室する →</button>
+    </div>
+
+    <!-- Status (after join) -->
+    <div id="mw-status-panel">
+      <span id="mw-status-name">👤 ---</span>
+      <button id="mw-leave-btn">退出する</button>
+    </div>
+
+    <!-- Zone teleport buttons -->
+    <div id="mw-zonemap">
+      <h4>📍 ZONES — クリックで瞬間移動</h4>
+      <div class="mw-zone-row">
+        <button class="mw-zone-btn" data-zone="0" onclick="teleportZone(0)"><span class="mw-zone-icon">⚔</span>VIM 道場</button>
+        <button class="mw-zone-btn" data-zone="1" onclick="teleportZone(1)"><span class="mw-zone-icon">🏯</span>入口広場</button>
+      </div>
+      <div class="mw-zone-row">
+        <button class="mw-zone-btn" data-zone="2" onclick="teleportZone(2)"><span class="mw-zone-icon">🐧</span>Linux 区</button>
+        <button class="mw-zone-btn" data-zone="3" onclick="teleportZone(3)"><span class="mw-zone-icon">🕹</span>アーケード</button>
+      </div>
+    </div>
+
+    <!-- Online users -->
+    <div id="mw-users-label">👥 オンライン</div>
+    <div id="mw-users-list"></div>
+
+    <!-- Chat log -->
+    <div id="mw-chat-area">
+      <div id="mw-chat-label">💬 チャット</div>
+      <div id="mw-chat-log">
+        <div class="mw-chat-system">ようこそ VIM ARCADE メタバースへ！</div>
+        <div class="mw-chat-system">ユーザー名を入力して入室してください。</div>
+      </div>
+    </div>
+
+    <!-- Chat input -->
+    <div id="mw-chat-input-row">
+      <input id="mw-chat-input" type="text" placeholder="メッセージを入力..." maxlength="64" autocomplete="off" spellcheck="false" disabled>
+      <button id="mw-chat-send" disabled>送信</button>
+    </div>
+
+  </div><!-- end side -->
+</div><!-- end main -->
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="community.js"></script><!-- Firebase config -->
+
+<script>
+(function () {
+  'use strict';
+
+  var CW = 800, CH = 600;
+  var ZONE_CENTERS = [
+    {x:200, y:150}, // VIM道場 center
+    {x:600, y:150}, // 入口広場
+    {x:200, y:450}, // Linux区
+    {x:600, y:450}, // アーケード
+  ];
+  var ZONES = [
+    { x:0,   y:0,   w:400, h:300, bg:'#061a10', grid:'#0d3320', accent:'#1a6644', title:'⚔ VIM 道場',  sub:'極めよ — The Vim Way' },
+    { x:400, y:0,   w:400, h:300, bg:'#12100a', grid:'#251e0a', accent:'#5a4a10', title:'🏯 入口広場', sub:'ようこそ VIM ARCADE' },
+    { x:0,   y:300, w:400, h:300, bg:'#060e1a', grid:'#0d1e33', accent:'#1a3a6a', title:'🐧 Linux 区',  sub:'コマンドの聖地' },
+    { x:400, y:300, w:400, h:300, bg:'#120818', grid:'#1e0e2a', accent:'#3a1a6a', title:'🕹 アーケード', sub:'遊び場 — Play Zone' },
+  ];
+  var PROPS = [
+    [{x:60,y:120,i:'📖'},{x:160,y:200,i:'⌨'},{x:300,y:140,i:'🗡'}],
+    [{x:460,y:100,i:'🌟'},{x:700,y:180,i:'🎮'},{x:560,y:220,i:'✨'}],
+    [{x:80,y:400,i:'💻'},{x:240,y:500,i:'🐚'},{x:340,y:440,i:'⚡'}],
+    [{x:480,y:400,i:'👾'},{x:640,y:500,i:'🎯'},{x:740,y:440,i:'🏆'}],
+  ];
+  var AVATAR_COLORS = ['#4d96ff','#69db7c','#ff6b6b','#ffd43b','#cc5de8','#ff922b','#74c0fc','#ff8787','#20c997','#f06595'];
+
+  var canvas = document.getElementById('mw-canvas');
+  var ctx = canvas.getContext('2d');
+  var myUid = null, myName = null, myColor = null;
+  var myX = 600, myY = 150;
+  var myMsg = '', myMsgAt = 0;
+  var chatMode = false, chatDraft = '';
+  var focused = false;
+  var keys = {};
+  var frame = 0;
+  var users = {};
+  var db = null, myRef = null, usersRef = null, lastPush = 0;
+  var chatLog = [];
+
+  function hashColor(s) {
+    var h = 0;
+    for (var i = 0; i < s.length; i++) h = ((h * 31) + s.charCodeAt(i)) >>> 0;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+
+  // ── Canvas events ──
+  canvas.addEventListener('click', function() { focused = true; canvas.focus(); canvas.style.outline='none'; });
+  canvas.setAttribute('tabindex','0');
+  canvas.addEventListener('blur', function() { focused = false; });
+  canvas.addEventListener('keydown', function(e) {
+    if (chatMode) {
+      if (e.key === 'Escape') { chatMode = false; chatDraft = ''; }
+      else if (e.key === 'Enter') {
+        var m = chatDraft.trim();
+        if (m && myUid) sendChat(m);
+        chatMode = false; chatDraft = '';
+      } else if (e.key === 'Backspace') chatDraft = chatDraft.slice(0,-1);
+      else if (e.key.length === 1 && chatDraft.length < 48) chatDraft += e.key;
+      e.preventDefault();
+      return;
+    }
+    if (!focused) return;
+    if (e.key === 'Enter' && myUid) { chatMode = true; e.preventDefault(); return; }
+    keys[e.code] = true;
+    if (e.key.startsWith('Arrow')) e.preventDefault();
+  });
+  canvas.addEventListener('keyup', function(e) { keys[e.code] = false; });
+
+  // ── Zone teleport ──
+  window.teleportZone = function(idx) {
+    if (!myUid) return;
+    var c = ZONE_CENTERS[idx];
+    myX = c.x + (Math.random()-0.5)*60;
+    myY = c.y + (Math.random()-0.5)*60;
+    pushPos();
+    updateZoneButtons();
+    canvas.focus(); focused = true;
+  };
+
+  function getCurrentZone() {
+    for (var i = 0; i < ZONES.length; i++) {
+      var z = ZONES[i];
+      if (myX >= z.x && myX < z.x+z.w && myY >= z.y && myY < z.y+z.h) return i;
+    }
+    return -1;
+  }
+
+  function updateZoneButtons() {
+    var cur = getCurrentZone();
+    document.querySelectorAll('.mw-zone-btn').forEach(function(btn) {
+      btn.classList.toggle('active', parseInt(btn.dataset.zone) === cur);
+    });
+  }
+
+  // ── Game loop ──
+  function tick() {
+    requestAnimationFrame(tick);
+    frame++;
+    if (myUid && !chatMode) {
+      var spd = 3, moved = false;
+      if (keys['ArrowUp']   ||keys['KeyW']){myY=Math.max(12,myY-spd);moved=true;}
+      if (keys['ArrowDown'] ||keys['KeyS']){myY=Math.min(CH-12,myY+spd);moved=true;}
+      if (keys['ArrowLeft'] ||keys['KeyA']){myX=Math.max(12,myX-spd);moved=true;}
+      if (keys['ArrowRight']||keys['KeyD']){myX=Math.min(CW-12,myX+spd);moved=true;}
+      if (moved && Date.now()-lastPush > 80) { pushPos(); lastPush=Date.now(); updateZoneButtons(); }
+    }
+    draw();
+  }
+
+  // ── Draw ──
+  function draw() {
+    ctx.clearRect(0,0,CW,CH);
+
+    // Zones with grid
+    for (var i=0;i<ZONES.length;i++) {
+      var z=ZONES[i];
+      ctx.fillStyle=z.bg; ctx.fillRect(z.x,z.y,z.w,z.h);
+      ctx.strokeStyle=z.grid; ctx.lineWidth=0.5;
+      for (var gx=z.x;gx<=z.x+z.w;gx+=32){ctx.beginPath();ctx.moveTo(gx,z.y);ctx.lineTo(gx,z.y+z.h);ctx.stroke();}
+      for (var gy=z.y;gy<=z.y+z.h;gy+=32){ctx.beginPath();ctx.moveTo(z.x,gy);ctx.lineTo(z.x+z.w,gy);ctx.stroke();}
+      ctx.strokeStyle=z.accent+'55';ctx.lineWidth=1.5;ctx.strokeRect(z.x+2,z.y+2,z.w-4,z.h-4);
+      ctx.textAlign='center';
+      ctx.font='bold 16px monospace';ctx.fillStyle=z.accent+'ee';ctx.fillText(z.title,z.x+z.w/2,z.y+28);
+      ctx.font='11px monospace';ctx.fillStyle=z.accent+'88';ctx.fillText(z.sub,z.x+z.w/2,z.y+48);
+    }
+
+    // Props
+    ctx.font='18px serif';ctx.textAlign='center';
+    for (var pi=0;pi<PROPS.length;pi++) {
+      for (var pj=0;pj<PROPS[pi].length;pj++) {
+        var p=PROPS[pi][pj];
+        ctx.globalAlpha=0.18+0.08*Math.sin(frame*0.02+pi*1.3+pj);
+        ctx.fillText(p.i,p.x,p.y);
+      }
+    }
+    ctx.globalAlpha=1;
+
+    // Zone dividers
+    ctx.strokeStyle='#1a3a5a';ctx.lineWidth=1.5;ctx.setLineDash([8,8]);
+    ctx.beginPath();ctx.moveTo(400,0);ctx.lineTo(400,CH);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,300);ctx.lineTo(CW,300);ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Remote users
+    var now=Date.now();
+    for (var uid in users) {
+      if (uid===myUid) continue;
+      var u=users[uid];
+      if (!u||now-(u.ts||0)>30000) continue;
+      drawAvatar(u.x,u.y,u.name||'?',u.color||'#4d96ff',u.msg||'',u.msgAt||0,false);
+    }
+    if (myUid) drawAvatar(myX,myY,myName,myColor,myMsg,myMsgAt,true);
+
+    // Chat input bar (canvas inline)
+    if (chatMode) {
+      ctx.fillStyle='rgba(0,4,24,0.92)';ctx.fillRect(10,CH-46,CW-20,38);
+      ctx.strokeStyle='#4d96ff66';ctx.lineWidth=1;ctx.strokeRect(10,CH-46,CW-20,38);
+      ctx.font='13px monospace';ctx.textAlign='left';ctx.fillStyle='#88aaff';
+      ctx.fillText('💬 ' + chatDraft + (frame%40<20?'▌':' '),20,CH-22);
+      ctx.font='9px monospace';ctx.fillStyle='#334455';
+      ctx.fillText('Enter: 送信  Esc: キャンセル',20,CH-10);
+    }
+
+    // Focus hint
+    if (myUid && !focused && !chatMode) {
+      ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(0,CH-22,CW,22);
+      ctx.font='10px monospace';ctx.textAlign='center';ctx.fillStyle='#445566';
+      ctx.fillText('クリックでフォーカス ― WASD/矢印: 移動 ― Enter: チャット',CW/2,CH-7);
+    }
+
+    // Not-joined overlay
+    if (!myUid) {
+      ctx.fillStyle='rgba(0,4,20,0.82)';ctx.fillRect(0,0,CW,CH);
+      var pulse=0.85+0.15*Math.sin(frame*0.04);
+      ctx.globalAlpha=pulse;
+      ctx.textAlign='center';
+      ctx.font='bold 28px monospace';ctx.fillStyle='#4d96ff';ctx.fillText('🌐 VIM ARCADE',CW/2,CH/2-60);
+      ctx.globalAlpha=1;
+      ctx.font='bold 18px monospace';ctx.fillStyle='#aaccff';ctx.fillText('メタバース仮想空間',CW/2,CH/2-24);
+      ctx.font='13px monospace';ctx.fillStyle='#6688aa';ctx.fillText('右パネルのフォームからユーザー名を入力して入室してください',CW/2,CH/2+10);
+      ctx.font='11px monospace';ctx.fillStyle='#445566';
+      ctx.fillText('4つのゾーンを自由に移動 · チャットで他のプレイヤーと交流 · cluster.muでフル3D体験',CW/2,CH/2+36);
+    }
+  }
+
+  function drawAvatar(x,y,name,color,msg,msgAt,isMe) {
+    x=Math.round(x); y=Math.round(y);
+    var R=isMe?16:13;
+    var showBubble=msg&&(Date.now()-msgAt<6000);
+    ctx.save();
+    if (isMe){ctx.shadowColor=color;ctx.shadowBlur=20;}
+    ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);
+    ctx.fillStyle=color;ctx.fill();
+    if (isMe){ctx.strokeStyle='#ffffff';ctx.lineWidth=2.5;ctx.stroke();}
+    ctx.restore();
+    ctx.textAlign='center';
+    ctx.font='bold '+(isMe?14:12)+'px monospace';ctx.fillStyle='#fff';
+    ctx.fillText(name.charAt(0).toUpperCase(),x,y+5);
+    ctx.font=(isMe?'bold ':'')+' 10px monospace';
+    ctx.fillStyle=isMe?'#ccffcc':'#99bbcc';
+    ctx.fillText(name.slice(0,14),x,y+R+14);
+    if (showBubble) {
+      var txt=msg.slice(0,30);
+      ctx.font='10px monospace';
+      var tw=ctx.measureText(txt).width;
+      var bw=tw+16,bh=20;
+      var bx=Math.max(4,Math.min(CW-bw-4,x-bw/2));
+      var by2=Math.max(4,y-R-bh-8);
+      ctx.fillStyle='rgba(220,240,255,0.96)';ctx.strokeStyle=color;ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.roundRect?ctx.roundRect(bx,by2,bw,bh,4):null;
+      ctx.fill();ctx.stroke();
+      ctx.fillStyle='#111';ctx.textAlign='left';
+      ctx.fillText(txt,bx+7,by2+14);
+      ctx.textAlign='center';
+    }
+  }
+
+  // ── Firebase ──
+  function waitFirebase(n) {
+    if (n>20) return;
+    if (typeof firebase==='undefined'||!firebase.apps||!firebase.apps.length)
+      return setTimeout(function(){waitFirebase(n+1);},500);
+    try {
+      db=firebase.database();
+      usersRef=db.ref('vimarcade-meta/users');
+      usersRef.on('value',function(snap){
+        users=snap.val()||{};
+        updateOnlineBadge();
+        updateUsersList();
+      });
+    } catch(e){db=null;}
+  }
+
+  function pushPos() {
+    if (myRef) myRef.update({x:Math.round(myX),y:Math.round(myY),ts:Date.now()});
+  }
+
+  function sendChat(msg) {
+    myMsg=msg; myMsgAt=Date.now();
+    if (myRef) myRef.update({msg:msg,msgAt:myMsgAt,ts:Date.now()});
+    appendChat(myName, msg, myColor, true);
+  }
+
+  function appendChat(name, text, color, isMe) {
+    var log=document.getElementById('mw-chat-log');
+    if (!log) return;
+    var d=document.createElement('div');
+    d.className='mw-chat-msg';
+    var t=new Date();
+    var ts='['+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+']';
+    d.innerHTML='<span class="mw-chat-time">'+ts+'</span> <span class="mw-chat-name" style="color:'+color+'">'+escHtml(name)+'</span><span class="mw-chat-text">'+escHtml(text)+'</span>';
+    log.appendChild(d);
+    log.scrollTop=log.scrollHeight;
+  }
+
+  function appendSystem(msg) {
+    var log=document.getElementById('mw-chat-log');
+    if (!log) return;
+    var d=document.createElement('div');
+    d.className='mw-chat-system';
+    d.textContent=msg;
+    log.appendChild(d);
+    log.scrollTop=log.scrollHeight;
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function updateOnlineBadge() {
+    var badge=document.getElementById('mw-online-badge');
+    if (!badge) return;
+    var now=Date.now(),count=0;
+    for (var uid in users) if (users[uid]&&now-(users[uid].ts||0)<30000) count++;
+    badge.textContent='● '+count+' 人オンライン';
+    badge.style.color=count>0?'#69db7c':'#445566';
+  }
+
+  function updateUsersList() {
+    var el=document.getElementById('mw-users-list');
+    if (!el) return;
+    el.innerHTML='';
+    var now=Date.now();
+    for (var uid in users) {
+      var u=users[uid];
+      if (!u||now-(u.ts||0)>30000) continue;
+      var chip=document.createElement('span');
+      chip.className='mw-user-chip';
+      chip.style.color=u.color||'#4d96ff';
+      chip.style.borderColor=(u.color||'#4d96ff')+'66';
+      chip.style.background=(u.color||'#4d96ff')+'11';
+      chip.textContent=(uid===myUid?'★ ':'')+((u.name||'?').slice(0,10));
+      el.appendChild(chip);
+    }
+  }
+
+  // Listen for chat messages from other users
+  var lastMsgTs = {};
+  function listenMessages() {
+    if (!db) return;
+    var msgRef=db.ref('vimarcade-meta/users');
+    msgRef.on('child_changed',function(snap) {
+      var u=snap.val(); var uid=snap.key;
+      if (uid===myUid||!u||!u.msg) return;
+      if (lastMsgTs[uid]===u.msgAt) return;
+      lastMsgTs[uid]=u.msgAt;
+      appendChat(u.name||'?',u.msg,u.color||'#4d96ff',false);
+    });
+  }
+
+  // ── Join / Leave ──
+  function doJoin() {
+    var nameEl=document.getElementById('mw-name-input');
+    var name=(nameEl?nameEl.value:'').trim().slice(0,16);
+    if (!name){nameEl.focus();nameEl.style.borderColor='#ff4444';return;}
+    nameEl.style.borderColor='';
+    myName=name;
+    myUid='u'+Date.now()+Math.random().toString(36).slice(2,7);
+    myColor=hashColor(myUid);
+    myX=600+(Math.random()-0.5)*80;
+    myY=150+(Math.random()-0.5)*80;
+    if (db&&usersRef) {
+      myRef=usersRef.child(myUid);
+      myRef.set({name:myName,x:Math.round(myX),y:Math.round(myY),color:myColor,msg:'',msgAt:0,ts:Date.now()});
+      myRef.onDisconnect().remove();
+    }
+    document.getElementById('mw-join-panel').style.display='none';
+    var sp=document.getElementById('mw-status-panel');
+    sp.style.display='flex';
+    document.getElementById('mw-status-name').textContent='👤 '+myName;
+    document.getElementById('mw-chat-input').disabled=false;
+    document.getElementById('mw-chat-send').disabled=false;
+    document.getElementById('mw-howto').classList.remove('hidden');
+    appendSystem('✅ '+myName+' が入室しました');
+    listenMessages();
+    focused=true; canvas.focus();
+    updateOnlineBadge();
+    updateZoneButtons();
+  }
+
+  function doLeave() {
+    if (myRef) myRef.remove();
+    appendSystem('👋 退出しました');
+    myUid=null; myName=null; myRef=null;
+    document.getElementById('mw-join-panel').style.display='block';
+    document.getElementById('mw-status-panel').style.display='none';
+    document.getElementById('mw-chat-input').disabled=true;
+    document.getElementById('mw-chat-send').disabled=true;
+    updateOnlineBadge();
+  }
+
+  // ── Chat input (sidebar) ──
+  function sendChatFromInput() {
+    var el=document.getElementById('mw-chat-input');
+    var msg=(el.value||'').trim();
+    if (!msg||!myUid) return;
+    el.value='';
+    sendChat(msg);
+  }
+
+  // ── Wire buttons ──
+  document.getElementById('mw-join-btn').addEventListener('click', doJoin);
+  document.getElementById('mw-name-input').addEventListener('keydown', function(e){if(e.key==='Enter')doJoin();});
+  document.getElementById('mw-leave-btn').addEventListener('click', doLeave);
+  document.getElementById('mw-chat-send').addEventListener('click', sendChatFromInput);
+  document.getElementById('mw-chat-input').addEventListener('keydown', function(e){if(e.key==='Enter'){e.preventDefault();sendChatFromInput();}});
+
+  window.addEventListener('beforeunload', function(){if(myRef)myRef.remove();});
+
+  waitFirebase(0);
+  requestAnimationFrame(tick);
+  setInterval(function(){updateOnlineBadge();updateUsersList();},5000);
+})();
+</script>
+</body>
+</html>

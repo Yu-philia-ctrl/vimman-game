@@ -200,24 +200,45 @@
            data-ad-client="ca-pub-3016615146886765"
            data-ad-slot="auto"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      <!-- Amazon アソシエイト おすすめ -->
+      <!-- Amazon アソシエイト おすすめ（リッチカード） -->
       <div id="interstitial-amzn">
-        <div class="interstitial-amzn-label">📚 Vimプレイヤーにおすすめ</div>
+        <div class="interstitial-amzn-label">📚 プログラマーにおすすめ <span style="font-size:9px;color:#666;font-weight:normal;">PR / Amazon</span></div>
         <div class="interstitial-amzn-items">
-          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=実践vim&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-            <span class="interstitial-amzn-icon">📗</span>
-            <span class="interstitial-amzn-title">実践 Vim</span>
-            <span class="interstitial-amzn-cta">Amazonで見る →</span>
+          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=実践vim+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <div class="iad-img-box" style="background:linear-gradient(135deg,#1a3a1a,#0d220d);">
+              <span class="iad-emoji">📗</span>
+              <span class="iad-rank">🏆 Best</span>
+            </div>
+            <div class="iad-info">
+              <div class="iad-cat">Vim / エディタ</div>
+              <div class="iad-title">実践 Vim</div>
+              <div class="iad-stars">★★★★★</div>
+              <div class="iad-cta">Amazon →</div>
+            </div>
           </a>
-          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-            <span class="interstitial-amzn-icon">🐧</span>
-            <span class="interstitial-amzn-title">Linux コマンド入門</span>
-            <span class="interstitial-amzn-cta">Amazonで見る →</span>
+          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <div class="iad-img-box" style="background:linear-gradient(135deg,#0d1a2a,#061422);">
+              <span class="iad-emoji">🐧</span>
+              <span class="iad-rank">人気</span>
+            </div>
+            <div class="iad-info">
+              <div class="iad-cat">Linux / CLI</div>
+              <div class="iad-title">Linux コマンド入門</div>
+              <div class="iad-stars">★★★★☆</div>
+              <div class="iad-cta">Amazon →</div>
+            </div>
           </a>
-          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=プログラマー+キーボード&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-            <span class="interstitial-amzn-icon">⌨</span>
-            <span class="interstitial-amzn-title">プログラマー向けキーボード</span>
-            <span class="interstitial-amzn-cta">Amazonで見る →</span>
+          <a class="interstitial-amzn-item" href="https://www.amazon.co.jp/s?k=メカニカルキーボード+プログラマー&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+            <div class="iad-img-box" style="background:linear-gradient(135deg,#1a1a2a,#0d0d20);">
+              <span class="iad-emoji">⌨</span>
+              <span class="iad-rank">おすすめ</span>
+            </div>
+            <div class="iad-info">
+              <div class="iad-cat">デバイス</div>
+              <div class="iad-title">メカニカルキーボード</div>
+              <div class="iad-stars">★★★★★</div>
+              <div class="iad-cta">Amazon →</div>
+            </div>
           </a>
         </div>
       </div>
@@ -417,13 +438,17 @@
           <div class="cluster-note">💡 スマホ・PC・VRヘッドセット対応。cluster アプリは無料でインストール可能です。</div>
         </div>
 
-        <!-- ブラウザ内軽量版ミニマップ (既存canvas) -->
+        <!-- ブラウザ版：フル画面リンク + ミニプレビュー -->
         <div id="metaverse-panel" class="cluster-browser-sub">
           <div class="meta-header">
-            <span class="meta-title">🖥 ブラウザ版（軽量リアルタイム）</span>
+            <span class="meta-title">🖥 ブラウザ版メタバース</span>
             <span id="meta-online-badge">● 0 人オンライン</span>
           </div>
-          <canvas id="metaverse-canvas" style="display:block;width:100%;image-rendering:pixelated;border:1px solid #1a3a6a;background:#060e1a;cursor:crosshair;"></canvas>
+          <!-- フル画面推奨ボタン -->
+          <a href="metaverse-world.html" target="_blank" class="meta-fullscreen-btn" rel="noopener">
+            🌐 フル画面で仮想空間を開く（推奨）
+          </a>
+          <canvas id="metaverse-canvas" style="display:block;width:100%;image-rendering:pixelated;border-top:1px solid #1a3a6a;background:#060e1a;cursor:crosshair;"></canvas>
           <div id="meta-join-form">
             <input type="text" id="meta-name-input" placeholder="ユーザー名を入力..." maxlength="16" autocomplete="off" spellcheck="false">
             <button id="meta-join-btn">参加する →</button>
@@ -433,7 +458,7 @@
             <span class="meta-hint">WASD/矢印 移動 · Enter チャット</span>
             <button id="meta-leave-btn">退出</button>
           </div>
-          <div class="cluster-browser-note">※ ブラウザ版はリアルタイム位置共有のみ。フル体験は↑cluster.muで</div>
+          <div class="cluster-browser-note">※ プレビュー縮小表示。より大きく交流したい場合は上のボタンをクリック</div>
         </div>
 
       </div><!-- end cluster-panel -->
