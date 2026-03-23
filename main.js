@@ -27,7 +27,7 @@ window._vimKeyHandler = function(e) {
 
 // Wire up canvas click to dispatch to active game module
 canvas.addEventListener('click', function(e) {
-  const mod = currentGame === 'menu' ? null : _gameModules[currentGame];
+  const mod = currentGame === 'menu' ? menuModule : _gameModules[currentGame];
   if (mod && mod.onClick) {
     const rect = canvas.getBoundingClientRect();
     const cx = (e.clientX - rect.left) * (W / rect.width);

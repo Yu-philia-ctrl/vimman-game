@@ -1920,5 +1920,23 @@ const menuModule = (function() {
     // no additional handling needed
   }
 
-  return { init:init, update:update, draw:draw, onKey:onKey };
+  function onClick(cx, cy) {
+    if (tab !== 'home') return;
+    // Detect click on MAIN QUEST 3 (CCA-F) region
+    // ccafY = mqY(68) + lbY_offset(134) + 80 = 282
+    const ccafY = 282;
+    if (cx >= 8 && cx <= W - 16 && cy >= ccafY && cy <= ccafY + 68) {
+      homeCursor = 11;
+      switchGame('ccaf');
+    }
+    // Detect click on MAIN QUEST 2 (Linux Battle) region
+    // lbY = 68 + 134 = 202
+    const lbY = 202;
+    if (cx >= 8 && cx <= W - 16 && cy >= lbY && cy <= lbY + 76) {
+      homeCursor = 3;
+      switchGame('linuxbattle');
+    }
+  }
+
+  return { init:init, update:update, draw:draw, onKey:onKey, onClick:onClick };
 })();

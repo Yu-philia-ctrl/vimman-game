@@ -1218,18 +1218,53 @@ body {
   border-radius: 8px;
   padding: 12px 16px;
   margin: 8px 0;
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+/* Left: Vim daily tip panel */
+.amzn-left-panel {
+  flex: 0 0 160px;
+  min-width: 140px;
+  background: rgba(10, 5, 30, 0.7);
+  border: 1px solid rgba(100, 60, 200, 0.3);
+  border-radius: 6px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.amzn-tip-label  { font-size: 9px; color: #7755cc; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.amzn-tip-cmd    { font-size: 22px; font-family: monospace; font-weight: bold; color: #cc88ff; letter-spacing: 2px; }
+.amzn-tip-desc   { font-size: 10px; color: #9977bb; text-align: center; line-height: 1.4; min-height: 28px; }
+.amzn-tip-nav    { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.amzn-tip-btn    {
+  background: rgba(40,20,80,0.7); border: 1px solid #553388; color: #aa88cc;
+  font-size: 10px; padding: 2px 6px; border-radius: 3px; cursor: pointer;
+  transition: background 0.15s;
+}
+.amzn-tip-btn:hover  { background: rgba(80,40,140,0.8); color: #cc88ff; }
+.amzn-tip-counter    { font-size: 9px; color: #664488; font-family: monospace; }
+/* Right: books */
+.amzn-right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 .amzn-bar-label {
   font-size: 10px;
   color: #556677;
   letter-spacing: 1px;
-  margin-bottom: 8px;
   text-transform: uppercase;
 }
 .amzn-books {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  flex: 1;
 }
 .amzn-book {
   display: flex;
@@ -1241,7 +1276,7 @@ body {
   padding: 8px 10px;
   text-decoration: none;
   flex: 1;
-  min-width: 120px;
+  min-width: 100px;
   transition: border-color 0.2s, background 0.2s;
 }
 .amzn-book:hover {
@@ -1465,15 +1500,30 @@ body {
 .comm-msg-time { color: #446680; font-size: 10px; flex-shrink: 0; }
 .comm-msg-name { font-weight: bold; flex-shrink: 0; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .comm-msg-text { color: #b0c8e0; word-break: break-word; flex: 1; }
-.comm-msg { position: relative; padding-right: 20px; }
-.comm-del-btn {
-  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-  background: none; border: none; color: #446; font-size: 13px; cursor: pointer;
+.comm-msg { position: relative; padding-right: 44px; }
+.comm-del-btn, .comm-edit-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: none; border: none; font-size: 13px; cursor: pointer;
   padding: 2px 4px; line-height: 1; border-radius: 3px; opacity: 0;
   transition: opacity 0.15s, color 0.15s;
 }
-.comm-msg:hover .comm-del-btn { opacity: 1; }
-.comm-del-btn:hover { color: #ff6666 !important; background: rgba(255,50,50,0.15); }
+.comm-del-btn  { right: 0;   color: #446; }
+.comm-edit-btn { right: 20px; color: #4466aa; }
+.comm-msg:hover .comm-del-btn,
+.comm-msg:hover .comm-edit-btn { opacity: 1; }
+.comm-del-btn:hover  { color: #ff6666 !important; background: rgba(255,50,50,0.15); }
+.comm-edit-btn:hover { color: #44aaff !important; background: rgba(50,100,255,0.12); }
+.comm-edit-input {
+  flex: 1; background: #0a1828; border: 1px solid #2a5080; color: #cde;
+  padding: 2px 6px; border-radius: 3px; font-size: 12px; font-family: monospace;
+  width: calc(100% - 100px); min-width: 80px;
+}
+.comm-edit-save, .comm-edit-cancel {
+  font-size: 11px; padding: 2px 6px; border-radius: 3px; cursor: pointer;
+  border: 1px solid; margin-left: 4px; font-family: monospace;
+}
+.comm-edit-save   { background: rgba(20,80,40,0.8); border-color: #44aa66; color: #44ff88; }
+.comm-edit-cancel { background: rgba(40,10,10,0.8); border-color: #664444; color: #aa6666; }
 #comm-input-row { display: flex; gap: 6px; }
 #comm-msg-input {
   flex: 1; background: #0a1828; border: 1px solid #2a5080;

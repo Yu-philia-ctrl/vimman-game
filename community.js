@@ -264,10 +264,40 @@
       '<span class="comm-msg-time">' + time + '</span>' +
       '<span class="comm-msg-name" style="color:' + (msg.color || '#aaa') + '">' + escHtml(msg.name) + '</span>' +
       '<span class="comm-msg-text">' + escHtml(msg.text) + '</span>' +
-      (isOwn ? '<button class="comm-del-btn" title="削除">×</button>' : '');
+      (isOwn ? '<button class="comm-edit-btn" title="編集">✎</button><button class="comm-del-btn" title="削除">×</button>' : '');
     if (isOwn) {
       div.querySelector('.comm-del-btn').addEventListener('click', function() {
         div.remove();
+      });
+      div.querySelector('.comm-edit-btn').addEventListener('click', function() {
+        const textEl = div.querySelector('.comm-msg-text');
+        const originalText = textEl.textContent;
+        textEl.innerHTML = '';
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.value = originalText;
+        inp.className = 'comm-edit-input';
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '保存';
+        saveBtn.className = 'comm-edit-save';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'キャンセル';
+        cancelBtn.className = 'comm-edit-cancel';
+        textEl.appendChild(inp);
+        textEl.appendChild(saveBtn);
+        textEl.appendChild(cancelBtn);
+        inp.focus(); inp.select();
+        function doSave() {
+          const newText = inp.value.trim();
+          textEl.textContent = newText || originalText;
+        }
+        function doCancel() { textEl.textContent = originalText; }
+        saveBtn.addEventListener('click', doSave);
+        cancelBtn.addEventListener('click', doCancel);
+        inp.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); doSave(); }
+          if (e.key === 'Escape') { e.preventDefault(); doCancel(); }
+        });
       });
     }
     elMsgBox.appendChild(div);

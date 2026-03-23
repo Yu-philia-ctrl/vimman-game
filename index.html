@@ -253,30 +253,80 @@
   <!-- ── Amazon アソシエイト おすすめ書籍バー ── -->
   <!-- ★ ?tag=vimman-22-22 の「vimman-22」をAmazonアソシエイトのトラッキングIDに差し替え -->
   <div id="amzn-bar">
-    <div class="amzn-bar-label">📚 VimManプレイヤーにおすすめ</div>
-    <div class="amzn-books">
-      <a class="amzn-book" href="https://www.amazon.co.jp/s?k=実践vim&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-        <div class="amzn-book-icon">📗</div>
-        <div class="amzn-book-title">実践 Vim</div>
-        <div class="amzn-book-sub">Amazonで見る →</div>
-      </a>
-      <a class="amzn-book" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-        <div class="amzn-book-icon">🐧</div>
-        <div class="amzn-book-title">Linux コマンド入門</div>
-        <div class="amzn-book-sub">Amazonで見る →</div>
-      </a>
-      <a class="amzn-book" href="https://www.amazon.co.jp/s?k=プログラマー+キーボード&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-        <div class="amzn-book-icon">⌨</div>
-        <div class="amzn-book-title">プログラマー向けキーボード</div>
-        <div class="amzn-book-sub">Amazonで見る →</div>
-      </a>
-      <a class="amzn-book" href="https://www.amazon.co.jp/s?k=シェルスクリプト+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
-        <div class="amzn-book-icon">💻</div>
-        <div class="amzn-book-title">シェルスクリプト入門</div>
-        <div class="amzn-book-sub">Amazonで見る →</div>
-      </a>
+    <!-- Left: Vim Daily Tip -->
+    <div class="amzn-left-panel">
+      <div class="amzn-tip-label">⚡ Vim 今日のコマンド</div>
+      <div class="amzn-tip-cmd" id="amzn-daily-cmd">ciw</div>
+      <div class="amzn-tip-desc" id="amzn-daily-desc">単語を変更（Change Inner Word）</div>
+      <div class="amzn-tip-nav">
+        <button class="amzn-tip-btn" id="amzn-tip-prev">◀</button>
+        <span class="amzn-tip-counter" id="amzn-tip-counter">1 / 10</span>
+        <button class="amzn-tip-btn" id="amzn-tip-next">▶</button>
+      </div>
+    </div>
+    <!-- Right: books -->
+    <div class="amzn-right-panel">
+      <div class="amzn-bar-label">📚 VimManプレイヤーにおすすめ</div>
+      <div class="amzn-books">
+        <a class="amzn-book" href="https://www.amazon.co.jp/s?k=実践vim&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <div class="amzn-book-icon">📗</div>
+          <div class="amzn-book-title">実践 Vim</div>
+          <div class="amzn-book-sub">Amazonで見る →</div>
+        </a>
+        <a class="amzn-book" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <div class="amzn-book-icon">🐧</div>
+          <div class="amzn-book-title">Linux コマンド入門</div>
+          <div class="amzn-book-sub">Amazonで見る →</div>
+        </a>
+        <a class="amzn-book" href="https://www.amazon.co.jp/s?k=プログラマー+キーボード&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <div class="amzn-book-icon">⌨</div>
+          <div class="amzn-book-title">プログラマー向けキーボード</div>
+          <div class="amzn-book-sub">Amazonで見る →</div>
+        </a>
+        <a class="amzn-book" href="https://www.amazon.co.jp/s?k=シェルスクリプト+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <div class="amzn-book-icon">💻</div>
+          <div class="amzn-book-title">シェルスクリプト入門</div>
+          <div class="amzn-book-sub">Amazonで見る →</div>
+        </a>
+      </div>
     </div>
   </div>
+  <script>
+  (function() {
+    var TIPS = [
+      { cmd: 'ciw',  desc: '単語を変更（Change Inner Word）' },
+      { cmd: 'yy',   desc: '行をコピー（Yank Line）' },
+      { cmd: 'dd',   desc: '行を削除（Delete Line）' },
+      { cmd: 'gg',   desc: 'ファイル先頭へジャンプ' },
+      { cmd: 'G',    desc: 'ファイル末尾へジャンプ' },
+      { cmd: 'f{c}', desc: '行内の文字へ即ジャンプ' },
+      { cmd: 'V',    desc: '行ビジュアル選択モード' },
+      { cmd: '.',    desc: '直前の操作を繰り返す' },
+      { cmd: '*',    desc: 'カーソル下の単語を検索' },
+      { cmd: '%',    desc: '対応するブラケットへ移動' },
+    ];
+    var idx = 0;
+    function render() {
+      var el = document.getElementById('amzn-daily-cmd');
+      var desc = document.getElementById('amzn-daily-desc');
+      var counter = document.getElementById('amzn-tip-counter');
+      if (el)   el.textContent   = TIPS[idx].cmd;
+      if (desc) desc.textContent = TIPS[idx].desc;
+      if (counter) counter.textContent = (idx + 1) + ' / ' + TIPS.length;
+    }
+    document.getElementById('amzn-tip-prev').addEventListener('click', function() {
+      idx = (idx - 1 + TIPS.length) % TIPS.length; render();
+    });
+    document.getElementById('amzn-tip-next').addEventListener('click', function() {
+      idx = (idx + 1) % TIPS.length; render();
+    });
+    // Cycle automatically every 8s
+    setInterval(function() { idx = (idx + 1) % TIPS.length; render(); }, 8000);
+    // Start on a random tip
+    idx = Math.floor(Math.random() * TIPS.length);
+    render();
+  })();
+  </script>
 
   <!-- ── Mobile touch controls (below canvas, touch devices only) ── -->
   <div id="mobile-controls" class="hidden">

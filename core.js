@@ -217,10 +217,10 @@ function _initToolbar() {
   // Page zoom control (applied to <html> so flexbox cannot override it)
   (function() {
     const ZOOMS  = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
-    const LABELS = ['70%','80%','90%','100%','110%','120%','130%','140%','150%'];
+    const LABELS = ['58%','67%','75%','83%','92%','100%','108%','117%','125%'];
     const KEY = 'vimarcade_zoom_idx';
-    let zIdx = parseInt(localStorage.getItem(KEY) || '7', 10); // default 140%
-    if (zIdx < 0 || zIdx >= ZOOMS.length) zIdx = 7;
+    let zIdx = parseInt(localStorage.getItem(KEY) || '5', 10); // default 120% (labeled 100%)
+    if (zIdx < 0 || zIdx >= ZOOMS.length) zIdx = 5;
 
     function applyZoom() {
       // Apply to <html> root — unaffected by flex layout rules
