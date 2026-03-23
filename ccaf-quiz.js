@@ -735,29 +735,27 @@ const ccafQuizGame = (function () {
   }
 
   // ── onClick — canvas click handler ───────────────────────────
+  // NOTE: X-axis constraint removed from all buttons — any horizontal
+  // position at the correct Y triggers the button. This avoids click
+  // misses caused by CSS zoom/scale coordinate rounding.
   function onClick(cx, cy) {
     if (state === 'menu') {
-      // Button 0: 試験を開始する  (btnY = cardStartY + 5*(46+8) + 20 = 160+270+20 = 450)
-      // Button 1: メニューに戻る  (y = 450 + 44 + 10 = 504)
-      const btnW = 220, btnH = 44;
-      const bx = W / 2 - btnW / 2;
+      // Button 0: 試験を開始する  y=450..494
+      // Button 1: メニューに戻る  y=504..548
+      const btnH = 44;
       const btnY = 450;
-      if (cx >= bx && cx <= bx + btnW) {
-        if (cy >= btnY && cy <= btnY + btnH) { menuSel = 0; startQuiz(); return; }
-        if (cy >= btnY + 54 && cy <= btnY + 54 + btnH) { switchGame('menu'); return; }
-      }
+      if (cy >= btnY && cy <= btnY + btnH) { menuSel = 0; startQuiz(); return; }
+      if (cy >= btnY + 54 && cy <= btnY + 54 + btnH) { switchGame('menu'); return; }
       return;
     }
     if (state === 'quiz' && !answered) {
-      // Option boxes: optX=40, optW=W-80=720, each optH=52, spacing=62
-      // optStartY depends on question wrap — estimate using stored qLines count
       const q = QUESTIONS[qIndex];
       const qLinesLen = wrapText(q.q, 72).length;
       const optStartY = 78 + qLinesLen * 22 + 20;
-      const optX = 40, optW = W - 80, optH = 52;
+      const optH = 52;
       for (var i = 0; i < q.opts.length; i++) {
         const oy = optStartY + i * 62;
-        if (cx >= optX && cx <= optX + optW && cy >= oy && cy <= oy + optH) {
+        if (cy >= oy && cy <= oy + optH) {
           selected = i;
           submitAnswer(i);
           return;
@@ -766,14 +764,10 @@ const ccafQuizGame = (function () {
       return;
     }
     if (state === 'result') {
-      // Replay / Menu buttons at bottom
-      const btnW = 240, btnH = 38;
-      const bx = W / 2 - btnW / 2;
+      const btnH = 38;
       const b0y = H - 110, b1y = H - 64;
-      if (cx >= bx && cx <= bx + btnW) {
-        if (cy >= b0y && cy <= b0y + btnH) { init(); startQuiz(); return; }
-        if (cy >= b1y && cy <= b1y + btnH) { switchGame('menu'); return; }
-      }
+      if (cy >= b0y && cy <= b0y + btnH) { init(); startQuiz(); return; }
+      if (cy >= b1y && cy <= b1y + btnH) { switchGame('menu'); return; }
     }
   }
 
