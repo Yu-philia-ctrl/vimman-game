@@ -209,6 +209,21 @@
     <div id="interstitial-inner">
       <div id="interstitial-countdown">広告 <span id="interstitial-sec">3</span>秒後にスキップ</div>
       <button id="interstitial-skip" class="hidden">スキップ →</button>
+      <!-- ── サポート / 応援コーナー ── -->
+      <div id="interstitial-support">
+        <div class="interstitial-support-icon">❤️</div>
+        <div class="interstitial-support-title">このゲームを応援する</div>
+        <div class="interstitial-support-sub">Support VIM ARCADE</div>
+        <p class="interstitial-support-msg">VIM ARCADEは無料で遊べます。開発を続けるために、応援いただけると嬉しいです！</p>
+        <div class="interstitial-support-btns">
+          <a href="https://ko-fi.com/Yu_philia" class="interstitial-kofi-btn" target="_blank" rel="noopener">
+            ☕ Ko-fi で応援する
+          </a>
+          <a href="https://ko-fi.com/Yu_philia" class="interstitial-paypal-btn" target="_blank" rel="noopener">
+            💳 Premium解放
+          </a>
+        </div>
+      </div>
       <!-- AdSense スロット -->
       <ins class="adsbygoogle"
            style="display:block;width:300px;height:250px"
@@ -448,6 +463,48 @@
       <div class="hq-result-btns">
         <button id="hq-retry-btn" class="hq-retry-btn">もう一度やる</button>
         <button id="hq-share-btn" class="hq-share-btn">結果をシェア 🐦</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Mensa式 IQテスト ── -->
+  <section id="mensa-quiz">
+    <div id="mensa-intro">
+      <div class="mensa-intro-icon">🧩</div>
+      <h2 class="mensa-title">Mensa式 IQテスト</h2>
+      <p class="mensa-desc">Mensa International（世界的高IQ団体）基準にインスパイアされた10問のIQテスト。<br>数列・論理・類推・空間認識で知性を測定。Mensa入会基準はIQ130以上（上位2%）。</p>
+      <div class="mensa-info-row">
+        <span>📊 10問</span><span>⏱ 全60秒</span><span>🎯 IQ85〜138</span>
+      </div>
+      <button id="mensa-start-btn" class="mensa-primary-btn">IQテストを開始する →</button>
+    </div>
+    <div id="mensa-quiz-area" class="hidden">
+      <div id="mensa-progress">
+        <div id="mensa-timer-bar"></div>
+        <span id="mensa-progress-label">1 / 10</span>
+      </div>
+      <div id="mensa-q-type"></div>
+      <div id="mensa-q-text"></div>
+      <div id="mensa-options"></div>
+    </div>
+    <div id="mensa-result" class="hidden">
+      <div class="mensa-result-top">
+        <div class="mensa-iq-block">
+          <div class="mensa-iq-label">あなたのIQ</div>
+          <div id="mensa-iq-val">--</div>
+        </div>
+        <div class="mensa-pct-block">
+          <div class="mensa-pct-label">上位</div>
+          <div id="mensa-pct-val">--%</div>
+          <div class="mensa-pct-sub">に相当</div>
+        </div>
+      </div>
+      <div id="mensa-verdict"></div>
+      <div id="mensa-score-row"></div>
+      <div class="mensa-ref-note">※ このテストはMensa公式テストではありません。参考：<a href="https://www.mensa.org" target="_blank" rel="noopener">mensa.org</a> / <a href="https://www.mensa.jp" target="_blank" rel="noopener">mensa.jp</a></div>
+      <div class="mensa-result-btns">
+        <button id="mensa-retry-btn" class="mensa-retry-btn">もう一度挑戦</button>
+        <button id="mensa-share-btn" class="mensa-share-btn">結果をシェア 🐦</button>
       </div>
     </div>
   </section>
@@ -1100,6 +1157,7 @@
 <script src="community.js"></script>
 <script src="metaverse.js"></script>
 <script src="humanity-quiz.js"></script>
+<script src="mensa-quiz.js"></script>
 <script>
 // ── Auth integration ─────────────────────────────────────────────
 (function() {

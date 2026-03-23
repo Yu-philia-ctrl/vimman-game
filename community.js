@@ -321,6 +321,18 @@
     }
   }
 
+  // ── 外部からコミュニティへ投稿できるグローバル関数 ─────────────────
+  window.communityPostScore = function(text) {
+    if (!currentUser) return false;
+    const msg = { name: currentUser.name, color: currentUser.color, text: text, ts: Date.now() };
+    if (db) {
+      db.ref(CHAT_PATH).push(msg);
+    } else {
+      appendMsg(msg);
+    }
+    return true;
+  };
+
   // ── Leaderboard ──────────────────────────────────────────────────
   function loadLeaderboard() {
     lbLoaded = true;
