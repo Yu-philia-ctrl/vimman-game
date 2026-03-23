@@ -358,81 +358,106 @@
       <span class="leg-cmd">:コマンド</span>
     </div>
   </div>
+
+      <!-- ── ゲーム下 広告スロット（レスポンシブ横長） ── -->
+      <div class="game-bottom-ad">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-3016615146886765"
+             data-ad-slot="auto"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
+
     </div><!-- end game-column -->
 
     <!-- ── サイドパネル (PC: 右カラム / モバイル: 非表示) ── -->
     <div id="side-panel">
 
-      <!-- ── メタバース仮想空間 ── -->
-      <div id="metaverse-panel">
-        <div class="meta-header">
-          <span class="meta-title">🌐 VIM ARCADE メタバース</span>
-          <span id="meta-online-badge">● 0 人オンライン</span>
-        </div>
-        <canvas id="metaverse-canvas" style="display:block;width:100%;image-rendering:pixelated;border:1px solid #1a3a6a;background:#060e1a;cursor:crosshair;"></canvas>
-        <!-- Join form -->
-        <div id="meta-join-form">
-          <input type="text" id="meta-name-input" placeholder="ユーザー名を入力..." maxlength="16" autocomplete="off" spellcheck="false">
-          <button id="meta-join-btn">参加する →</button>
-        </div>
-        <!-- Status bar (visible when joined) -->
-        <div id="meta-status" style="display:none;">
-          <span id="meta-username-label">👤</span>
-          <span class="meta-hint">WASD/矢印 移動 · Enter チャット</span>
-          <button id="meta-leave-btn">退出</button>
+      <!-- ── cluster.mu × VIM ARCADE メタバース ── -->
+      <div id="cluster-panel">
+
+        <!-- cluster.mu メインCTA -->
+        <div class="cluster-header">
+          <div class="cluster-logo-row">
+            <span class="cluster-logo-badge">powered by</span>
+            <span class="cluster-logo-text">cluster</span>
+            <span class="cluster-x">×</span>
+            <span class="cluster-brand">VIM ARCADE</span>
+          </div>
+          <div class="cluster-tagline">3Dメタバース仮想空間で仲間と交流</div>
         </div>
 
-        <!-- ── メタバース 使い方ガイド ── -->
-        <div id="meta-howto">
-          <div class="meta-howto-header" id="meta-howto-toggle" onclick="document.getElementById('meta-howto-body').classList.toggle('hidden');this.querySelector('.meta-howto-arrow').textContent=document.getElementById('meta-howto-body').classList.contains('hidden')?'▼':'▲'">
-            <span>📖 メタバースの使い方</span>
-            <span class="meta-howto-arrow">▼</span>
+        <!-- ワールドプレビューエリア -->
+        <div class="cluster-preview-box">
+          <div class="cluster-preview-inner">
+            <div class="cluster-world-icon">⚔</div>
+            <div class="cluster-world-title">VIM ARCADE ワールド</div>
+            <div class="cluster-world-sub">Vimプレイヤーが集うメタバース空間<br>アバターで自由に交流・対戦・チャット</div>
+            <div class="cluster-preview-avatars">🧙‍♂️ 🐉 💻 🛡️ ⚡</div>
           </div>
-          <div id="meta-howto-body" class="hidden">
-            <div class="meta-step">
-              <span class="meta-step-num">1</span>
-              <div class="meta-step-text">
-                <strong>ユーザー名を入力して「参加する」をクリック</strong><br>
-                好きな名前（最大16文字）を入力して仮想空間に入ります。
-              </div>
-            </div>
-            <div class="meta-step">
-              <span class="meta-step-num">2</span>
-              <div class="meta-step-text">
-                <strong>WASD / 矢印キーでアバターを移動</strong><br>
-                マップ上を自由に歩き回れます。他のプレイヤーのアバターがリアルタイムで表示されます。
-              </div>
-            </div>
-            <div class="meta-step">
-              <span class="meta-step-num">3</span>
-              <div class="meta-step-text">
-                <strong>Enterキーでチャット</strong><br>
-                メッセージを入力してEnterで送信。アバターの上に会話バブルが表示されます。
-              </div>
-            </div>
-            <div class="meta-step">
-              <span class="meta-step-num">4</span>
-              <div class="meta-step-text">
-                <strong>4つのゾーンを探索</strong><br>
-                🏯 VIM道場・🚪 入口広場・🐧 Linux区・🕹 アーケードエリアがあります。気になるゾーンに移動して他のプレイヤーと交流しましょう。
-              </div>
-            </div>
-            <div class="meta-note">
-              ⚠ 接続にはインターネットが必要です。オンラインのプレイヤーはバッジで確認できます。
-            </div>
+          <!-- メイン参加ボタン -->
+          <!-- ★ YOUR_WORLD_ID を cluster.mu で作成したワールドのIDに差し替えること -->
+          <a class="cluster-join-btn" href="https://cluster.mu/w/YOUR_WORLD_ID" target="_blank" rel="noopener" onclick="window.gaEvent&&gaEvent('cluster_join_click')">
+            🚀 &nbsp;cluster.muでワールドに参加する
+          </a>
+          <a class="cluster-site-btn" href="https://cluster.mu" target="_blank" rel="noopener">
+            cluster.muとは？ →
+          </a>
+        </div>
+
+        <!-- 参加手順 -->
+        <div class="cluster-steps">
+          <div class="cluster-steps-title">📋 参加方法</div>
+          <div class="cluster-step-row"><span class="cs-num">1</span><span class="cs-text"><strong>cluster.muに無料登録</strong>（メールまたはSNS認証）</span></div>
+          <div class="cluster-step-row"><span class="cs-num">2</span><span class="cs-text">「ワールドに参加する」ボタンをクリック</span></div>
+          <div class="cluster-step-row"><span class="cs-num">3</span><span class="cs-text">cluster アプリ or ブラウザで自動起動</span></div>
+          <div class="cluster-step-row"><span class="cs-num">4</span><span class="cs-text">アバターを操作してVIMプレイヤーと交流！</span></div>
+          <div class="cluster-note">💡 スマホ・PC・VRヘッドセット対応。cluster アプリは無料でインストール可能です。</div>
+        </div>
+
+        <!-- ブラウザ内軽量版ミニマップ (既存canvas) -->
+        <div id="metaverse-panel" class="cluster-browser-sub">
+          <div class="meta-header">
+            <span class="meta-title">🖥 ブラウザ版（軽量リアルタイム）</span>
+            <span id="meta-online-badge">● 0 人オンライン</span>
           </div>
-        </div><!-- end meta-howto -->
+          <canvas id="metaverse-canvas" style="display:block;width:100%;image-rendering:pixelated;border:1px solid #1a3a6a;background:#060e1a;cursor:crosshair;"></canvas>
+          <div id="meta-join-form">
+            <input type="text" id="meta-name-input" placeholder="ユーザー名を入力..." maxlength="16" autocomplete="off" spellcheck="false">
+            <button id="meta-join-btn">参加する →</button>
+          </div>
+          <div id="meta-status" style="display:none;">
+            <span id="meta-username-label">👤</span>
+            <span class="meta-hint">WASD/矢印 移動 · Enter チャット</span>
+            <button id="meta-leave-btn">退出</button>
+          </div>
+          <div class="cluster-browser-note">※ ブラウザ版はリアルタイム位置共有のみ。フル体験は↑cluster.muで</div>
+        </div>
+
+      </div><!-- end cluster-panel -->
+
+      <!-- ── サイドパネル内広告スロット ── -->
+      <div class="side-ad-slot">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-3016615146886765"
+             data-ad-slot="auto"
+             data-ad-format="rectangle"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
 
       <!-- ── Amazon おすすめ（モダンUI） ── -->
       <div id="sidebar-amzn">
         <div class="sidebar-amzn-header">
           <span class="samzn-title">📦 おすすめ書籍・グッズ</span>
-          <span class="samzn-badge">Amazon</span>
+          <span class="samzn-badge">Amazon PR</span>
         </div>
 
         <!-- Featured card -->
-        <a class="samzn-card samzn-featured" href="https://www.amazon.co.jp/s?k=実践vim+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+        <a class="samzn-card samzn-featured" href="https://www.amazon.co.jp/s?k=実践vim+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'vim_book'})">
           <div class="samzn-feat-badge">🏆 ベストセラー</div>
           <div class="samzn-feat-top">
             <div class="samzn-feat-icon">📗</div>
@@ -446,33 +471,62 @@
           <div class="samzn-cta-btn">Amazonで見る →</div>
         </a>
 
-        <!-- Mini product grid -->
+        <!-- Mini product grid (8 items, 2 columns) -->
         <div class="samzn-grid">
-          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=linux+コマンド+入門+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'linux'})">
             <div class="samzn-mini-icon">🐧</div>
             <div class="samzn-mini-title">Linux コマンド</div>
             <div class="samzn-mini-stars">★★★★☆</div>
             <div class="samzn-mini-cta">見る →</div>
           </a>
-          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=メカニカルキーボード+プログラマー&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=メカニカルキーボード+プログラマー&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'keyboard'})">
             <div class="samzn-mini-icon">⌨</div>
             <div class="samzn-mini-title">メカニカルKBD</div>
             <div class="samzn-mini-stars">★★★★★</div>
             <div class="samzn-mini-cta">見る →</div>
           </a>
-          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=シェルスクリプト+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=シェルスクリプト+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'shell'})">
             <div class="samzn-mini-icon">💻</div>
             <div class="samzn-mini-title">シェルスクリプト</div>
             <div class="samzn-mini-stars">★★★★☆</div>
             <div class="samzn-mini-cta">見る →</div>
           </a>
-          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=python+プログラミング+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=python+プログラミング+入門&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'python'})">
             <div class="samzn-mini-icon">🐍</div>
             <div class="samzn-mini-title">Python 入門</div>
             <div class="samzn-mini-stars">★★★★★</div>
             <div class="samzn-mini-cta">見る →</div>
           </a>
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=プログラミング+椅子+チェア&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'chair'})">
+            <div class="samzn-mini-icon">🪑</div>
+            <div class="samzn-mini-title">ゲーミングチェア</div>
+            <div class="samzn-mini-stars">★★★★☆</div>
+            <div class="samzn-mini-cta">見る →</div>
+          </a>
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=プログラマー+マウス+トラックボール&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'mouse'})">
+            <div class="samzn-mini-icon">🖱</div>
+            <div class="samzn-mini-title">トラックボール</div>
+            <div class="samzn-mini-stars">★★★★★</div>
+            <div class="samzn-mini-cta">見る →</div>
+          </a>
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=rust+プログラミング+入門+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'rust'})">
+            <div class="samzn-mini-icon">⚙</div>
+            <div class="samzn-mini-title">Rust 入門書</div>
+            <div class="samzn-mini-stars">★★★★☆</div>
+            <div class="samzn-mini-cta">見る →</div>
+          </a>
+          <a class="samzn-mini" href="https://www.amazon.co.jp/s?k=モニター+4K+プログラマー&tag=vimman-22-22" target="_blank" rel="noopener sponsored" onclick="window.gaEvent&&gaEvent('amzn_click',{item:'monitor'})">
+            <div class="samzn-mini-icon">🖥</div>
+            <div class="samzn-mini-title">4K モニター</div>
+            <div class="samzn-mini-stars">★★★★★</div>
+            <div class="samzn-mini-cta">見る →</div>
+          </a>
         </div>
+
+        <!-- Amazon全カテゴリリンク -->
+        <a class="samzn-all-link" href="https://www.amazon.co.jp/s?k=プログラミング+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+          Amazonでプログラミング書籍をもっと見る →
+        </a>
       </div><!-- end sidebar-amzn -->
 
     </div><!-- end side-panel -->
@@ -485,6 +539,17 @@
       <button id="btn-vim-ref-toggle">開く ▼</button>
     </div>
     <div id="vim-ref-body" class="hidden">
+
+      <!-- Vimリファレンス内広告 -->
+      <div class="vr-ad-slot">
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-3016615146886765"
+             data-ad-slot="auto"
+             data-ad-format="horizontal"
+             data-full-width-responsive="true"></ins>
+        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+      </div>
 
       <div class="vr-section">
         <div class="vr-cat-title">カーソル移動</div>

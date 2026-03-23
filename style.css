@@ -409,6 +409,177 @@ body {
   font-family: monospace;
 }
 
+/* ── cluster.mu 統合パネル ── */
+#cluster-panel {
+  background: #05080f;
+  border: 1px solid #1a2a4a;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 24px #001a5555;
+  display: flex;
+  flex-direction: column;
+}
+.cluster-header {
+  background: linear-gradient(135deg, #0a1a3a 0%, #0d2855 50%, #180a30 100%);
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid #1a3060;
+}
+.cluster-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.cluster-logo-badge {
+  font-size: 8px;
+  color: #556688;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.cluster-logo-text {
+  font-size: 15px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+.cluster-x { font-size: 12px; color: #556688; }
+.cluster-brand {
+  font-size: 13px;
+  font-weight: bold;
+  color: #ffdd44;
+  letter-spacing: 1px;
+}
+.cluster-tagline {
+  font-size: 10px;
+  color: #7799bb;
+}
+.cluster-preview-box {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: linear-gradient(180deg, #080f22 0%, #050810 100%);
+}
+.cluster-preview-inner {
+  background: linear-gradient(135deg, #0c1a40 0%, #12103a 100%);
+  border: 1px solid #2a3a70;
+  border-radius: 8px;
+  padding: 16px 12px;
+  text-align: center;
+}
+.cluster-world-icon { font-size: 28px; margin-bottom: 6px; }
+.cluster-world-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: #eef4ff;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.cluster-world-sub {
+  font-size: 10px;
+  color: #8899bb;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+.cluster-preview-avatars { font-size: 18px; letter-spacing: 4px; }
+.cluster-join-btn {
+  display: block;
+  background: linear-gradient(135deg, #2255cc 0%, #1133aa 100%);
+  color: #ffffff;
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 11px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  text-align: center;
+  border: 1px solid #4477ff;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 12px #0044ff44;
+  letter-spacing: 0.3px;
+}
+.cluster-join-btn:hover {
+  background: linear-gradient(135deg, #3366dd 0%, #2244cc 100%);
+  box-shadow: 0 4px 20px #0055ff66;
+}
+.cluster-site-btn {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  color: #4466aa;
+  text-decoration: none;
+  padding: 4px;
+  transition: color 0.15s;
+}
+.cluster-site-btn:hover { color: #88aaff; }
+.cluster-steps {
+  padding: 10px 12px 12px;
+  background: rgba(4,8,20,0.8);
+  border-top: 1px solid #0e1a38;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.cluster-steps-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: #6688aa;
+  margin-bottom: 2px;
+  letter-spacing: 0.5px;
+}
+.cluster-step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.cs-num {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  background: linear-gradient(135deg, #1a4080, #0d2855);
+  border: 1px solid #2255aa;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: bold;
+  color: #88ccff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cs-text {
+  font-size: 10px;
+  color: #8899bb;
+  line-height: 1.5;
+}
+.cs-text strong { color: #bbddff; }
+.cluster-note {
+  font-size: 9px;
+  color: #445566;
+  padding: 5px 8px;
+  background: rgba(0,30,60,0.4);
+  border-left: 2px solid #224488;
+  border-radius: 0 3px 3px 0;
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+/* ── ブラウザ版メタバース（cluster内サブ） ── */
+.cluster-browser-sub {
+  border-top: 1px solid #0e1a30 !important;
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+.cluster-browser-note {
+  font-size: 9px;
+  color: #334455;
+  text-align: center;
+  padding: 4px 8px 6px;
+  background: rgba(2,5,14,0.9);
+}
+
 /* ── Metaverse Panel ── */
 #metaverse-panel {
   background: #060e1a;
@@ -705,6 +876,42 @@ body {
 .samzn-mini-title { font-size: 10px; color: #ccbb99; font-family: monospace; text-align: center; font-weight: bold; line-height: 1.3; }
 .samzn-mini-stars { font-size: 9px; color: #ffd43b; }
 .samzn-mini-cta   { font-size: 9px; color: #ff9900; font-family: monospace; background: rgba(255,153,0,0.15); border-radius: 3px; padding: 2px 6px; }
+.samzn-all-link {
+  display: block;
+  text-align: center;
+  font-size: 10px;
+  color: #886633;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-top: 1px solid rgba(255,153,0,0.12);
+  transition: color 0.15s, background 0.15s;
+}
+.samzn-all-link:hover { color: #ff9900; background: rgba(255,153,0,0.06); }
+
+/* ── Ad slots ── */
+.game-bottom-ad {
+  width: 100%;
+  margin-top: 6px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  min-height: 60px;
+}
+.side-ad-slot {
+  width: 100%;
+  background: rgba(0,0,0,0.3);
+  border-radius: 4px;
+  overflow: hidden;
+  min-height: 90px;
+}
+.vr-ad-slot {
+  width: 100%;
+  margin-bottom: 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  min-height: 60px;
+}
 
 /* ── Touch button base ── */
 .touch-btn {
