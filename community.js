@@ -54,18 +54,18 @@
 
   // ── Safe firebase init ──────────────────────────────────────────
   function initFirebase() {
-    if (typeof firebase === 'undefined') return false;
-    // Prevent double-init
-    if (firebase.apps && firebase.apps.length > 0) {
-      db = firebase.database();
-      return true;
-    }
     try {
+      if (typeof firebase === 'undefined') return false;
+      if (firebase.apps && firebase.apps.length > 0) {
+        db = firebase.database();
+        return true;
+      }
       firebase.initializeApp(FIREBASE_CONFIG);
       db = firebase.database();
       return true;
     } catch(e) {
       console.warn('[Community] Firebase init failed:', e.message);
+      db = null;
       return false;
     }
   }

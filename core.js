@@ -214,9 +214,8 @@ function _initToolbar() {
   wireChk('chk-kbd',       'showKbd');
   wireChk('chk-hints',     'showHints');
 
-  // Canvas size control
+  // Page zoom control (applied to <html> so flexbox cannot override it)
   (function() {
-    // zoom values applied to #game-column (0.7 = 70%, 1.0 = 100%, etc.)
     const ZOOMS  = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
     const LABELS = ['70%','80%','90%','100%','110%','120%','130%','140%','150%'];
     const KEY = 'vimarcade_zoom_idx';
@@ -224,12 +223,8 @@ function _initToolbar() {
     if (zIdx < 0 || zIdx >= ZOOMS.length) zIdx = 3;
 
     function applyZoom() {
-      const col = document.getElementById('game-column');
-      if (col) {
-        col.style.zoom = ZOOMS[zIdx];
-        // Remove any stale flex constraints so zoom takes effect
-        col.style.width = '';
-      }
+      // Apply to <html> root — unaffected by flex layout rules
+      document.documentElement.style.zoom = ZOOMS[zIdx];
       const lbl = document.getElementById('tb-size-label');
       if (lbl) lbl.textContent = LABELS[zIdx];
       localStorage.setItem(KEY, String(zIdx));
