@@ -19,6 +19,9 @@ function switchGame(name) {
   }
 }
 
+// Expose switchGame globally so HTML buttons can call it
+window.switchGame = switchGame;
+
 // Wire up the vim key handler to dispatch to active game
 window._vimKeyHandler = function(e) {
   const mod = currentGame === 'menu' ? menuModule : _gameModules[currentGame];

@@ -116,6 +116,41 @@ body {
 #btn-close-settings { border-color: #633; color: #ff8888; }
 #btn-close-settings:hover { background: rgba(200,50,50,0.3); color: #ff4444; }
 
+/* ── Quick-launch bar (HTML buttons above canvas) ── */
+#quick-launch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 8px;
+  background: rgba(0, 4, 20, 0.9);
+  border: 1px solid #1a3060;
+  border-radius: 6px;
+  font-family: monospace;
+}
+.ql-label {
+  font-size: 10px;
+  color: #445566;
+  white-space: nowrap;
+  margin-right: 2px;
+}
+.ql-btn {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: bold;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.ql-main  { background: rgba(0,30,80,0.8);  border-color: #2255aa; color: #44aaff; }
+.ql-lb    { background: rgba(40,10,0,0.8);  border-color: #883322; color: #ff8844; }
+.ql-ccaf  { background: rgba(30,0,60,0.9);  border-color: #7744aa; color: #cc88ff; }
+.ql-sub   { background: rgba(10,20,30,0.8); border-color: #334455; color: #778899; }
+.ql-btn:hover { filter: brightness(1.4); }
+
 /* ── Game area ── */
 #game-area {
   position: relative;

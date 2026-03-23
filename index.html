@@ -190,6 +190,16 @@
   <!-- Main layout: game column (left) + side panel (right on PC) -->
   <div id="main-layout">
     <div id="game-column">
+      <!-- ── ゲーム直接起動ボタン ── -->
+      <div id="quick-launch">
+        <span class="ql-label">▶ ゲームを開始:</span>
+        <button class="ql-btn ql-main"   onclick="if(window.switchGame)window.switchGame('vimman')">⚔ VimMan RPG</button>
+        <button class="ql-btn ql-lb"     onclick="if(window.switchGame)window.switchGame('linuxbattle')">🐧 Linux Battle</button>
+        <button class="ql-btn ql-ccaf"   onclick="if(window.switchGame)window.switchGame('ccaf')">🎓 CCA-F 試験対策</button>
+        <button class="ql-btn ql-sub"    onclick="if(window.switchGame)window.switchGame('snake')">🐍 Snake</button>
+        <button class="ql-btn ql-sub"    onclick="if(window.switchGame)window.switchGame('invaders')">👾 Invaders</button>
+        <button class="ql-btn ql-sub"    onclick="if(window.switchGame)window.switchGame('tetris')">🧩 Tetris</button>
+      </div>
       <div id="game-area">
         <canvas id="gameCanvas" width="800" height="600" tabindex="0" autofocus></canvas>
       </div>
