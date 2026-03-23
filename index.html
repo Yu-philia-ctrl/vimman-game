@@ -405,6 +405,53 @@
     </div>
   </div>
 
+  <!-- ── 人間性偏差値テスト ── -->
+  <section id="humanity-quiz">
+    <!-- イントロ -->
+    <div id="hq-intro">
+      <div class="hq-intro-icon">🧠</div>
+      <h2 class="hq-title">人間性偏差値テスト</h2>
+      <p class="hq-desc">全15問のシナリオに答えて、あなたの<strong>人間性偏差値</strong>を測定しよう。<br>共感力・誠実さ・思いやり・倫理観・社会性の5軸で分析します。</p>
+      <button id="hq-start-btn" class="hq-primary-btn">テストを開始する →</button>
+    </div>
+
+    <!-- 問題エリア -->
+    <div id="hq-quiz-area" class="hidden">
+      <div id="hq-progress">
+        <div id="hq-progress-bar"></div>
+        <span id="hq-progress-label">1 / 15</span>
+      </div>
+      <div id="hq-q-meta">
+        <span id="hq-q-num">Q1</span>
+        <span id="hq-q-cat">共感力</span>
+      </div>
+      <div id="hq-q-text"></div>
+      <div id="hq-options"></div>
+    </div>
+
+    <!-- 結果エリア -->
+    <div id="hq-result" class="hidden">
+      <div class="hq-result-top">
+        <div class="hq-hensachi-block">
+          <div class="hq-hensachi-label">人間性偏差値</div>
+          <div id="hq-hensachi-val">--</div>
+        </div>
+        <div class="hq-rank-block">
+          <div id="hq-rank-badge">S</div>
+          <div id="hq-rank-title">人間性の鑑</div>
+        </div>
+      </div>
+      <div id="hq-rank-msg" class="hq-rank-msg"></div>
+      <div class="hq-total-score-row">合計スコア: <strong id="hq-total-score">--</strong></div>
+      <div class="hq-cat-label">カテゴリ別スコア</div>
+      <div id="hq-cat-bars"></div>
+      <div class="hq-result-btns">
+        <button id="hq-retry-btn" class="hq-retry-btn">もう一度やる</button>
+        <button id="hq-share-btn" class="hq-share-btn">結果をシェア 🐦</button>
+      </div>
+    </div>
+  </section>
+
       <!-- ── ゲーム下 広告スロット（レスポンシブ横長） ── -->
       <div class="game-bottom-ad">
         <ins class="adsbygoogle"
@@ -1052,6 +1099,7 @@
 <script src="mobile.js"></script>
 <script src="community.js"></script>
 <script src="metaverse.js"></script>
+<script src="humanity-quiz.js"></script>
 <script>
 // ── Auth integration ─────────────────────────────────────────────
 (function() {
