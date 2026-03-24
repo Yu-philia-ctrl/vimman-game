@@ -10,9 +10,12 @@ function switchGame(name) {
   currentGame = name;
   if (name === 'menu') {
     menuModule.init();
-    // Restore home BGM — AudioContext is already running at this point
-    if (window.GameAudio) window.GameAudio.playBGM('home');
+    if (window.GameAudio) {
+      window.GameAudio.playBGM('home');
+      window.GameAudio.startAmbient();
+    }
   } else if (_gameModules[name]) {
+    if (window.GameAudio) window.GameAudio.stopAmbient();
     // Show interstitial ad between game transitions
     if (window.showInterstitial) window.showInterstitial();
     _gameModules[name].init();
@@ -64,9 +67,12 @@ if (window.GameAudio) {
     if (_audioUnlocked) return;
     _audioUnlocked = true;
     window.GameAudio.resume();
-    // Small delay to let AudioContext.resume() settle, then start BGM
+    // Small delay to let AudioContext.resume() settle, then start BGM + ambient
     setTimeout(function() {
-      if (currentGame === 'menu') window.GameAudio.playBGM('home');
+      if (currentGame === 'menu') {
+        window.GameAudio.playBGM('home');
+        window.GameAudio.startAmbient(); // SF バイノーラルビートアンビエント
+      }
     }, 150);
   }
   document.addEventListener('click',   _unlockAudio);

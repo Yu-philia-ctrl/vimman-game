@@ -391,6 +391,100 @@ window.GameAudio = (function() {
     currentBgm = null;
   }
 
+  // ── SF バイノーラルビート アンビエント ──────────────────────────
+  // バイノーラルビート: 左耳と右耳に微妙に異なる周波数を流すと
+  // 脳が差分を「うなり」として知覚する。ここでは SF ドローンに組み込む。
+  let ambientNodes = [];
+
+  function startAmbient() {
+    if (!ac || !masterGain) return;
+    stopAmbient();
+    resume();
+    const now = ac.currentTime;
+
+    // ── 1. バイノーラルキャリア: 左200Hz / 右204Hz → 4Hzシータ波 ──
+    const leftOsc  = ac.createOscillator();
+    const rightOsc = ac.createOscillator();
+    const panL = ac.createStereoPanner();
+    const panR = ac.createStereoPanner();
+    const biGain = ac.createGain();
+
+    leftOsc.type  = 'sine'; leftOsc.frequency.value  = 200;
+    rightOsc.type = 'sine'; rightOsc.frequency.value = 204;
+    panL.pan.value = -0.9;
+    panR.pan.value =  0.9;
+    biGain.gain.value = 0.06;
+
+    leftOsc.connect(panL);   panL.connect(biGain);
+    rightOsc.connect(panR);  panR.connect(biGain);
+    biGain.connect(masterGain);
+    leftOsc.start(now);  rightOsc.start(now);
+    ambientNodes.push(leftOsc, rightOsc, panL, panR, biGain);
+
+    // ── 2. サブドローン: 55Hz 三角波 (SF 低域の厚み) ──
+    const droneOsc  = ac.createOscillator();
+    const droneGain = ac.createGain();
+    const droneFilter = ac.createBiquadFilter();
+    droneOsc.type = 'triangle'; droneOsc.frequency.value = 55;
+    droneFilter.type = 'lowpass'; droneFilter.frequency.value = 120;
+    droneGain.gain.value = 0.10;
+    droneOsc.connect(droneFilter); droneFilter.connect(droneGain);
+    droneGain.connect(masterGain);
+    droneOsc.start(now);
+    ambientNodes.push(droneOsc, droneFilter, droneGain);
+
+    // ── 3. SF パッド: LFO変調サイン波 (ゆらぎ感) ──
+    const padOsc  = ac.createOscillator();
+    const padLFO  = ac.createOscillator();
+    const padLFOGain = ac.createGain();
+    const padGain = ac.createGain();
+    padOsc.type = 'sine'; padOsc.frequency.value = 110;
+    padLFO.type = 'sine'; padLFO.frequency.value = 0.25;  // 0.25Hz ゆらぎ
+    padLFOGain.gain.value = 15;  // 周波数変調幅 ±15Hz
+    padGain.gain.value = 0.07;
+
+    padLFO.connect(padLFOGain);
+    padLFOGain.connect(padOsc.frequency);
+    padOsc.connect(padGain); padGain.connect(masterGain);
+    padOsc.start(now); padLFO.start(now);
+    ambientNodes.push(padOsc, padLFO, padLFOGain, padGain);
+
+    // ── 4. スペースグリッチ: 220Hz ハーモニクス サイン ──
+    const harmOsc  = ac.createOscillator();
+    const harmGain = ac.createGain();
+    harmOsc.type = 'sine'; harmOsc.frequency.value = 220;
+    harmGain.gain.value = 0.04;
+    harmOsc.connect(harmGain); harmGain.connect(masterGain);
+    harmOsc.start(now);
+    ambientNodes.push(harmOsc, harmGain);
+
+    // ── 5. フェードイン (3秒かけて立ち上げ) ──
+    biGain.gain.setValueAtTime(0, now);
+    biGain.gain.linearRampToValueAtTime(0.06, now + 3);
+    droneGain.gain.setValueAtTime(0, now);
+    droneGain.gain.linearRampToValueAtTime(0.10, now + 3);
+    padGain.gain.setValueAtTime(0, now);
+    padGain.gain.linearRampToValueAtTime(0.07, now + 4);
+    harmGain.gain.setValueAtTime(0, now);
+    harmGain.gain.linearRampToValueAtTime(0.04, now + 5);
+  }
+
+  function stopAmbient() {
+    const now = ac ? ac.currentTime : 0;
+    ambientNodes.forEach(function(node) {
+      try {
+        if (node.gain) {
+          node.gain.cancelScheduledValues(now);
+          node.gain.setValueAtTime(node.gain.value, now);
+          node.gain.linearRampToValueAtTime(0, now + 0.5);
+        }
+        if (node.stop) node.stop(now + 0.6);
+        else if (node.disconnect) setTimeout(function() { try { node.disconnect(); } catch(e){} }, 700);
+      } catch(e) {}
+    });
+    ambientNodes = [];
+  }
+
   function toggleSFX() { sfxEnabled = !sfxEnabled; return sfxEnabled; }
   function toggleBGM() {
     bgmEnabled = !bgmEnabled;
@@ -411,5 +505,7 @@ window.GameAudio = (function() {
     toggleBGM: toggleBGM,
     isBGMOn: isBGMOn,
     isSFXOn: isSFXOn,
+    startAmbient: startAmbient,
+    stopAmbient: stopAmbient,
   };
 })();

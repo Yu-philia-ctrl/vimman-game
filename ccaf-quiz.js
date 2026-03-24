@@ -870,18 +870,73 @@ const ccafQuizGame = (function () {
     },
   ];
 
+  // ── 事前学習コンテンツ ───────────────────────────────────────
+  const STUDY_CONTENT = [
+    { color: '#7b68ee', points: [
+      'オーケストレーター = 計画・委任・統合する指揮官',
+      'サブエージェント = 個別タスクを実行する実行者',
+      'tool_use = Claudeが出力するツール呼び出し指示ブロック',
+      'tool_result = 実行者がClaudeに返す結果ブロック',
+      'ループ終了: stop_reason="end_turn" + max_iterations上限',
+      'HITL = 不可逆・高影響アクション（削除・支払い等）の前に挿入',
+      'エラー処理: エラー結果をオーケストレーターへ渡して再計画',
+      '最小権限の原則: 必要最低限の権限・ツールのみ付与',
+      'サブエージェントは各自独立したコンテキストウィンドウを持つ',
+    ]},
+    { color: '#4fc3f7', points: [
+      'stdioトランスポート: ローカルプロセス stdin/stdout でJSON-RPC通信',
+      'SSEトランスポート: リモートHTTPサーバーからのイベントプッシュ向け',
+      '"required"配列: JSON Schemaで必須パラメータを宣言する正式方法',
+      'OAuth 2.0 / Bearer: 公開MCPエンドポイントの推奨認証方式',
+      'コンポーザブル設計: 各ツールが単一責任の明確なアクションを持つ',
+      'description = モデルのツール選択・呼び出し判断の主要シグナル',
+      'tool_use→tool_result の順でツール実行フローが成立する',
+      'スキーマ最上位はtype:"object"、properties内に各パラメータ定義',
+    ]},
+    { color: '#81c784', points: [
+      'CLAUDE.md: プロジェクトメモリ、セッション開始時に自動読み込み',
+      'PreToolUse: ツール実行前フック（傍受・拒否・ログが可能）',
+      'PostToolUse: ツール実行後フック（テスト自動化に最適）',
+      'OnSessionStart: セッション開始時のウォームアップ処理向け',
+      'deny > allow: denyルールが常に優先される（セキュリティポリシー）',
+      '.claudeignore: Claudeが無視するパスを.gitignore構文で定義',
+      'CLAUDE.mdの構造化: Markdown見出し(## セクション名)を推奨',
+      'セッション内での除外: .claudeignoreにglobパターンを記述',
+    ]},
+    { color: '#ffb74d', points: [
+      'Few-shot例: フォーマット準拠に最も効果的なシグナル（具体例が最強）',
+      '構造化出力 + JSONスキーマ: 文法レベルで有効なJSONを保証',
+      'XMLタグ: プロンプト内のセクション境界を明確化（混乱防止）',
+      'Pydantic: ClaudeのJSONを型付きPythonオブジェクトにバリデーション',
+      '"わかりません"指示 + 例示: ハルシネーション削減に最も有効',
+      'additionalProperties:false: スキーマ外のキーを排除',
+      'Chain-of-Thought (CoT): 中間ステップで複雑な推論精度が向上',
+      'temperature=0: 決定論的・再現可能な出力（テスト・評価向き）',
+      '制約は具体的に: "200文字以内・箇条書き3点以内"など数値で指定',
+    ]},
+    { color: '#f06292', points: [
+      'cache_control:{type:"ephemeral"}: プロンプトキャッシュの明示的マーカー',
+      'キャッシュヒット: 入力トークンが通常料金の約10%で再処理される',
+      '指数バックオフ+ジッター: 429/529エラーの標準的なリトライ戦略',
+      'トークン予算: 累積トークン追跡+上限前にコンテキストを切り詰める',
+      'anthropic-beta: ベータ機能（extended thinking等）の有効化ヘッダー',
+      '共有コンテキストはメッセージ先頭に配置するとキャッシュヒット率が最大',
+      'コンテキスト上限対策: 古いメッセージを要約・圧縮して管理する',
+      'フォールバック: プライマリ失敗時に別手段でタスクを継続する設計',
+    ]},
+  ];
+
   // ── 状態変数 ────────────────────────────────────────────────
   let QUESTIONS = [];  // startQuizで45問からシャッフルして30問選択
-  let state, qIndex, selected, answered, feedbackTimer, feedbackCorrect;
+  let state, qIndex, selected, answered, feedbackCorrect;
   let domainScores, totalScore, timerFrames, timerMax;
-  let menuSel, resultSel;
+  let menuSel, resultSel, studyDomain, studyScroll;
   let communityPosted = false;
   let resultBtnYList = [];  // drawResultで設定、onClickで参照
 
-  const QUIZ_SIZE  = 30;
-  const QUIZ_SECS  = 120;
-  const FPS        = 60;
-  const FEED_DUR   = Math.round(1.8 * FPS);
+  const QUIZ_SIZE   = 30;
+  const QUIZ_SECS   = 120;
+  const FPS         = 60;
   const PASS_SCALED = 720;
 
   function scaleScore(raw) {
@@ -899,20 +954,21 @@ const ccafQuizGame = (function () {
   }
 
   function init() {
-    state          = 'menu';
-    menuSel        = 0;
-    resultSel      = 0;
+    state           = 'menu';
+    menuSel         = 0;
+    resultSel       = 0;
+    studyDomain     = 0;
+    studyScroll     = 0;
     communityPosted = false;
-    domainScores   = DOMAINS.map(() => ({ correct: 0, total: 0 }));
-    totalScore     = 0;
-    qIndex         = 0;
-    selected       = 0;
-    answered       = false;
-    feedbackTimer  = 0;
+    domainScores    = DOMAINS.map(() => ({ correct: 0, total: 0 }));
+    totalScore      = 0;
+    qIndex          = 0;
+    selected        = 0;
+    answered        = false;
     feedbackCorrect = false;
-    timerMax       = QUIZ_SECS * FPS;
-    timerFrames    = timerMax;
-    resultBtnYList = [];
+    timerMax        = QUIZ_SECS * FPS;
+    timerFrames     = timerMax;
+    resultBtnYList  = [];
   }
 
   function startQuiz() {
@@ -929,35 +985,31 @@ const ccafQuizGame = (function () {
     });
     QUESTIONS = shuffle(QUESTIONS);
 
-    qIndex         = 0;
-    selected       = 0;
-    answered       = false;
-    feedbackTimer  = 0;
-    totalScore     = 0;
+    qIndex          = 0;
+    selected        = 0;
+    answered        = false;
+    totalScore      = 0;
     communityPosted = false;
-    domainScores   = DOMAINS.map(() => ({ correct: 0, total: 0 }));
-    timerFrames    = timerMax;
-    state          = 'quiz';
+    domainScores    = DOMAINS.map(() => ({ correct: 0, total: 0 }));
+    timerFrames     = timerMax;
+    state           = 'quiz';
     if (window.GameAudio) window.GameAudio.sfx('confirm');
   }
 
   // ── UPDATE ─────────────────────────────────────────────────
+  // answered後の自動進行を廃止 → ユーザー手動で進める
   function update() {
     if (state === 'quiz' && !answered) {
       timerFrames = Math.max(0, timerFrames - 1);
       if (timerFrames === 0) submitAnswer(-1);
     }
-    if (state === 'quiz' && answered) {
-      feedbackTimer--;
-      if (feedbackTimer <= 0) nextQuestion();
-    }
+    // answered時は何もしない (onKey/onClickで手動進行)
   }
 
   function submitAnswer(sel) {
     const q = QUESTIONS[qIndex];
     answered        = true;
     feedbackCorrect = (sel === q.ans);
-    feedbackTimer   = FEED_DUR;
     domainScores[q.domain].total++;
     if (feedbackCorrect) {
       domainScores[q.domain].correct++;
@@ -986,22 +1038,37 @@ const ccafQuizGame = (function () {
     const k = e.key;
     if (state === 'menu') {
       if (k === 'ArrowUp'   || k === 'k') menuSel = Math.max(0, menuSel - 1);
-      if (k === 'ArrowDown' || k === 'j') menuSel = Math.min(1, menuSel + 1);
+      if (k === 'ArrowDown' || k === 'j') menuSel = Math.min(2, menuSel + 1);
       if (k === 'Enter' || k === 'z' || k === 'Z') {
         if (menuSel === 0) startQuiz();
+        else if (menuSel === 1) { state = 'study'; studyDomain = 0; studyScroll = 0; }
         else switchGame('menu');
       }
+    } else if (state === 'study') {
+      // ドメイン切り替え: 1-5 キーまたは ←→
+      for (var d = 0; d < 5; d++) {
+        if (k === String(d + 1)) { studyDomain = d; studyScroll = 0; return; }
+      }
+      if (k === 'ArrowLeft'  || k === 'h') { studyDomain = Math.max(0, studyDomain - 1); studyScroll = 0; }
+      if (k === 'ArrowRight' || k === 'l') { studyDomain = Math.min(4, studyDomain + 1); studyScroll = 0; }
+      if (k === 'ArrowDown'  || k === 'j') studyScroll = Math.min(studyScroll + 1, Math.max(0, STUDY_CONTENT[studyDomain].points.length - 5));
+      if (k === 'ArrowUp'    || k === 'k') studyScroll = Math.max(0, studyScroll - 1);
+      if (k === 'Enter' || k === 'z' || k === 'Z') startQuiz();
+      if (k === 'Escape' || k === 'q') { state = 'menu'; }
     } else if (state === 'quiz') {
-      if (answered) return;
+      if (answered) {
+        // 解説読了後に手動で次へ進む
+        if (k === 'Enter' || k === 'z' || k === 'Z' || k === ' ') nextQuestion();
+        return;
+      }
       if (k === 'ArrowUp'   || k === 'k') selected = (selected + 3) % 4;
       if (k === 'ArrowDown' || k === 'j') selected = (selected + 1) % 4;
       if (k === 'Enter' || k === 'z' || k === 'Z') {
         if (!answered) submitAnswer(selected);
       }
     } else if (state === 'result') {
-      const maxSel = 2;
       if (k === 'ArrowUp'   || k === 'k') resultSel = Math.max(0, resultSel - 1);
-      if (k === 'ArrowDown' || k === 'j') resultSel = Math.min(maxSel, resultSel + 1);
+      if (k === 'ArrowDown' || k === 'j') resultSel = Math.min(2, resultSel + 1);
       if (k === 'Enter' || k === 'z' || k === 'Z') handleResultSel(resultSel);
     }
   }
@@ -1061,18 +1128,81 @@ const ccafQuizGame = (function () {
       txt(d.weight + '%', cardX + cardW - 14, cy + 27, 'bold 13px monospace', d.color, 'right');
     });
 
-    const btnW = 240, btnH = 44;
-    const btnY = cardStartY + DOMAINS.length * (cardH + 8) + 18;
-    ['試験を開始する', 'メニューに戻る'].forEach(function (label, i) {
+    const btnW = 260, btnH = 44;
+    const btnY = cardStartY + DOMAINS.length * (cardH + 8) + 14;
+    const btnDefs = [
+      { label: '▶ 試験を開始する',   color: '#9977ff', bg: '#4433aa' },
+      { label: '📚 事前に学習する',  color: '#44cc88', bg: '#1a3a22' },
+      { label: '← メニューに戻る',  color: '#aaa',    bg: 'rgba(255,255,255,0.05)' },
+    ];
+    btnDefs.forEach(function (btn, i) {
       const bx = W / 2 - btnW / 2;
-      const by = btnY + i * (btnH + 10);
+      const by = btnY + i * (btnH + 8);
       const sel = menuSel === i;
-      fillRR(bx, by, btnW, btnH, 10, sel ? '#4433aa' : 'rgba(255,255,255,0.05)');
-      strokeRR(bx, by, btnW, btnH, 10, sel ? '#9977ff' : '#333355', sel ? 2 : 1);
-      txt(label, W / 2, by + 28, (sel ? 'bold ' : '') + '15px monospace', sel ? '#fff' : '#aaa', 'center');
+      fillRR(bx, by, btnW, btnH, 10, sel ? btn.bg : 'rgba(255,255,255,0.03)');
+      strokeRR(bx, by, btnW, btnH, 10, sel ? btn.color : '#333355', sel ? 2 : 1);
+      txt(btn.label, W / 2, by + 28, (sel ? 'bold ' : '') + '14px monospace', sel ? btn.color : '#888', 'center');
     });
 
     txt('クリック / ↑↓ kj 選択  Enter/Z 決定', W / 2, H - 18, '11px monospace', '#8866aa', 'center');
+  }
+
+  // ── DRAW STUDY ────────────────────────────────────────────
+  function drawStudy() {
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#050518'); bg.addColorStop(1, '#0a0820');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    txt('📚 CCA-F 事前学習モード', W / 2, 38, 'bold 20px monospace', '#c5b0ff', 'center');
+    txt('試験前に各ドメインの重要ポイントを確認しましょう', W / 2, 58, '11px monospace', '#776699', 'center');
+
+    // ドメインタブ
+    const tabW = Math.floor((W - 20) / 5);
+    DOMAINS.forEach(function (d, i) {
+      const tx = 10 + i * tabW;
+      const sel = studyDomain === i;
+      fillRR(tx, 68, tabW - 4, 28, 6, sel ? d.color + '44' : 'rgba(255,255,255,0.04)');
+      strokeRR(tx, 68, tabW - 4, 28, 6, sel ? d.color : '#222244', sel ? 2 : 1);
+      txt('D' + (i + 1), tx + (tabW - 4) / 2, 87, (sel ? 'bold ' : '') + '12px monospace', sel ? d.color : '#666', 'center');
+    });
+
+    const dom = STUDY_CONTENT[studyDomain];
+    const domLabel = DOMAINS[studyDomain];
+    txt(domLabel.name, W / 2, 116, 'bold 13px monospace', domLabel.color, 'center');
+
+    // 説明ポイントリスト
+    const points = dom.points;
+    const startY = 130;
+    const lineH = 38;
+    const visible = 9;
+    const scroll = Math.min(studyScroll, Math.max(0, points.length - visible));
+
+    for (var pi = 0; pi < Math.min(visible, points.length - scroll); pi++) {
+      const pt = points[pi + scroll];
+      const py = startY + pi * lineH;
+      fillRR(14, py, W - 28, lineH - 4, 6, 'rgba(255,255,255,0.03)');
+      strokeRR(14, py, W - 28, lineH - 4, 6, domLabel.color + '44', 1);
+      ctx.fillStyle = domLabel.color;
+      ctx.beginPath(); ctx.arc(30, py + (lineH - 4) / 2, 4, 0, Math.PI * 2); ctx.fill();
+      const ptLines = wrapText(pt, 78);
+      ptLines.forEach(function (line, li) {
+        txt(line, 42, py + 14 + li * 14, '12px monospace', '#ddd', 'left');
+      });
+    }
+
+    // スクロールインジケーター
+    if (points.length > visible) {
+      txt((scroll + 1) + '-' + Math.min(scroll + visible, points.length) + ' / ' + points.length,
+        W - 20, H - 58, '10px monospace', '#554477', 'right');
+    }
+
+    // ボタン
+    const b0y = H - 52, b1y = H - 26;
+    const bFlash = Math.floor(Date.now() / 500) % 2 === 0;
+    fillRR(W / 2 - 160, b0y - 4, 320, 28, 7, '#1a3a22');
+    strokeRR(W / 2 - 160, b0y - 4, 320, 28, 7, '#44cc88', 1.5);
+    txt('▶ 学習完了 — 試験を開始 (Enter/Z)', W / 2, b0y + 13, 'bold 12px monospace', bFlash ? '#44ff88' : '#44cc88', 'center');
+    txt('← 戻る (Esc/q)  ←→/hl ドメイン切替  1-5 ダイレクト選択', W / 2, b1y + 10, '10px monospace', '#554477', 'center');
   }
 
   // ── DRAW QUIZ ─────────────────────────────────────────────
@@ -1141,32 +1271,57 @@ const ccafQuizGame = (function () {
       });
     });
 
-    // フィードバック
+    // ── 解説パネル (answered後は下部全体を使って全解説を表示) ──
     if (answered) {
-      const fadeIn = Math.min(1, (FEED_DUR - feedbackTimer) / 8);
-      ctx.globalAlpha = fadeIn * 0.95;
+      const panelY = optStartY + 4 * 60 + 4;
+      const panelH = H - panelY - 4;
+      const msgCol = feedbackCorrect ? '#44ff88' : '#ff5555';
 
-      // メッセージバー
-      const msgY   = H - 108;
-      const msgText = feedbackCorrect ? '✓  正解！' : '✗  不正解  正解: ' + labels[q.ans];
-      const msgCol  = feedbackCorrect ? '#44ff88' : '#ff5555';
-      fillRR(W / 2 - 220, msgY, 440, 32, 8, feedbackCorrect ? '#0a2a0a' : '#2a0a0a');
-      strokeRR(W / 2 - 220, msgY, 440, 32, 8, msgCol, 2);
-      txt(msgText, W / 2, msgY + 21, 'bold 15px monospace', msgCol, 'center');
+      ctx.fillStyle = feedbackCorrect ? 'rgba(10,40,10,0.94)' : 'rgba(40,10,10,0.94)';
+      ctx.fillRect(0, panelY, W, panelH);
+      ctx.strokeStyle = msgCol; ctx.lineWidth = 1.5;
+      ctx.strokeRect(10, panelY + 2, W - 20, panelH - 4);
 
-      // 選択肢の解説
-      const expText = q.optExp ? q.optExp[feedbackCorrect ? q.ans : selected] : q.exp;
-      const expLines = wrapText(expText || q.exp, 80);
-      expLines.slice(0, 2).forEach(function (line, i) {
-        txt(line, W / 2, H - 66 + i * 16, '11px monospace', '#aa99cc', 'center');
-      });
+      const msgText = feedbackCorrect
+        ? '✓  正解！  — ' + labels[q.ans] + ' が正しい'
+        : '✗  不正解  — 正解は ' + labels[q.ans];
+      txt(msgText, W / 2, panelY + 18, 'bold 14px monospace', msgCol, 'center');
 
-      // 参考URL
-      if (q.ref) {
-        txt('参考: ' + q.ref, W / 2, H - 22, '10px monospace', '#554477', 'center');
+      var cy = panelY + 34;
+
+      if (q.optExp) {
+        if (!feedbackCorrect) {
+          var selLines = wrapText(q.optExp[selected < q.opts.length ? selected : q.ans], 82);
+          selLines.slice(0, 2).forEach(function(line, i) {
+            txt(line, W / 2, cy + i * 15, '11px monospace', '#ff9999', 'center');
+          });
+          cy += Math.min(2, selLines.length) * 15 + 4;
+          var ansLines2 = wrapText(q.optExp[q.ans], 82);
+          ansLines2.slice(0, 2).forEach(function(line, i) {
+            txt(line, W / 2, cy + i * 15, '11px monospace', '#88ffaa', 'center');
+          });
+          cy += Math.min(2, ansLines2.length) * 15 + 4;
+        } else {
+          var ansLines3 = wrapText(q.optExp[q.ans], 82);
+          ansLines3.slice(0, 2).forEach(function(line, i) {
+            txt(line, W / 2, cy + i * 15, '11px monospace', '#88ffaa', 'center');
+          });
+          cy += Math.min(2, ansLines3.length) * 15 + 4;
+        }
       }
 
-      ctx.globalAlpha = 1;
+      var expLines2 = wrapText(q.exp, 82);
+      expLines2.slice(0, 2).forEach(function(line, i) {
+        txt(line, W / 2, cy + i * 14, '11px monospace', '#aa99cc', 'center');
+      });
+      cy += Math.min(2, expLines2.length) * 14 + 2;
+
+      if (q.ref) txt('参考: ' + q.ref, W / 2, cy + 2, '10px monospace', '#554477', 'center');
+
+      var blink = Math.floor(Date.now() / 600) % 2 === 0;
+      if (blink) {
+        txt('→ 次の問題へ  (Enter / Z / クリック)', W / 2, H - 8, 'bold 11px monospace', '#9977ff', 'center');
+      }
     } else {
       txt('クリックで選択 / ↑↓ kj で移動  Enter/Z で回答', W / 2, H - 12, '11px monospace', '#554477', 'center');
     }
@@ -1232,6 +1387,7 @@ const ccafQuizGame = (function () {
   // ── DRAW dispatch ────────────────────────────────────────
   function draw() {
     if      (state === 'menu')   drawMenu();
+    else if (state === 'study')  drawStudy();
     else if (state === 'quiz')   drawQuiz();
     else if (state === 'result') drawResult();
   }
@@ -1239,15 +1395,29 @@ const ccafQuizGame = (function () {
   // ── onClick ─────────────────────────────────────────────
   function onClick(cx, cy) {
     if (state === 'menu') {
-      const btnH = 44;
-      // ボタン位置はdrawMenuと同じ計算式で算出
-      const cardH = 44, cardStartY = 155;
-      const btnY = cardStartY + DOMAINS.length * (cardH + 8) + 18;
-      if (cy >= btnY && cy <= btnY + btnH) { menuSel = 0; startQuiz(); return; }
-      if (cy >= btnY + 54 && cy <= btnY + 54 + btnH) { switchGame('menu'); return; }
+      const btnH = 44, cardH = 44, cardStartY = 155;
+      const btnY = cardStartY + DOMAINS.length * (cardH + 8) + 14;
+      if (cy >= btnY           && cy <= btnY + btnH)       { menuSel = 0; startQuiz(); return; }
+      if (cy >= btnY + 52      && cy <= btnY + 52 + btnH)  { menuSel = 1; state = 'study'; studyDomain = 0; studyScroll = 0; return; }
+      if (cy >= btnY + 104     && cy <= btnY + 104 + btnH) { menuSel = 2; switchGame('menu'); return; }
       return;
     }
-    if (state === 'quiz' && !answered) {
+    if (state === 'study') {
+      // 学習開始ボタン
+      if (cy >= H - 56 && cy <= H - 28) { startQuiz(); return; }
+      // ドメインタブクリック
+      const tabW = Math.floor((W - 20) / 5);
+      if (cy >= 68 && cy <= 96) {
+        for (var d = 0; d < 5; d++) {
+          if (cx >= 10 + d * tabW && cx <= 10 + (d + 1) * tabW - 4) {
+            studyDomain = d; studyScroll = 0; return;
+          }
+        }
+      }
+      return;
+    }
+    if (state === 'quiz') {
+      if (answered) { nextQuestion(); return; }
       const q = QUESTIONS[qIndex];
       const qLinesLen = wrapText(q.q, 72).length;
       const optStartY = 76 + qLinesLen * 22 + 16;
@@ -1261,9 +1431,7 @@ const ccafQuizGame = (function () {
       for (var j = 0; j < resultBtnYList.length; j++) {
         const btn = resultBtnYList[j];
         if (cy >= btn.y && cy <= btn.y + btn.h) {
-          resultSel = j;
-          handleResultSel(j);
-          return;
+          resultSel = j; handleResultSel(j); return;
         }
       }
     }

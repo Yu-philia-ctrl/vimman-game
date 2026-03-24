@@ -13,6 +13,8 @@ const menuModule = (function() {
 
   // HOME tab
   const HOME_ITEMS = ['continue', 'newgame', 'stageselect', 'linuxbattle', 'snake', 'invaders', 'tetris', 'tutorial', 'codex', 'character', 'shell', 'ccaf'];
+  // ナビ順: Main Quest 1(0-2) → Main Quest 2(3) → Main Quest 3(11) → サブゲーム(4-10)
+  const HOME_NAV_ORDER = [0, 1, 2, 3, 11, 4, 5, 6, 7, 8, 9, 10];
   let homeCursor = 0;
 
   // CHARACTER tab
@@ -628,10 +630,14 @@ const menuModule = (function() {
   }
 
   function updateHome() {
-    if (justPressed('KeyJ') || justPressed('ArrowDown'))
-      homeCursor = (homeCursor + 1) % (HOME_CURSOR_MAX + 1);
-    if (justPressed('KeyK') || justPressed('ArrowUp'))
-      homeCursor = (homeCursor - 1 + HOME_CURSOR_MAX + 1) % (HOME_CURSOR_MAX + 1);
+    if (justPressed('KeyJ') || justPressed('ArrowDown')) {
+      const ni = (HOME_NAV_ORDER.indexOf(homeCursor) + 1) % HOME_NAV_ORDER.length;
+      homeCursor = HOME_NAV_ORDER[ni];
+    }
+    if (justPressed('KeyK') || justPressed('ArrowUp')) {
+      const ni = (HOME_NAV_ORDER.indexOf(homeCursor) - 1 + HOME_NAV_ORDER.length) % HOME_NAV_ORDER.length;
+      homeCursor = HOME_NAV_ORDER[ni];
+    }
 
     if (isEnter() || justPressed('KeyL')) {
       const item = HOME_ITEMS[homeCursor];
