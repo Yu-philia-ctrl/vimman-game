@@ -889,6 +889,50 @@
       if (overlay) overlay.style.display = 'none';
     }
   })();
+
+  // ── Exit intent (ai-money page) ──────────────────────────────────────
+  (function() {
+    var armed = false, shown = false;
+    setTimeout(function(){ armed = true; }, 20000);
+    document.addEventListener('mouseleave', function(e) {
+      if (e.clientY > 5 || !armed || shown) return;
+      if (sessionStorage.getItem('am_exit_shown')) return;
+      shown = true;
+      sessionStorage.setItem('am_exit_shown', '1');
+      // Build lightweight exit overlay
+      var el = document.createElement('div');
+      el.id = 'am-exit-overlay';
+      el.style.cssText = 'position:fixed;inset:0;background:rgba(0,4,16,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+      el.innerHTML = [
+        '<div style="background:#070d1e;border:1px solid rgba(255,204,0,0.25);border-radius:10px;padding:24px;max-width:400px;width:100%;position:relative;display:flex;flex-direction:column;gap:14px;text-align:center;">',
+          '<button onclick="this.closest(\'#am-exit-overlay\').remove()" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#5a7a9a;font-size:20px;cursor:pointer;">✕</button>',
+          '<p style="font-size:16px;font-weight:900;color:#c8d8f0;">このページを離れる前に</p>',
+          '<p style="font-size:12px;color:#5a7a9a;line-height:1.7;">無料PDFを受け取っていますか？<br>AI副業スターターガイドを今すぐ登録で受け取れます。</p>',
+          '<a href="#final-cta" onclick="document.getElementById(\'am-exit-overlay\').remove()" style="display:block;background:linear-gradient(135deg,#cc8800,#ffcc00);color:#000;font-family:monospace;font-size:13px;font-weight:900;padding:13px;border-radius:6px;text-decoration:none;letter-spacing:1px;">🎁 無料PDFを受け取る</a>',
+          '<a href="https://lite.tiktok.com/t/ZS9RWrFhGqsJ3-OrwiU/" target="_blank" rel="noopener" onclick="document.getElementById(\'am-exit-overlay\').remove()" style="display:block;background:rgba(255,0,80,0.1);border:1px solid rgba(255,0,80,0.25);color:#ff6699;font-family:monospace;font-size:12px;font-weight:700;padding:10px;border-radius:6px;text-decoration:none;">📱 TikTok Liteで動画副業を始める</a>',
+        '</div>',
+      ].join('');
+      document.body.appendChild(el);
+    });
+  })();
+
+  // ── Timed toast (120s) ───────────────────────────────────────────────
+  (function() {
+    if (sessionStorage.getItem('am_toast_shown')) return;
+    setTimeout(function() {
+      if (sessionStorage.getItem('am_toast_shown')) return;
+      sessionStorage.setItem('am_toast_shown', '1');
+      var el = document.createElement('div');
+      el.style.cssText = 'position:fixed;bottom:88px;right:20px;z-index:9000;background:#070d1e;border:1px solid rgba(85,153,255,0.25);border-radius:10px;padding:14px 16px 12px;max-width:240px;font-family:monospace;';
+      el.innerHTML = [
+        '<button onclick="this.parentElement.remove()" style="position:absolute;top:7px;right:10px;background:none;border:none;color:#5a7a9a;font-size:16px;cursor:pointer;">✕</button>',
+        '<p style="font-size:12px;font-weight:900;color:#c8d8f0;padding-right:18px;margin-bottom:6px;">💡 Temuで副業グッズを揃える</p>',
+        '<p style="font-size:10px;color:#5a7a9a;margin-bottom:10px;">副業スタートに必要なPC周辺機器・ガジェットがリーズナブルに。</p>',
+        '<a href="https://temu.com/s/drdf9h24vRcSkobf" target="_blank" rel="noopener" style="display:block;text-align:center;background:rgba(255,102,0,0.12);border:1px solid rgba(255,102,0,0.3);color:#ff8844;font-size:11px;font-weight:700;padding:8px;border-radius:5px;text-decoration:none;">🛍 Temuで見てみる →</a>',
+      ].join('');
+      document.body.appendChild(el);
+    }, 120000);
+  })();
 </script>
 </body>
 </html>
