@@ -1027,6 +1027,217 @@
     </div><!-- end vim-ref-body -->
   </div><!-- end vim-reference -->
 
+  <!-- ── HACK CODEX セキュリティアーキテクチャ研究所 ── -->
+  <div id="hack-codex">
+    <div id="hack-codex-header">
+      <div class="hc-title-wrap">
+        <span class="hc-icon">🔐</span>
+        <span>HACK CODEX — セキュリティアーキテクチャ研究所</span>
+        <span class="hc-badge">DEFENSIVE ANALYSIS</span>
+      </div>
+      <button id="btn-hack-codex-toggle">開く ▼</button>
+    </div>
+    <div id="hack-codex-body" class="hidden">
+      <div class="hc-intro">
+        <p>攻撃者の思考を理解することで、防御の精度が上がる。以下はセキュリティ研究書の要点を「守り側」視点で整理した学習コンテンツです。</p>
+      </div>
+
+      <!-- Chapter 7 -->
+      <div class="hc-chapter">
+        <div class="hc-ch-header">
+          <span class="hc-ch-num">Ch.07</span>
+          <span class="hc-ch-title">GitHub を通じた指令の送受信 — C2アーキテクチャ解析</span>
+          <span class="hc-ch-tag tag-arch">ARCHITECTURE</span>
+        </div>
+        <div class="hc-ch-body">
+          <div class="hc-section">
+            <div class="hc-sec-label">▌ 概要</div>
+            <p>GitHubをC2（Command & Control）サーバの代替として使う設計。HTTPS通信に乗ることで通信が目立たない。コード配布・設定管理・データ収集をリポジトリで一元管理する構造。</p>
+          </div>
+          <div class="hc-points">
+            <div class="hc-point">
+              <div class="hc-point-label">① GitHub API利用</div>
+              <div class="hc-point-desc">SSL暗号化通信に乗るため通信フィルタで検知されにくい。正規のAPIエンドポイントを使う。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">② config / modules / data 分離</div>
+              <div class="hc-point-desc">config→指示、modules→処理、data→結果。この3層分離は通常の運用設計とほぼ同一。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">③ 動的ロード（プラグイン設計）</div>
+              <div class="hc-point-desc">モジュールを後から追加可能。再デプロイ不要。pythonの動的import機能を活用。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">④ JSON設定駆動</div>
+              <div class="hc-point-desc">実行内容を外部ファイルで制御。コード変更なしに振る舞いを変更できる。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">⑤ スレッド並列実行</div>
+              <div class="hc-point-desc">複数モジュールを非同期で並列実行。処理の独立性を保つ。</div>
+            </div>
+          </div>
+          <div class="hc-defense">
+            <div class="hc-defense-label">🛡 防御側への応用</div>
+            <div class="hc-defense-grid">
+              <div class="hc-def-item">
+                <span class="hc-def-icon">🔍</span>
+                <div>
+                  <div class="hc-def-title">GitHubへの異常通信を検知</div>
+                  <div class="hc-def-desc">api.github.com への通信が急増・定期的に発生する場合は要調査</div>
+                </div>
+              </div>
+              <div class="hc-def-item">
+                <span class="hc-def-icon">📋</span>
+                <div>
+                  <div class="hc-def-title">設定駆動設計を正規業務に活用</div>
+                  <div class="hc-def-desc">config+module分離はバッチ運用・自動化設計に直接応用できる</div>
+                </div>
+              </div>
+              <div class="hc-def-item">
+                <span class="hc-def-icon">⚡</span>
+                <div>
+                  <div class="hc-def-title">動的ロードの監視</div>
+                  <div class="hc-def-desc">実行時に外部からコードを取得するプロセスをプロセス監視で検出</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hc-insight">
+            <span class="hc-insight-icon">💡</span>
+            <strong>本質：</strong>この設計は「マルウェア専用」ではなく汎用アーキテクチャ。運用自動化・プラグイン設計・設定駆動開発と同じ構造。
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter 8 -->
+      <div class="hc-chapter">
+        <div class="hc-ch-header">
+          <span class="hc-ch-num">Ch.08</span>
+          <span class="hc-ch-title">Windowsでよく使用されるテクニック — OS低レイヤ解析</span>
+          <span class="hc-ch-tag tag-os">OS / API</span>
+        </div>
+        <div class="hc-ch-body">
+          <div class="hc-section">
+            <div class="hc-sec-label">▌ 概要</div>
+            <p>Windows OS の低レイヤ API を使った情報取得・遠隔操作・検知回避の手法解説。キーロガー・スクリーン取得・シェルコード実行の仕組みを理解することで、同じ手法を「検知する側」に立てる。</p>
+          </div>
+          <div class="hc-points">
+            <div class="hc-point">
+              <div class="hc-point-label">① キーロガーの仕組み（Windows API）</div>
+              <div class="hc-point-desc">SetWindowsHookEx でキーボードフックを設定。クリップボード・アクティブウィンドウ情報も同時取得可能。監査ログにはこれらのhook設定が記録される。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">② スクリーンショット取得（GDI）</div>
+              <div class="hc-point-desc">GDI（Graphics Device Interface）でデスクトップ画面をメモリ経由で取得。%TEMP%フォルダへのBMP書き込みはフォレンジックで発見しやすい。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">③ メモリ上でのコード実行</div>
+              <div class="hc-point-desc">Base64でエンコードされたデータを取得→デコード→メモリ配置→実行。ファイルを残さないためフォレンジック回避に有効。ctypesが使われる。</div>
+            </div>
+          </div>
+          <div class="hc-defense">
+            <div class="hc-defense-label">🛡 防御側への応用</div>
+            <div class="hc-defense-grid">
+              <div class="hc-def-item">
+                <span class="hc-def-icon">🔑</span>
+                <div>
+                  <div class="hc-def-title">監査ログでhook設定を検出</div>
+                  <div class="hc-def-desc">SetWindowsHookEx の呼び出しはEDR/SIEMで検知可能</div>
+                </div>
+              </div>
+              <div class="hc-def-item">
+                <span class="hc-def-icon">💾</span>
+                <div>
+                  <div class="hc-def-title">%TEMP%フォルダ監視</div>
+                  <div class="hc-def-desc">一時フォルダへのBMP/画像ファイル書き込みを異常として検知</div>
+                </div>
+              </div>
+              <div class="hc-def-item">
+                <span class="hc-def-icon">🧬</span>
+                <div>
+                  <div class="hc-def-title">メモリ実行の検知</div>
+                  <div class="hc-def-desc">ファイルを持たないプロセス（fileless malware）はメモリスキャンで検出</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hc-insight">
+            <span class="hc-insight-icon">💡</span>
+            <strong>本質：</strong>「どう攻撃するか」を知ることで「どこを監視すべきか」が明確になる。auditログ・EDR設定の理解に直結する知識。
+          </div>
+        </div>
+      </div>
+
+      <!-- Chapter 8.4 -->
+      <div class="hc-chapter">
+        <div class="hc-ch-header">
+          <span class="hc-ch-num">Ch.08.4</span>
+          <span class="hc-ch-title">サンドボックス検知 — 振る舞い分析の本質</span>
+          <span class="hc-ch-tag tag-behavior">BEHAVIORAL</span>
+        </div>
+        <div class="hc-ch-body">
+          <div class="hc-section">
+            <div class="hc-sec-label">▌ 概要</div>
+            <p>「人間が操作しているか」をOS情報から判定する技術。GetLastInputInfo・GetTickCount・マウス/キーボード操作回数を組み合わせて振る舞いで判断する。これを逆用すると不正検知・BOT検知の基盤になる。</p>
+          </div>
+          <div class="hc-points">
+            <div class="hc-point">
+              <div class="hc-point-label">① 最終入力時間（GetLastInputInfo）</div>
+              <div class="hc-point-desc">最後にユーザー入力があった時刻を取得。一定時間入力がなければ「人間不在」と判断。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">② 起動経過時間（GetTickCount）</div>
+              <div class="hc-point-desc">OS起動直後はサンドボックス環境の可能性が高い。長時間稼働していれば実ユーザー環境と判断。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">③ マウス操作の自然さ</div>
+              <div class="hc-point-desc">クリック回数・ダブルクリックの有無・操作間隔のランダム性。機械的な操作パターンを見抜く。</div>
+            </div>
+            <div class="hc-point">
+              <div class="hc-point-label">④ 閾値制御・条件判定</div>
+              <div class="hc-point-desc">入力回数・間隔・タイミングを複合評価。単一条件ではなく「振る舞い」の総合判断。</div>
+            </div>
+          </div>
+          <div class="hc-defense">
+            <div class="hc-defense-label">🛡 防御側への応用（逆用）</div>
+            <div class="hc-defense-grid">
+              <div class="hc-def-item">
+                <span class="hc-def-icon">🤖</span>
+                <div>
+                  <div class="hc-def-title">BOT検知・不正ログイン検知</div>
+                  <div class="hc-def-desc">操作間隔の規則性・クリック分布でBOT/人間を判別できる</div>
+                </div>
+              </div>
+              <div class="hc-def-item">
+                <span class="hc-def-icon">👤</span>
+                <div>
+                  <div class="hc-def-title">放置端末・セッション管理</div>
+                  <div class="hc-def-desc">最終操作時間でアイドル検知・強制ログアウトに応用</div>
+                </div>
+              </div>
+              <div class="hc-def-item">
+                <span class="hc-def-icon">📊</span>
+                <div>
+                  <div class="hc-def-title">「正常とは何か」の定義</div>
+                  <div class="hc-def-desc">基準となる正常振る舞いを定義することが、異常検知の前提条件</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hc-insight">
+            <span class="hc-insight-icon">💡</span>
+            <strong>本質：</strong>「正常とは何か」を定義することが、あらゆる異常検知の出発点。インフラ監視・セキュリティ設計の根幹にある思想。
+          </div>
+          <div class="hc-level-badge">
+            <span>📈 この内容を理解しているなら → </span>
+            <span class="hc-level-tag">中級セキュリティエンジニア入口</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end hack-codex-body -->
+  </div><!-- end hack-codex -->
+
   <!-- Community Platform -->
   <div id="community-section">
     <div id="community-header">

@@ -168,11 +168,28 @@
     });
   }
 
+  function initHackCodex() {
+    const btn  = document.getElementById('btn-hack-codex-toggle');
+    const body = document.getElementById('hack-codex-body');
+    const hdr  = document.getElementById('hack-codex-header');
+    if (!btn || !body) return;
+    function toggle() {
+      const open = !body.classList.contains('hidden');
+      body.classList.toggle('hidden', open);
+      btn.textContent = open ? '開く ▼' : '折りたたむ ▲';
+    }
+    btn.addEventListener('click', toggle);
+    hdr.addEventListener('click', function(e) {
+      if (e.target !== btn) toggle();
+    });
+  }
+
   window.addEventListener('load', function() {
     initMobile();
     initSupport();
     initFooterLinks();
     initVimRef();
+    initHackCodex();
   });
 
 })();

@@ -2073,3 +2073,156 @@ body {
     padding-bottom: max(8px, env(safe-area-inset-bottom));
   }
 }
+
+/* ── HACK CODEX セキュリティアーキテクチャ研究所 ── */
+#hack-codex {
+  width: 100%;
+  background: rgba(4, 8, 24, 0.9);
+  border: 1px solid rgba(255, 100, 100, 0.15);
+  border-radius: 10px;
+  margin: 8px 0;
+  overflow: hidden;
+}
+#hack-codex-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  cursor: pointer;
+  background: rgba(255, 60, 60, 0.04);
+  border-bottom: 1px solid rgba(255, 100, 100, 0.1);
+  transition: background 0.2s;
+  gap: 10px;
+}
+#hack-codex-header:hover { background: rgba(255, 60, 60, 0.08); }
+.hc-title-wrap {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: bold; color: #ffaaaa;
+  letter-spacing: 1px; flex-wrap: wrap;
+}
+.hc-icon { font-size: 16px; }
+.hc-badge {
+  font-size: 9px; letter-spacing: 2px;
+  background: rgba(255, 100, 100, 0.15);
+  border: 1px solid rgba(255, 100, 100, 0.3);
+  color: #ff8888; border-radius: 4px; padding: 2px 7px;
+}
+#btn-hack-codex-toggle {
+  flex-shrink: 0; background: rgba(255, 80, 80, 0.1);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  color: #ff9999; padding: 4px 10px; font-size: 11px;
+  border-radius: 4px; cursor: pointer; font-family: monospace;
+  white-space: nowrap;
+}
+#btn-hack-codex-toggle:hover { background: rgba(255, 80, 80, 0.2); }
+#hack-codex-body { padding: 16px; }
+.hc-intro {
+  background: rgba(255, 100, 100, 0.05);
+  border-left: 3px solid rgba(255, 100, 100, 0.4);
+  padding: 10px 14px; margin-bottom: 16px; border-radius: 0 6px 6px 0;
+  font-size: 12px; color: #ccbbbb; line-height: 1.7;
+}
+
+/* Chapter card */
+.hc-chapter {
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 100, 100, 0.12);
+  border-radius: 8px; overflow: hidden;
+  background: rgba(8, 4, 20, 0.7);
+}
+.hc-ch-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 60, 60, 0.06);
+  border-bottom: 1px solid rgba(255, 100, 100, 0.1);
+  flex-wrap: wrap; gap: 8px;
+}
+.hc-ch-num {
+  font-size: 10px; font-weight: bold; letter-spacing: 2px;
+  color: #ff6666; background: rgba(255, 60, 60, 0.12);
+  border: 1px solid rgba(255, 60, 60, 0.3);
+  padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+}
+.hc-ch-title {
+  font-size: 12px; font-weight: bold; color: #ffcccc;
+  flex: 1; letter-spacing: 0.5px;
+}
+.hc-ch-tag {
+  font-size: 9px; letter-spacing: 1px; padding: 2px 7px;
+  border-radius: 4px; white-space: nowrap; font-weight: bold;
+}
+.tag-arch     { background: rgba(85,153,255,0.12); border: 1px solid rgba(85,153,255,0.3); color: #88aaff; }
+.tag-os       { background: rgba(255,170,50,0.12); border: 1px solid rgba(255,170,50,0.3); color: #ffcc88; }
+.tag-behavior { background: rgba(180,80,255,0.12); border: 1px solid rgba(180,80,255,0.3); color: #cc88ff; }
+.hc-ch-body { padding: 14px; }
+
+/* Section label */
+.hc-section { margin-bottom: 12px; }
+.hc-sec-label {
+  font-size: 10px; letter-spacing: 2px; color: #ff8888;
+  margin-bottom: 6px; text-transform: uppercase; font-weight: bold;
+}
+.hc-section p { font-size: 12px; color: #bbaaaa; line-height: 1.7; }
+
+/* Points */
+.hc-points {
+  display: grid; gap: 8px; margin-bottom: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+.hc-point {
+  background: rgba(255, 60, 60, 0.05);
+  border: 1px solid rgba(255, 60, 60, 0.15);
+  border-radius: 6px; padding: 10px 12px;
+}
+.hc-point-label {
+  font-size: 11px; font-weight: bold; color: #ff9999;
+  margin-bottom: 5px; line-height: 1.3;
+}
+.hc-point-desc { font-size: 11px; color: #998888; line-height: 1.6; }
+
+/* Defense block */
+.hc-defense {
+  background: rgba(68, 255, 136, 0.04);
+  border: 1px solid rgba(68, 255, 136, 0.15);
+  border-radius: 6px; padding: 12px; margin-bottom: 12px;
+}
+.hc-defense-label {
+  font-size: 10px; letter-spacing: 2px; color: #44ff88;
+  margin-bottom: 10px; font-weight: bold;
+}
+.hc-defense-grid { display: grid; gap: 8px; }
+.hc-def-item {
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.hc-def-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.hc-def-title { font-size: 11px; font-weight: bold; color: #88ffbb; margin-bottom: 3px; }
+.hc-def-desc { font-size: 11px; color: #668877; line-height: 1.5; }
+
+/* Insight */
+.hc-insight {
+  background: rgba(255, 204, 0, 0.06);
+  border-left: 3px solid rgba(255, 204, 0, 0.4);
+  padding: 10px 14px; border-radius: 0 6px 6px 0;
+  font-size: 12px; color: #ccbb88; line-height: 1.7;
+  margin-bottom: 10px;
+}
+.hc-insight-icon { margin-right: 6px; }
+.hc-insight strong { color: #ffcc44; }
+
+/* Level badge */
+.hc-level-badge {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; color: #8899aa; flex-wrap: wrap;
+}
+.hc-level-tag {
+  background: linear-gradient(135deg, rgba(85,153,255,0.2), rgba(180,80,255,0.2));
+  border: 1px solid rgba(130,100,255,0.4);
+  color: #aabbff; padding: 3px 10px; border-radius: 20px;
+  font-size: 11px; font-weight: bold;
+}
+
+@media (max-width: 600px) {
+  .hc-points { grid-template-columns: 1fr; }
+  .hc-ch-title { font-size: 11px; }
+  #hack-codex-header { padding: 10px 12px; }
+}
