@@ -2,6 +2,22 @@
 /* Global hidden utility — used by community, panels, etc. */
 .hidden { display: none !important; }
 
+/* ── AI副業アナウンスバー ── */
+#ai-ann-bar {
+  background: linear-gradient(90deg, #aa6600, #ffaa00, #aa6600);
+  color: #000; text-align: center; padding: 8px 44px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  position: relative; z-index: 900;
+}
+#ai-ann-bar a {
+  color: #000; text-decoration: underline; margin-left: 6px;
+}
+#ai-ann-bar button {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; font-size: 16px; cursor: pointer;
+  color: rgba(0,0,0,0.45); line-height: 1;
+}
+
 body {
   background: #000011;
   min-height: 100vh;

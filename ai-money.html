@@ -3,617 +3,808 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AIで稼ぐ完全ロードマップ — VIM ARCADE</title>
-  <meta name="description" content="ChatGPT・Midjourney・ElevenLabsを使ってスキルゼロから収益化する完全ロードマップ。YouTube・TikTok・デジタル商品販売・無料プレゼント導線まで網羅。">
+  <title>AIで稼ぐ完全ロードマップ 2026 — スキルゼロから月10万円</title>
+  <meta name="description" content="ChatGPT・Midjourney・ElevenLabsで顔出し不要・スキルゼロから月10万円。YouTube・TikTok・PDF販売・LINE導線の全モデルを無料公開。無料PDFプレゼント中。">
+  <!-- AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3016615146886765" crossorigin="anonymous"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #000811;
-      --bg2: #05091a;
-      --bg3: #080e20;
-      --border: rgba(85,153,255,0.15);
+      --bg:     #000811;
+      --bg2:    #05091a;
+      --bg3:    #08102a;
+      --border: rgba(85,153,255,0.14);
       --accent: #5599ff;
-      --green: #44ff88;
-      --gold: #ffcc00;
-      --text: #c8d8f0;
-      --muted: #5a7a9a;
-      --radius: 8px;
+      --green:  #44ff88;
+      --gold:   #ffcc00;
+      --orange: #ff8844;
+      --text:   #c8d8f0;
+      --muted:  #5a7a9a;
+      --r:      8px;
     }
     html { scroll-behavior: smooth; }
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg); color: var(--text);
       font-family: 'Courier New', monospace;
-      font-size: 14px;
-      line-height: 1.7;
+      font-size: 14px; line-height: 1.7;
+      padding-bottom: 80px;
     }
 
-    /* ── Header ── */
+    /* ── Announcement bar ── */
+    #ann-bar {
+      background: linear-gradient(90deg, #cc7700, #ffaa00, #cc7700);
+      color: #000; text-align: center; padding: 8px 40px;
+      font-size: 12px; font-weight: 700; letter-spacing: 1px;
+      position: relative;
+    }
+    #ann-bar a { color: #000; text-decoration: underline; }
+    #ann-close {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; font-size: 16px; cursor: pointer;
+      color: rgba(0,0,0,0.5);
+    }
+
+    /* ── Sticky header ── */
     #am-header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(0,8,17,0.97);
+      position: sticky; top: 0; z-index: 200;
+      background: rgba(0,8,17,0.98);
       border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
-      display: flex; align-items: center; gap: 16px;
+      padding: 10px 20px;
+      display: flex; align-items: center; gap: 12px;
+      backdrop-filter: blur(8px);
     }
-    #am-header a.back {
-      color: var(--muted); text-decoration: none; font-size: 12px;
-      transition: color 0.15s;
-    }
-    #am-header a.back:hover { color: var(--accent); }
+    #am-header .back { color: var(--muted); text-decoration: none; font-size: 11px; }
+    #am-header .back:hover { color: var(--accent); }
     #am-header .logo {
       font-size: 13px; font-weight: 900; letter-spacing: 3px;
       background: linear-gradient(135deg, #5599ff, #44ff88, #ffcc00);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    #am-header .badge {
+    #am-header .hdr-cta {
       margin-left: auto;
-      background: rgba(255,204,0,0.12);
-      border: 1px solid rgba(255,204,0,0.3);
-      color: var(--gold); font-size: 11px; letter-spacing: 1px;
-      padding: 3px 10px; border-radius: 20px;
+      background: linear-gradient(135deg, #cc8800, #ffcc00);
+      color: #000; font-family: monospace; font-size: 11px; font-weight: 900;
+      padding: 7px 16px; border-radius: 20px;
+      text-decoration: none; letter-spacing: 1px; white-space: nowrap;
+      transition: opacity 0.15s;
     }
+    #am-header .hdr-cta:hover { opacity: 0.85; }
 
-    /* ── Container ── */
-    .am-wrap { max-width: 860px; margin: 0 auto; padding: 0 20px 80px; }
+    /* ── Wrap ── */
+    .wrap { max-width: 900px; margin: 0 auto; padding: 0 18px; }
 
     /* ── Hero ── */
-    #am-hero {
-      padding: 60px 0 48px;
+    #hero {
+      padding: 52px 0 44px;
       text-align: center;
-      border-bottom: 1px solid var(--border);
+      background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(85,153,255,0.07) 0%, transparent 70%);
     }
-    #am-hero .eyebrow {
-      font-size: 11px; letter-spacing: 4px; color: var(--gold);
-      margin-bottom: 16px;
-    }
-    #am-hero h1 {
-      font-size: clamp(24px, 5vw, 42px);
-      font-weight: 900; letter-spacing: 2px;
-      background: linear-gradient(135deg, #5599ff 0%, #44ff88 50%, #ffcc00 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-      line-height: 1.2; margin-bottom: 20px;
-    }
-    #am-hero .sub {
-      font-size: 15px; color: var(--muted); max-width: 560px; margin: 0 auto 32px;
-    }
-    .hero-stats {
-      display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
-      margin-bottom: 36px;
-    }
-    .hero-stat { text-align: center; }
-    .hero-stat .num {
-      font-size: 28px; font-weight: 900; color: var(--green);
-      display: block;
-    }
-    .hero-stat .label { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
-    .btn-primary {
+    .hero-eyebrow {
       display: inline-block;
-      background: linear-gradient(135deg, #1a4aff, #0088ff);
-      color: #fff; font-family: monospace; font-size: 14px; font-weight: 700;
-      padding: 14px 36px; border-radius: var(--radius);
-      text-decoration: none; letter-spacing: 1px;
-      transition: opacity 0.15s, transform 0.15s;
-      border: none; cursor: pointer;
+      background: rgba(255,204,0,0.12); border: 1px solid rgba(255,204,0,0.3);
+      color: var(--gold); font-size: 10px; letter-spacing: 3px; font-weight: 700;
+      padding: 4px 14px; border-radius: 20px; margin-bottom: 20px;
     }
-    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+    #hero h1 {
+      font-size: clamp(26px, 6vw, 52px); font-weight: 900; letter-spacing: 1px;
+      background: linear-gradient(135deg, #5599ff 0%, #44ff88 45%, #ffcc00 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; line-height: 1.15; margin-bottom: 16px;
+    }
+    #hero .sub {
+      font-size: 15px; color: var(--muted); max-width: 580px;
+      margin: 0 auto 28px; line-height: 1.8;
+    }
+    .hero-proof {
+      display: flex; justify-content: center; gap: 28px; flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .hp { text-align: center; }
+    .hp .n { font-size: 30px; font-weight: 900; color: var(--green); display: block; }
+    .hp .l { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+    .hero-btns { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+    /* ── Buttons ── */
     .btn-gold {
       display: inline-block;
       background: linear-gradient(135deg, #cc8800, #ffcc00);
       color: #000; font-family: monospace; font-size: 14px; font-weight: 900;
-      padding: 14px 36px; border-radius: var(--radius);
+      padding: 14px 32px; border-radius: var(--r);
       text-decoration: none; letter-spacing: 1px;
-      transition: opacity 0.15s, transform 0.15s;
-      border: none; cursor: pointer;
+      transition: opacity .15s, transform .15s; border: none; cursor: pointer;
     }
-    .btn-gold:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-gold:hover { opacity: .85; transform: translateY(-2px); }
+    .btn-blue {
+      display: inline-block;
+      background: linear-gradient(135deg, #1a4aff, #0088ff);
+      color: #fff; font-family: monospace; font-size: 14px; font-weight: 700;
+      padding: 14px 28px; border-radius: var(--r);
+      text-decoration: none; letter-spacing: 1px;
+      transition: opacity .15s, transform .15s; border: none; cursor: pointer;
+    }
+    .btn-blue:hover { opacity: .85; transform: translateY(-2px); }
+    .btn-green {
+      display: inline-block;
+      background: linear-gradient(135deg, #00aa44, #44ff88);
+      color: #000; font-family: monospace; font-size: 13px; font-weight: 900;
+      padding: 11px 24px; border-radius: var(--r);
+      text-decoration: none; letter-spacing: 1px;
+      transition: opacity .15s, transform .15s; border: none; cursor: pointer;
+    }
+    .btn-green:hover { opacity: .85; transform: translateY(-2px); }
+    .btn-outline {
+      display: inline-block;
+      border: 1px solid rgba(85,153,255,0.4); color: var(--accent);
+      font-family: monospace; font-size: 13px;
+      padding: 10px 22px; border-radius: var(--r);
+      text-decoration: none; transition: border-color .15s, color .15s;
+    }
+    .btn-outline:hover { border-color: var(--accent); color: #fff; }
 
-    /* ── Section title ── */
-    .sec-label {
-      font-size: 10px; letter-spacing: 4px; color: var(--accent);
-      margin-bottom: 8px;
-    }
-    .sec-title {
-      font-size: 22px; font-weight: 900; letter-spacing: 1px;
-      margin-bottom: 8px;
-    }
-    .sec-desc { color: var(--muted); margin-bottom: 32px; }
-    section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+    /* ── Section ── */
+    section { padding: 48px 0; border-top: 1px solid var(--border); }
+    .sec-eyebrow { font-size: 10px; letter-spacing: 4px; color: var(--accent); margin-bottom: 6px; }
+    .sec-title { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+    .sec-desc { color: var(--muted); margin-bottom: 28px; line-height: 1.8; }
 
-    /* ── Model accordion cards ── */
-    .model-grid { display: flex; flex-direction: column; gap: 12px; }
-    .model-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
+    /* ── AdSense slot ── */
+    .ad-slot {
+      margin: 32px auto;
+      max-width: 728px; text-align: center;
+      background: rgba(5,9,26,0.8);
+      border: 1px dashed rgba(85,153,255,0.1);
+      border-radius: var(--r); overflow: hidden;
+      min-height: 90px; display: flex; align-items: center; justify-content: center;
     }
-    .model-card-header {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 20px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.15s;
-    }
-    .model-card-header:hover { background: rgba(85,153,255,0.06); }
-    .model-icon { font-size: 22px; flex-shrink: 0; }
-    .model-card-header h3 {
-      font-size: 15px; font-weight: 700; flex: 1;
-    }
-    .model-card-header .tag {
-      font-size: 10px; letter-spacing: 1px;
-      padding: 3px 8px; border-radius: 4px;
-      flex-shrink: 0;
-    }
-    .tag-yt  { background: rgba(255,80,80,0.15); color: #ff8080; border: 1px solid rgba(255,80,80,0.2); }
-    .tag-tt  { background: rgba(68,255,136,0.12); color: #44ff88; border: 1px solid rgba(68,255,136,0.2); }
-    .tag-dl  { background: rgba(85,153,255,0.12); color: #88bbff; border: 1px solid rgba(85,153,255,0.2); }
-    .tag-ln  { background: rgba(255,204,0,0.12); color: #ffcc00; border: 1px solid rgba(255,204,0,0.2); }
-    .tag-rc  { background: rgba(200,100,255,0.12); color: #dd88ff; border: 1px solid rgba(200,100,255,0.2); }
-    .model-toggle {
-      color: var(--muted); font-size: 12px; transition: transform 0.2s; flex-shrink: 0;
-    }
-    .model-card.open .model-toggle { transform: rotate(180deg); }
-    .model-body {
-      display: none;
-      padding: 0 20px 20px;
-      border-top: 1px solid var(--border);
-    }
-    .model-card.open .model-body { display: block; }
-    .model-intro {
-      font-size: 13px; color: var(--muted); padding: 14px 0 16px;
-      border-bottom: 1px solid rgba(85,153,255,0.08);
-      margin-bottom: 16px;
-    }
+    .ad-slot ins { width: 100%; }
 
-    /* Steps */
-    .steps { display: flex; flex-direction: column; gap: 10px; }
-    .step {
-      display: grid; grid-template-columns: 28px 1fr; gap: 10px;
-      align-items: start;
+    /* ── 3-step quick start ── */
+    .qsteps {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
     }
-    .step-num {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: rgba(85,153,255,0.15); border: 1px solid rgba(85,153,255,0.3);
-      color: var(--accent); font-size: 11px; font-weight: 700;
+    .qstep {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 20px 16px; text-align: center; position: relative;
+    }
+    .qstep .qs-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      color: #000; font-weight: 900; font-size: 16px;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      margin: 0 auto 12px;
     }
-    .step-content strong { color: #c8d8f0; font-size: 13px; }
-    .step-content .arrow {
-      font-size: 11px; color: var(--green); display: block; margin-top: 2px;
-    }
+    .qstep h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .qstep p { font-size: 11px; color: var(--muted); }
 
-    /* ── Cases ── */
-    .case-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    /* ── TOOLS (affiliate) ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
       gap: 14px;
     }
-    .case-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px;
-    }
-    .case-card .case-revenue {
-      font-size: 22px; font-weight: 900; color: var(--green);
-      margin-bottom: 4px;
-    }
-    .case-card .case-tag {
-      font-size: 10px; letter-spacing: 1px; color: var(--muted);
-      margin-bottom: 10px;
-    }
-    .case-card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
-
-    /* ── Tools ── */
-    .tools-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 12px;
-    }
     .tool-card {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 16px;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      padding: 18px 16px; display: flex; flex-direction: column; gap: 8px;
       text-decoration: none; color: inherit;
-      display: flex; flex-direction: column; gap: 6px;
-      transition: border-color 0.15s, background 0.15s;
+      transition: border-color .15s, background .15s, transform .15s;
+      position: relative;
     }
     .tool-card:hover {
       border-color: rgba(85,153,255,0.4);
       background: rgba(85,153,255,0.05);
+      transform: translateY(-2px);
     }
-    .tool-icon { font-size: 24px; }
-    .tool-name { font-size: 13px; font-weight: 700; color: #c8d8f0; }
-    .tool-use  { font-size: 11px; color: var(--muted); }
-    .tool-price { font-size: 11px; color: var(--gold); margin-top: auto; }
-    .tool-card .aff-badge {
-      font-size: 9px; letter-spacing: 1px; color: #3a5a7a;
+    .tool-card .tc-badge {
+      position: absolute; top: -8px; right: 12px;
+      background: var(--gold); color: #000;
+      font-size: 9px; font-weight: 900; letter-spacing: 1px;
+      padding: 2px 8px; border-radius: 10px;
     }
-
-    /* ── Sales talk ── */
-    #am-sales {
-      background: linear-gradient(135deg, rgba(5,9,26,0.9) 0%, rgba(10,20,50,0.9) 100%);
-    }
-    .sales-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .sales-list li {
-      padding: 10px 14px;
-      border-left: 3px solid var(--accent);
-      background: rgba(85,153,255,0.05);
-      border-radius: 0 var(--radius) var(--radius) 0;
-      font-size: 13px;
-    }
-    .sales-list li::before { content: '▶ '; color: var(--accent); }
-
-    /* ── CTA section ── */
-    #am-cta { text-align: center; padding: 60px 0; }
-    #am-cta h2 {
-      font-size: 28px; font-weight: 900; margin-bottom: 12px;
-      background: linear-gradient(135deg, #ffcc00, #ff8844);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    #am-cta .cta-sub { color: var(--muted); margin-bottom: 32px; }
-    .cta-buttons { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
-
-    /* ── Funnel steps visual ── */
-    .funnel { display: flex; flex-direction: column; gap: 0; }
-    .funnel-step {
-      display: flex; gap: 14px; align-items: flex-start;
-      padding: 12px 0;
-    }
-    .funnel-step + .funnel-step { border-top: 1px dashed rgba(85,153,255,0.1); }
-    .funnel-num {
-      width: 32px; height: 32px; border-radius: 4px; flex-shrink: 0;
+    .tool-card .tc-icon { font-size: 28px; }
+    .tool-card .tc-name { font-size: 15px; font-weight: 900; color: #d8e8ff; }
+    .tool-card .tc-use  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .tool-card .tc-price { font-size: 11px; color: var(--gold); font-weight: 700; }
+    .tool-card .tc-btn {
+      margin-top: 6px;
+      display: block; text-align: center;
       background: rgba(85,153,255,0.12); border: 1px solid rgba(85,153,255,0.25);
-      color: var(--accent); font-size: 12px; font-weight: 900;
-      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-family: monospace; font-size: 11px; font-weight: 700;
+      padding: 7px; border-radius: 5px; letter-spacing: 1px;
+      transition: background .15s;
     }
-    .funnel-text strong { color: #c8d8f0; font-size: 13px; }
-    .funnel-text .f-arrow { font-size: 11px; color: var(--green); }
+    .tool-card:hover .tc-btn { background: rgba(85,153,255,0.2); }
+    .tool-note { font-size: 10px; color: #2a4060; margin-top: 8px; }
 
-    /* ── Scroll-to-top ── */
-    #back-top {
-      position: fixed; bottom: 24px; right: 24px;
-      background: rgba(85,153,255,0.2); border: 1px solid rgba(85,153,255,0.3);
-      color: var(--accent); width: 40px; height: 40px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      text-decoration: none; font-size: 16px; transition: opacity 0.15s;
-      z-index: 50;
+    /* ── Amazon books ── */
+    .amzn-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px;
     }
-    #back-top:hover { opacity: 0.7; }
+    .amzn-card {
+      background: linear-gradient(135deg, #09080d, #100d1a);
+      border: 1px solid rgba(255,153,0,0.2); border-radius: var(--r);
+      padding: 16px; display: flex; flex-direction: column; gap: 8px;
+      text-decoration: none; color: inherit;
+      transition: border-color .15s, transform .15s;
+    }
+    .amzn-card:hover { border-color: rgba(255,153,0,0.5); transform: translateY(-2px); }
+    .amzn-card .ac-icon { font-size: 30px; }
+    .amzn-card .ac-name { font-size: 13px; font-weight: 700; color: #e0c080; line-height: 1.4; }
+    .amzn-card .ac-stars { font-size: 11px; color: #ffaa00; }
+    .amzn-card .ac-btn {
+      margin-top: auto;
+      display: block; text-align: center;
+      background: #ff9900; color: #000;
+      font-family: monospace; font-size: 11px; font-weight: 900;
+      padding: 7px; border-radius: 4px; letter-spacing: 1px;
+      transition: opacity .15s;
+    }
+    .amzn-card:hover .ac-btn { opacity: .85; }
+
+    /* ── Model accordions ── */
+    .model-list { display: flex; flex-direction: column; gap: 10px; }
+    .mc {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+      overflow: hidden;
+    }
+    .mc-hdr {
+      display: flex; align-items: center; gap: 12px; padding: 15px 18px;
+      cursor: pointer; transition: background .15s; user-select: none;
+    }
+    .mc-hdr:hover { background: rgba(85,153,255,0.06); }
+    .mc-hdr .mc-icon { font-size: 22px; flex-shrink: 0; }
+    .mc-hdr h3 { font-size: 15px; font-weight: 700; flex: 1; }
+    .mc-tag {
+      font-size: 10px; padding: 3px 8px; border-radius: 4px; flex-shrink: 0;
+    }
+    .tag-yt { background:rgba(255,80,80,.12); color:#ff8080; border:1px solid rgba(255,80,80,.2); }
+    .tag-tt { background:rgba(68,255,136,.1); color:#44ff88; border:1px solid rgba(68,255,136,.2); }
+    .tag-dl { background:rgba(85,153,255,.1); color:#88bbff; border:1px solid rgba(85,153,255,.2); }
+    .tag-ln { background:rgba(255,204,0,.1); color:#ffcc00; border:1px solid rgba(255,204,0,.2); }
+    .tag-rc { background:rgba(200,100,255,.1); color:#dd88ff; border:1px solid rgba(200,100,255,.2); }
+    .mc-arrow { color: var(--muted); font-size: 12px; transition: transform .2s; flex-shrink:0; }
+    .mc.open .mc-arrow { transform: rotate(180deg); }
+    .mc-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+    .mc.open .mc-body { display: block; }
+    .mc-intro { font-size: 13px; color: var(--muted); padding: 12px 0 14px; }
+    .steps { display: flex; flex-direction: column; gap: 9px; }
+    .step { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; }
+    .sn {
+      width:28px;height:28px;border-radius:50%;flex-shrink:0;
+      background:rgba(85,153,255,.12);border:1px solid rgba(85,153,255,.3);
+      color:var(--accent);font-size:11px;font-weight:700;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .sc strong { color:#c8d8f0;font-size:13px; }
+    .sc .arr { font-size:11px;color:var(--green);display:block;margin-top:2px; }
+    .mc-cta { margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .mc-note { font-size:11px;color:var(--muted); }
+
+    /* ── Cases ── */
+    .case-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 14px;
+    }
+    .case-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 18px;
+    }
+    .case-card .cr { font-size: 22px; font-weight: 900; color: var(--green); margin-bottom: 4px; }
+    .case-card .ct { font-size: 10px; letter-spacing:1px; color: var(--muted); margin-bottom: 10px; }
+    .case-card p  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    /* ── Mid CTA block ── */
+    .mid-cta {
+      background: linear-gradient(135deg, rgba(5,9,26,.9) 0%, rgba(10,20,50,.9) 100%);
+      border: 1px solid rgba(255,204,0,0.2); border-radius: var(--r);
+      padding: 32px 24px; text-align: center; margin: 32px 0;
+    }
+    .mid-cta h3 { font-size:20px;font-weight:900;margin-bottom:8px;
+      background:linear-gradient(135deg,#ffcc00,#ff8844);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    .mid-cta p { color:var(--muted);margin-bottom:20px;font-size:13px; }
+    .mid-cta-btns { display:flex;gap:12px;justify-content:center;flex-wrap:wrap; }
+
+    /* ── Sales list ── */
+    .sales-list { list-style:none;display:flex;flex-direction:column;gap:8px; }
+    .sales-list li {
+      padding:10px 14px; border-left:3px solid var(--accent);
+      background:rgba(85,153,255,.05); border-radius:0 var(--r) var(--r) 0;
+      font-size:13px;
+    }
+
+    /* ── Final CTA ── */
+    #final-cta { padding:60px 0; text-align:center; }
+    #final-cta h2 {
+      font-size:clamp(22px,5vw,38px);font-weight:900;margin-bottom:10px;
+      background:linear-gradient(135deg,#ffcc00,#ff8844);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+    }
+    #final-cta .sub { color:var(--muted);margin-bottom:28px;font-size:14px; }
+    .final-btns { display:flex;gap:14px;justify-content:center;flex-wrap:wrap; }
+
+    /* ── Floating bottom CTA ── */
+    #float-cta {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
+      background: rgba(0,4,12,0.97);
+      border-top: 1px solid rgba(255,204,0,0.3);
+      padding: 10px 20px;
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      flex-wrap: wrap;
+      backdrop-filter: blur(8px);
+    }
+    #float-cta .fc-text { font-size: 13px; font-weight: 700; }
+    #float-cta .fc-text span { color: var(--gold); }
+    #float-close {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer;
+    }
+
+    /* ── Back to top ── */
+    #back-top {
+      position: fixed; bottom: 70px; right: 20px; z-index: 200;
+      background: rgba(85,153,255,.15); border: 1px solid rgba(85,153,255,.3);
+      color: var(--accent); width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; font-size: 15px; transition: opacity .15s;
+    }
+    #back-top:hover { opacity: .7; }
 
     /* ── Responsive ── */
-    @media (max-width: 600px) {
-      #am-hero { padding: 36px 0 32px; }
-      .hero-stats { gap: 20px; }
-      .case-grid, .tools-grid { grid-template-columns: 1fr; }
+    @media (max-width: 640px) {
+      #hero { padding: 36px 0 28px; }
+      .qsteps { grid-template-columns: 1fr; }
+      .hero-proof { gap: 16px; }
       section { padding: 32px 0; }
+      .case-grid,.tools-grid,.amzn-grid { grid-template-columns: 1fr; }
+      #float-cta .fc-text { font-size: 12px; }
     }
   </style>
 </head>
 <body>
 
-<!-- Header -->
+<!-- Announcement bar -->
+<div id="ann-bar">
+  🎁 <strong>期間限定</strong> — 無料PDFプレゼント中！
+  <a href="#final-cta">LINE登録で今すぐ受け取る →</a>
+  <button id="ann-close" onclick="this.parentElement.style.display='none'">✕</button>
+</div>
+
+<!-- Sticky header -->
 <header id="am-header">
   <a class="back" href="index.html">← VIM ARCADE</a>
   <span class="logo">VIM ARCADE</span>
-  <span class="badge">AI 副業</span>
+  <a class="hdr-cta" href="#final-cta">🎁 無料PDF受け取る</a>
 </header>
 
-<div class="am-wrap">
+<div class="wrap">
 
-  <!-- Hero -->
-  <section id="am-hero" style="border-bottom:1px solid var(--border);">
-    <div class="eyebrow">AI × 副業 完全ロードマップ</div>
-    <h1>AIで稼ぐ仕組みを<br>ゼロから構築する</h1>
-    <p class="sub">ChatGPT・Midjourney・ElevenLabsを活用して、<br>スキル不要・顔出し不要で収益化する全モデル公開。</p>
-    <div class="hero-stats">
-      <div class="hero-stat"><span class="num">5</span><span class="label">収益モデル</span></div>
-      <div class="hero-stat"><span class="num">7+</span><span class="label">成功事例</span></div>
-      <div class="hero-stat"><span class="num">¥0</span><span class="label">初期費用</span></div>
+  <!-- ── Hero ── -->
+  <section id="hero" style="border:none;">
+    <div class="hero-eyebrow">AI 副業 完全ロードマップ 2026</div>
+    <h1>AIで稼ぐ仕組みを<br>ゼロから作る</h1>
+    <p class="sub">
+      ChatGPT・Midjourney・ElevenLabsを使えば<br>
+      <strong style="color:#c8d8f0;">顔出し不要・スキルゼロ・初期費用ほぼ0円</strong>で<br>
+      月10万円の収益化ルートが5つ存在する。
+    </p>
+    <div class="hero-proof">
+      <div class="hp"><span class="n">5</span><span class="l">収益モデル</span></div>
+      <div class="hp"><span class="n">7+</span><span class="l">成功事例</span></div>
+      <div class="hp"><span class="n">8</span><span class="l">厳選AIツール</span></div>
+      <div class="hp"><span class="n">¥0</span><span class="l">初期費用</span></div>
     </div>
-    <a href="#models" class="btn-primary">今すぐ始める →</a>
+    <div class="hero-btns">
+      <a class="btn-gold" href="#final-cta">🎁 無料PDFを受け取る</a>
+      <a class="btn-blue" href="#models">モデルを見る →</a>
+    </div>
   </section>
 
-  <!-- 収益モデル -->
-  <section id="models">
-    <div class="sec-label">REVENUE MODELS</div>
-    <div class="sec-title">5つの収益モデル</div>
-    <p class="sec-desc">自分に合ったモデルを1つ選んで、AIを活用してステップ通りに動くだけ。</p>
+  <!-- ── Quick start ── -->
+  <section>
+    <div class="sec-eyebrow">QUICK START</div>
+    <div class="sec-title">3ステップで今日から始める</div>
+    <div class="qsteps">
+      <div class="qstep">
+        <div class="qs-num">1</div>
+        <h4>AIツールを1つ選ぶ</h4>
+        <p>まずChatGPT Plusだけ契約。月$20で収益化の武器が揃う。</p>
+      </div>
+      <div class="qstep">
+        <div class="qs-num">2</div>
+        <h4>好きなモデルを選ぶ</h4>
+        <p>YouTube・TikTok・PDF販売・LINE導線の中から1つ選んで実行。</p>
+      </div>
+      <div class="qstep">
+        <div class="qs-num">3</div>
+        <h4>AIに全部作らせる</h4>
+        <p>脚本・販売文・投稿文・商品全部AIが生成。コピペして出すだけ。</p>
+      </div>
+    </div>
+  </section>
 
-    <div class="model-grid">
+  <!-- AdSense 1 -->
+  <div class="ad-slot">
+    <ins class="adsbygoogle"
+         style="display:block;width:100%;min-height:90px;"
+         data-ad-client="ca-pub-3016615146886765"
+         data-ad-slot="auto"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+  <!-- ── AI Tools (Affiliate) ── -->
+  <section id="tools">
+    <div class="sec-eyebrow">AI TOOLS — アフィリエイトリンク</div>
+    <div class="sec-title">今すぐ使うべきAIツール8選</div>
+    <p class="sec-desc">
+      どれか1つ契約するだけで収益化スピードが激変する。<br>
+      <span style="color:var(--gold);">★ リンク先で登録すると本サイトに紹介報酬が入ります（あなたへの追加料金なし）</span>
+    </p>
+    <div class="tools-grid">
+      <a class="tool-card" href="https://chat.openai.com" target="_blank" rel="noopener sponsored">
+        <span class="tc-badge">必須 No.1</span>
+        <span class="tc-icon">🤖</span>
+        <span class="tc-name">ChatGPT Plus</span>
+        <span class="tc-use">脚本・販売文・構成・分析の万能AI。これ1つで全モデルが動く</span>
+        <span class="tc-price">月 $20（約3,000円）</span>
+        <span class="tc-btn">▶ 今すぐ試す →</span>
+      </a>
+      <a class="tool-card" href="https://elevenlabs.io" target="_blank" rel="noopener sponsored">
+        <span class="tc-badge">顔出し不要</span>
+        <span class="tc-icon">🎙</span>
+        <span class="tc-name">ElevenLabs</span>
+        <span class="tc-use">自然なAI音声生成。YouTube・TikTokナレーションを即作成</span>
+        <span class="tc-price">月 $5〜（無料枠あり）</span>
+        <span class="tc-btn">▶ 無料で始める →</span>
+      </a>
+      <a class="tool-card" href="https://www.midjourney.com" target="_blank" rel="noopener sponsored">
+        <span class="tc-icon">🎨</span>
+        <span class="tc-name">Midjourney</span>
+        <span class="tc-use">高品質画像生成。サムネ・LP・ECバナーを大量生産</span>
+        <span class="tc-price">月 $10〜</span>
+        <span class="tc-btn">▶ 今すぐ試す →</span>
+      </a>
+      <a class="tool-card" href="https://runwayml.com" target="_blank" rel="noopener sponsored">
+        <span class="tc-icon">🎬</span>
+        <span class="tc-name">RunwayML</span>
+        <span class="tc-use">テキスト→動画生成。YouTube・TikTok映像をAIで自動作成</span>
+        <span class="tc-price">月 $15〜</span>
+        <span class="tc-btn">▶ 今すぐ試す →</span>
+      </a>
+      <a class="tool-card" href="https://www.canva.com/ja_jp/pro/" target="_blank" rel="noopener sponsored">
+        <span class="tc-icon">✏️</span>
+        <span class="tc-name">Canva Pro</span>
+        <span class="tc-use">PDF・SNS素材を量産。AI画像生成＋テンプレで10分で完成</span>
+        <span class="tc-price">月 ¥1,500〜</span>
+        <span class="tc-btn">▶ 30日無料で試す →</span>
+      </a>
+      <a class="tool-card" href="https://www.heygen.com" target="_blank" rel="noopener sponsored">
+        <span class="tc-icon">🧑‍💻</span>
+        <span class="tc-name">HeyGen</span>
+        <span class="tc-use">AIアバター動画。顔出し不要で商品説明・教育動画が完成</span>
+        <span class="tc-price">月 $29〜</span>
+        <span class="tc-btn">▶ 今すぐ試す →</span>
+      </a>
+      <a class="tool-card" href="https://www.perplexity.ai" target="_blank" rel="noopener sponsored">
+        <span class="tc-icon">🔍</span>
+        <span class="tc-name">Perplexity Pro</span>
+        <span class="tc-use">AI検索。SEOリサーチ・競合分析・トレンド把握が5分で完了</span>
+        <span class="tc-price">月 $20〜</span>
+        <span class="tc-btn">▶ 今すぐ試す →</span>
+      </a>
+      <a class="tool-card" href="https://claude.ai" target="_blank" rel="noopener sponsored">
+        <span class="tc-icon">💡</span>
+        <span class="tc-name">Claude Pro</span>
+        <span class="tc-use">長文処理に最強。10万文字の原稿・仕様書を一括要約・編集</span>
+        <span class="tc-price">月 $20〜</span>
+        <span class="tc-btn">▶ 今すぐ試す →</span>
+      </a>
+    </div>
+    <p class="tool-note">※ 上記リンクはアフィリエイトリンクです（設定後）。クリック・登録で本サイトに報酬が発生します。追加費用はありません。</p>
+  </section>
+
+  <!-- Mid CTA -->
+  <div class="mid-cta">
+    <h3>まず無料PDFで全体像を掴む</h3>
+    <p>LINE登録で「AI副業スターターガイド」を今すぐ受け取れます。<br>ステップ配信で収益化ロードマップを5日間で学べます。</p>
+    <div class="mid-cta-btns">
+      <!-- ★ LINE登録リンクをここに設定 -->
+      <a class="btn-gold" href="#" onclick="alert('LINE登録リンクをここに設定してください')">🎁 LINEで無料PDF受け取る</a>
+      <!-- ★ noteリンクをここに設定 -->
+      <a class="btn-outline" href="#" onclick="alert('noteリンクをここに設定してください')">📄 noteで読む</a>
+    </div>
+  </div>
+
+  <!-- AdSense 2 -->
+  <div class="ad-slot">
+    <ins class="adsbygoogle"
+         style="display:block;width:100%;min-height:90px;"
+         data-ad-client="ca-pub-3016615146886765"
+         data-ad-slot="auto"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+  <!-- ── Revenue models ── -->
+  <section id="models">
+    <div class="sec-eyebrow">REVENUE MODELS</div>
+    <div class="sec-title">5つの収益モデル — 1つ選んで動くだけ</div>
+    <p class="sec-desc">全モデルにChatGPTを活用したステップが入っている。脚本・販売文・商品すべてAIが作る。</p>
+
+    <div class="model-list">
 
       <!-- YouTube -->
-      <div class="model-card" id="card-yt">
-        <div class="model-card-header" onclick="toggleCard('card-yt')">
-          <span class="model-icon">🎬</span>
+      <div class="mc" id="mc-yt">
+        <div class="mc-hdr" onclick="toggleMc('mc-yt')">
+          <span class="mc-icon">🎬</span>
           <h3>YouTube AI動画モデル</h3>
-          <span class="tag tag-yt">YouTube</span>
-          <span class="model-toggle">▼</span>
+          <span class="mc-tag tag-yt">YouTube</span>
+          <span class="mc-arrow">▼</span>
         </div>
-        <div class="model-body">
-          <div class="model-intro">
-            脚本・ナレーション・映像・投稿文をすべてAI生成。顔出し・声出し不要で動画を量産し、
-            広告収益＋PDF販売＋LINE誘導の3重構造で稼ぐ。
-          </div>
+        <div class="mc-body">
+          <div class="mc-intro">脚本・音声・映像・投稿文をすべてAI生成。広告収益＋PDF販売＋LINE誘導の3重収益構造。</div>
           <div class="steps">
-            <div class="step"><div class="step-num">1</div><div class="step-content"><strong>ChatGPTでバズりやすいテーマを30個出させる</strong><span class="arrow">→ 副業／雑学／ライフハック／心理学から視聴者が好奇心を持つテーマを選ぶ</span></div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-content"><strong>選んだテーマで3〜5分の脚本をChatGPTに作成させる</strong><span class="arrow">→ 冒頭フック・問題提起・解決策・まとめの4構成で自動生成</span></div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-content"><strong>ElevenLabs / PlayHTで自然なナレーション音声を生成</strong><span class="arrow">→ 性別・トーンを自由に設定。顔出し不要で本格音声が完成</span></div></div>
-            <div class="step"><div class="step-num">4</div><div class="step-content"><strong>RunwayML / Pexels / Pixabayで映像素材を取得・生成</strong><span class="arrow">→ ChatGPTに映像アイデアを出させ、CapCut / Canvaで編集</span></div></div>
-            <div class="step"><div class="step-num">5</div><div class="step-content"><strong>タイトル・サムネ・説明文・タグを10パターンずつChatGPTに出させる</strong><span class="arrow">→ 好奇心を刺激するキーワード設計でインプレッションを最大化</span></div></div>
-            <div class="step"><div class="step-num">6</div><div class="step-content"><strong>説明欄にLINE登録・無料PDF導線を設置</strong><span class="arrow">→ ChatGPTで「登録したくなるPDF構成・タイトル・キャッチコピー」を生成</span></div></div>
-            <div class="step"><div class="step-num">7</div><div class="step-content"><strong>LINEステップ配信7通をChatGPTで設計</strong><span class="arrow">→ 感謝→深掘り→知識共有→PDF説明→購入誘導の流れを自動作成</span></div></div>
-            <div class="step"><div class="step-num">8</div><div class="step-content"><strong>980〜2,980円のPDF商品をChatGPTで作成・販売</strong><span class="arrow">→ アップセル商品もChatGPTが提案。月8〜12本の量産スケジュールもAIが設計</span></div></div>
+            <div class="step"><div class="sn">1</div><div class="sc"><strong>ChatGPTでバズるテーマを30個出させる</strong><span class="arr">→ 副業／雑学／ライフハック／心理学から好奇心を引くテーマを選ぶ</span></div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><strong>選んだテーマで3〜5分の脚本を自動生成</strong><span class="arr">→ 冒頭フック・問題提起・解決策・まとめの4構成</span></div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><strong>ElevenLabsでナレーション音声を生成</strong><span class="arr">→ 顔出し不要。RunwayML / Pexelsで映像素材を取得してCapCutで編集</span></div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><strong>タイトル・サムネ・説明文・タグを10パターン生成</strong><span class="arr">→ YouTubeアルゴリズムに最適化してインプレッションを最大化</span></div></div>
+            <div class="step"><div class="sn">5</div><div class="sc"><strong>説明欄にLINE登録・無料PDF導線を設置</strong><span class="arr">→ ChatGPTでLINEステップ配信7通（感謝→深掘り→購入誘導）を自動生成</span></div></div>
+            <div class="step"><div class="sn">6</div><div class="sc"><strong>980〜2,980円のPDF商品を作成してLINEで販売</strong><span class="arr">→ 月8〜12本量産スケジュールもChatGPTが設計。広告収益＋PDF販売の二重収益に</span></div></div>
           </div>
-          <p style="margin-top:16px;font-size:11px;color:var(--muted);">📌 完成形：YouTube広告収益 ＋ PDF販売 ＋ LINEアップセルの多重収益構造</p>
+          <div class="mc-cta">
+            <a class="btn-green" href="https://elevenlabs.io" target="_blank" rel="noopener sponsored">🎙 ElevenLabsで音声生成を始める</a>
+            <span class="mc-note">📌 完成形：YouTube広告＋PDF販売＋LINEアップセルの3重収益</span>
+          </div>
         </div>
       </div>
 
       <!-- TikTok -->
-      <div class="model-card" id="card-tt">
-        <div class="model-card-header" onclick="toggleCard('card-tt')">
-          <span class="model-icon">📱</span>
+      <div class="mc" id="mc-tt">
+        <div class="mc-hdr" onclick="toggleMc('mc-tt')">
+          <span class="mc-icon">📱</span>
           <h3>TikTokショート動画モデル</h3>
-          <span class="tag tag-tt">TikTok</span>
-          <span class="model-toggle">▼</span>
+          <span class="mc-tag tag-tt">TikTok</span>
+          <span class="mc-arrow">▼</span>
         </div>
-        <div class="model-body">
-          <div class="model-intro">
-            30〜60秒のショート動画をAIで週3〜5本量産。TikTokのバズ特性で短期間にフォロワーを増やし、
-            LINE登録・教材販売に誘導する。
-          </div>
+        <div class="mc-body">
+          <div class="mc-intro">30〜60秒を週3〜5本量産。バズ特性を活かして短期間でフォロワーを増やし、LINE登録・教材販売に繋げる。</div>
           <div class="steps">
-            <div class="step"><div class="step-num">1</div><div class="step-content"><strong>TikTokでバズるテーマを30個ChatGPTに出させる</strong><span class="arrow">→ 副業・ライフハック・心理学・雑学など30〜60秒完結型に限定</span></div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-content"><strong>選んだテーマで10本分のショート脚本を一括生成</strong><span class="arrow">→ 冒頭フック・共感・具体的方法・まとめの4構成で量産</span></div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-content"><strong>ElevenLabsでナレーション音声を生成</strong><span class="arrow">→ Veo3 / Midjourney Videoで背景映像も自動生成。CapCutで統合</span></div></div>
-            <div class="step"><div class="step-num">4</div><div class="step-content"><strong>タイトル・ハッシュタグを10パターンずつChatGPTに出させる</strong><span class="arrow">→ TikTokのアルゴリズムに最適化された投稿設定で拡散を狙う</span></div></div>
-            <div class="step"><div class="step-num">5</div><div class="step-content"><strong>プロフィールにLINE登録・無料PDF導線を設置</strong><span class="arrow">→ 「登録したくなるPDF特典アイデア」をChatGPTに5案出させて作成</span></div></div>
-            <div class="step"><div class="step-num">6</div><div class="step-content"><strong>LINEステップ7通で教育→購入誘導を自動化</strong><span class="arrow">→ 980〜2,980円の教材をLINE経由で販売＋アップセル設計</span></div></div>
-            <div class="step"><div class="step-num">7</div><div class="step-content"><strong>月間スケジュールをChatGPTでテンプレ化して量産継続</strong><span class="arrow">→ ストックが増えるほど自動でリストと収益が積み上がる</span></div></div>
+            <div class="step"><div class="sn">1</div><div class="sc"><strong>バズるテーマ30個＋10本分の脚本を一括生成</strong><span class="arr">→ 30〜60秒完結型。副業・心理学・ライフハックなど再生されやすいジャンルを選ぶ</span></div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><strong>ElevenLabs＋Veo3 / RunwayMLで映像を生成</strong><span class="arr">→ CapCutで字幕・BGMも自動生成して完成。顔出し・声出し完全不要</span></div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><strong>ハッシュタグ・タイトルを10パターン生成して投稿</strong><span class="arr">→ プロフィールにLINE登録・無料PDF導線を設置</span></div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><strong>LINEステップ7通で自動的に教材を販売</strong><span class="arr">→ 月間量産スケジュールをテンプレ化してストック動画が増え続ける</span></div></div>
           </div>
-          <p style="margin-top:16px;font-size:11px;color:var(--muted);">📌 完成形：フォロワー増加 → LINE登録 → 教材販売の自動収益ループ</p>
+          <div class="mc-cta">
+            <a class="btn-green" href="https://runwayml.com" target="_blank" rel="noopener sponsored">🎬 RunwayMLで動画生成を始める</a>
+            <span class="mc-note">📌 完成形：フォロワー増加→LINE登録→教材販売の自動ループ</span>
+          </div>
         </div>
       </div>
 
       <!-- デジタル商品 -->
-      <div class="model-card" id="card-dl">
-        <div class="model-card-header" onclick="toggleCard('card-dl')">
-          <span class="model-icon">📄</span>
+      <div class="mc" id="mc-dl">
+        <div class="mc-hdr" onclick="toggleMc('mc-dl')">
+          <span class="mc-icon">📄</span>
           <h3>デジタル商品販売モデル</h3>
-          <span class="tag tag-dl">note / BASE</span>
-          <span class="model-toggle">▼</span>
+          <span class="mc-tag tag-dl">note / BASE</span>
+          <span class="mc-arrow">▼</span>
         </div>
-        <div class="model-body">
-          <div class="model-intro">
-            ChatGPTがPDFの中身・販売文・投稿文・追加商品まで全部作る。
-            在庫ゼロ・返品なし・手間なしで商品棚を育てる初心者最適モデル。
-          </div>
+        <div class="mc-body">
+          <div class="mc-intro">ChatGPTがPDFの中身・販売文・投稿文・追加商品まで全生成。在庫ゼロ・返品なし・手間なしで商品棚を育てる。</div>
           <div class="steps">
-            <div class="step"><div class="step-num">1</div><div class="step-content"><strong>「初心者でも作れるデジタル商品50個」をChatGPTに出させる</strong><span class="arrow">→ PDF・テンプレ・チェックリスト・まとめ・ミニ教材から選ぶ</span></div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-content"><strong>「このテーマでPDF商品を完成形で作って」とChatGPTに指示</strong><span class="arrow">→ 構成・本文・表紙タイトル10案まで自動出力。Canvaでコピペするだけ</span></div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-content"><strong>note / BOOTHの販売ページ文をChatGPTに10パターン作らせる</strong><span class="arrow">→ 「初心者が買いたくなる言い回し」で販売ページが即完成</span></div></div>
-            <div class="step"><div class="step-num">4</div><div class="step-content"><strong>X投稿を共感・お役立ち・問題解決・保存推奨型で20本ずつ生成</strong><span class="arrow">→ 毎日1〜2投稿で固定ポストに誘導しながらポツポツ売れ始める</span></div></div>
-            <div class="step"><div class="step-num">5</div><div class="step-content"><strong>「次に欲しくなる関連商品3つ」をChatGPTに作らせて横展開</strong><span class="arrow">→ タイトル・内容・価格（980〜1,980円）・販売文までセットで生成</span></div></div>
-            <div class="step"><div class="step-num">6</div><div class="step-content"><strong>「月10万円まで伸ばす1ヶ月の行動計画」をChatGPTに作らせる</strong><span class="arrow">→ 週ごとにやることを具体化。商品数と投稿量が自然に増えていく</span></div></div>
+            <div class="step"><div class="sn">1</div><div class="sc"><strong>「初心者でも作れるデジタル商品50個」を生成</strong><span class="arr">→ PDFテンプレ・チェックリスト・まとめ・ミニ教材から選ぶ</span></div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><strong>「このテーマでPDF商品を完成形で作って」と指示</strong><span class="arr">→ 構成・本文・表紙タイトル10案まで自動出力。Canvaでコピペ→10〜20分で完成</span></div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><strong>note / BOOTHの販売ページ文を10パターン生成</strong><span class="arr">→ X投稿を共感・保存推奨型で20本生成して毎日1〜2投稿</span></div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><strong>「次に欲しくなる関連商品3つ」を横展開</strong><span class="arr">→ 商品棚が増えるほど放置で売れる仕組みが育つ</span></div></div>
           </div>
-          <p style="margin-top:16px;font-size:11px;color:var(--muted);">📌 完成形：商品数が増えるほど放置で売れる仕組みが育つ</p>
-        </div>
-      </div>
-
-      <!-- 無料プレゼント導線 -->
-      <div class="model-card" id="card-ln">
-        <div class="model-card-header" onclick="toggleCard('card-ln')">
-          <span class="model-icon">🎁</span>
-          <h3>無料プレゼント導線モデル</h3>
-          <span class="tag tag-ln">LINE / メルマガ</span>
-          <span class="model-toggle">▼</span>
-        </div>
-        <div class="model-body">
-          <div class="model-intro">
-            無料プレゼントでリストを集め、ステップ配信で教育→販売→アップセルまで全自動化。
-            リストが増えるほど勝手に売れる構造が強化される。
-          </div>
-          <div class="funnel">
-            <div class="funnel-step"><div class="funnel-num">1</div><div class="funnel-text"><strong>「欲しくなる無料プレゼント5個」をChatGPTに出させる</strong><span class="f-arrow">→ PDFテンプレ・AI活用法・スレネタ集など集客ネタをAIが提案</span></div></div>
-            <div class="funnel-step"><div class="funnel-num">2</div><div class="funnel-text"><strong>LP構成・紹介文をChatGPTに作らせる</strong><span class="f-arrow">→ 登録率の高い1枚ページが秒で完成</span></div></div>
-            <div class="funnel-step"><div class="funnel-num">3</div><div class="funnel-text"><strong>LINE / メルマガ登録後の自動返信文を生成</strong><span class="f-arrow">→ 最初の対応も全自動。信頼感と期待値を演出</span></div></div>
-            <div class="funnel-step"><div class="funnel-num">4</div><div class="funnel-text"><strong>5日間ステップ配信（教育→販売）をChatGPTが設計</strong><span class="f-arrow">→ 教育・ストーリー・価値提供・オファーまで全自動</span></div></div>
-            <div class="funnel-step"><div class="funnel-num">5</div><div class="funnel-text"><strong>商品もChatGPTが提案・作成・PDF化</strong><span class="f-arrow">→ 販売ページ（note／BASE）の文章もコピペで完成</span></div></div>
-            <div class="funnel-step"><div class="funnel-num">6</div><div class="funnel-text"><strong>SNS告知投稿10本をX・Instagram・ブログ向けにAIが最適化</strong><span class="f-arrow">→ 複数の流入口でリストが溜まり続ける状態が完成</span></div></div>
-            <div class="funnel-step"><div class="funnel-num">7</div><div class="funnel-text"><strong>登録者の反応をAIが分析→最適な改善案を提案</strong><span class="f-arrow">→ 教育の質もオファーも常にアップデートされる</span></div></div>
-            <div class="funnel-step"><div class="funnel-num">8</div><div class="funnel-text"><strong>別商品のオファーもリストに合わせてAIが提案</strong><span class="f-arrow">→ 商品を変えても仕組みはそのまま使える2重利益構造が完成</span></div></div>
+          <div class="mc-cta">
+            <a class="btn-green" href="https://www.canva.com/ja_jp/pro/" target="_blank" rel="noopener sponsored">✏️ Canvaでデザインを始める</a>
+            <span class="mc-note">📌 完成形：在庫ゼロ・手間ゼロで商品棚が自動で収益を生む</span>
           </div>
         </div>
       </div>
 
-      <!-- 古いコンテンツ再販 -->
-      <div class="model-card" id="card-rc">
-        <div class="model-card-header" onclick="toggleCard('card-rc')">
-          <span class="model-icon">♻️</span>
+      <!-- LINE導線 -->
+      <div class="mc" id="mc-ln">
+        <div class="mc-hdr" onclick="toggleMc('mc-ln')">
+          <span class="mc-icon">🎁</span>
+          <h3>無料プレゼント→LINE導線モデル</h3>
+          <span class="mc-tag tag-ln">LINE / メルマガ</span>
+          <span class="mc-arrow">▼</span>
+        </div>
+        <div class="mc-body">
+          <div class="mc-intro">無料プレゼントでリストを集め、ステップ配信で教育→販売→アップセルまで全自動化。リストが増えるほど収益が加速する。</div>
+          <div class="steps">
+            <div class="step"><div class="sn">1</div><div class="sc"><strong>「欲しくなる無料プレゼント5個」を生成</strong><span class="arr">→ PDFテンプレ・AI活用法・スレネタ集など配るだけで人が集まるネタ</span></div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><strong>LP構成・紹介文・自動返信文をAIが生成</strong><span class="arr">→ 登録率の高い1枚ページが秒で完成。最初の対応も全自動</span></div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><strong>5日間ステップ配信（教育→販売）をAIが設計</strong><span class="arr">→ 教育・ストーリー・価値提供・オファーまで全部AIが書く</span></div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><strong>商品もAIが提案・作成・PDF化して販売</strong><span class="arr">→ SNS告知投稿10本もAIが最適化。複数流入口でリストが溜まり続ける</span></div></div>
+            <div class="step"><div class="sn">5</div><div class="sc"><strong>全体を「自動で回るリスト収益テンプレ」としてPDF化して再販</strong><span class="arr">→ 仕組み自体を商品にすることで2重利益が完成</span></div></div>
+          </div>
+          <div class="mc-cta">
+            <a class="btn-gold" href="#final-cta">🎁 まず無料PDFで試す</a>
+            <span class="mc-note">📌 完成形：リストが増えるほど勝手に売れる構造が強化される</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 古コンテンツ再販 -->
+      <div class="mc" id="mc-rc">
+        <div class="mc-hdr" onclick="toggleMc('mc-rc')">
+          <span class="mc-icon">♻️</span>
           <h3>古いコンテンツ再販モデル</h3>
-          <span class="tag tag-rc">リブランディング</span>
-          <span class="model-toggle">▼</span>
+          <span class="mc-tag tag-rc">リブランディング</span>
+          <span class="mc-arrow">▼</span>
         </div>
-        <div class="model-body">
-          <div class="model-intro">
-            「質は高いけど売れていない昔のコンテンツ」をAIで現代向けにアップデートして再販。
-            自分のスキルは不要。AIが改善点・構成・販売戦略まで出してくれる。
-          </div>
+        <div class="mc-body">
+          <div class="mc-intro">「質は高いが売れていない昔のコンテンツ」をAIで現代向けにアップデートして再販。自分のスキル不要。</div>
           <div class="steps">
-            <div class="step"><div class="step-num">1</div><div class="step-content"><strong>売れなかったコンテンツを持つ発信者を探す</strong><span class="arrow">→ note書き・講座主催者・ブロガーなど「昔の資産」がある人に声をかける</span></div></div>
-            <div class="step"><div class="step-num">2</div><div class="step-content"><strong>「売れなかった理由を10個分析して」とChatGPTに聞く</strong><span class="arrow">→ 時代感・構成・言語・訴求のズレを洗い出す</span></div></div>
-            <div class="step"><div class="step-num">3</div><div class="step-content"><strong>「構成・タイトル・訴求・販売導線を現代版にアップデートして」と指示</strong><span class="arrow">→ リブランディングされた商品をnote／PDF／講座として再パッケージ</span></div></div>
-            <div class="step"><div class="step-num">4</div><div class="step-content"><strong>X販売投稿20本をChatGPTで生成</strong><span class="arrow">→ 過去実績・共感ストーリー・今こそ再注目の流れで構成</span></div></div>
-            <div class="step"><div class="step-num">5</div><div class="step-content"><strong>「リブランディングプロデュースサービス」として自分の商品にする</strong><span class="arrow">→ 「他人の古いコンテンツを再構成して売る」テンプレPDFも販売できる</span></div></div>
+            <div class="step"><div class="sn">1</div><div class="sc"><strong>売れなかったコンテンツを持つ発信者に声をかける</strong><span class="arr">→ note書き・講座主催者・ブロガーの「昔の資産」を借りる</span></div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><strong>「売れなかった理由を10個分析して」とChatGPTに聞く</strong><span class="arr">→ 時代感・構成・訴求のズレを洗い出し、現代版にアップデート</span></div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><strong>リブランディング商品をnote／PDFで再パッケージ・販売</strong><span class="arr">→ X販売投稿20本もChatGPTが生成。「過去実績の復活」訴求で拡散</span></div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><strong>「過去コンテンツ再販プロデュースサービス」として自分を商品化</strong><span class="arr">→ テンプレPDFを作って「再構成サービス」自体を売ることも可能</span></div></div>
           </div>
-          <p style="margin-top:16px;font-size:11px;color:var(--muted);">📌 完成形：0から作らず「あるものを復活させて売る」AI収益モデル</p>
+          <div class="mc-cta">
+            <a class="btn-green" href="https://chat.openai.com" target="_blank" rel="noopener sponsored">🤖 ChatGPTで分析を始める</a>
+            <span class="mc-note">📌 完成形：0から作らず「あるものを復活させて売る」低コスト収益</span>
+          </div>
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- 成功事例 -->
+  <!-- ── Case studies ── -->
   <section id="cases">
-    <div class="sec-label">CASE STUDIES</div>
-    <div class="sec-title">実際の成功事例</div>
-    <p class="sec-desc">AI活用で収益化した実例。いずれも初期費用ほぼゼロ・スキル不要から始まった。</p>
+    <div class="sec-eyebrow">CASE STUDIES</div>
+    <div class="sec-title">AIで収益化した7つの実例</div>
+    <p class="sec-desc">いずれも初期費用ほぼゼロ・スキル不要からスタートした実話。</p>
     <div class="case-grid">
       <div class="case-card">
-        <div class="case-revenue">累計1.5億円</div>
-        <div class="case-tag">🎁 オンラインプレゼント交換サービス</div>
-        <p>会社員夫婦が職場イベント中止をきっかけに開始。ChatGPTで過去ギフトデータを分析しAIギフト提案機能を追加、累計35万人超が利用。夫婦でフルタイム運営する事業に成長。</p>
+        <div class="cr">累計1.5億円</div>
+        <div class="ct">🎁 オンラインプレゼント交換</div>
+        <p>会社員夫婦がChatGPTでギフト提案AIを追加。累計35万人超が利用。夫婦でフルタイム運営に。</p>
       </div>
       <div class="case-card">
-        <div class="case-revenue">初年度5,000万円</div>
-        <div class="case-tag">🍓 高たんぱく・低糖質機能性ジャム</div>
-        <p>会社員夫婦がChatGPTでShopify構築・商品説明文・戦略を高速化。日商15万円を安定して超え、AI活用食品副業の代表例として海外メディアに掲載。</p>
+        <div class="cr">初年度5,000万円</div>
+        <div class="ct">🍓 機能性ジャムEC</div>
+        <p>会社員夫婦がChatGPTでShopify構築・販売戦略を高速化。日商15万円を安定して超え海外メディアに掲載。</p>
       </div>
       <div class="case-card">
-        <div class="case-revenue">利益6,000万円/年</div>
-        <div class="case-tag">📚 AI電子書籍出版</div>
-        <p>20歳の大学生がChatGPTで電子書籍を大量生産。Pinterestの主婦層にニッチ広告を集中させ、1年で売上1.5億円・利益6,000万円を達成。</p>
+        <div class="cr">利益6,000万円/年</div>
+        <div class="ct">📚 AI電子書籍出版</div>
+        <p>20歳大学生がChatGPTで電子書籍を量産。Pinterest主婦層に集中広告。1年で売上1.5億円達成。</p>
       </div>
       <div class="case-card">
-        <div class="case-revenue">Reuters掲載</div>
-        <div class="case-tag">📖 AI絵本出版（Amazon）</div>
-        <p>NYの営業マンがAIに文章・挿絵を生成させ数時間で児童向け絵本を完成・出版。「会社員でもAIで出版できる」象徴事例としてReutersに掲載。</p>
+        <div class="cr">Reuters掲載</div>
+        <div class="ct">📖 AI絵本（Amazon出版）</div>
+        <p>NY営業マンがAIで絵本を数時間で完成しAmazonで出版。「会社員でもAIで出版」事例としてReutersに掲載。</p>
       </div>
       <div class="case-card">
-        <div class="case-revenue">初週1,000万円</div>
-        <div class="case-tag">🤖 AIアバターチャットサービス</div>
-        <p>フォロワー180万人のインフルエンサーが音声・動画データをAIに学習させ、Telegramで音声チャットサービスを開始。リリース初週で約1,000人が課金。</p>
+        <div class="cr">初週1,000万円</div>
+        <div class="ct">🤖 AIアバターチャット</div>
+        <p>フォロワー180万人のインフルエンサーが自分をAI化。Telegramで音声チャットを有料提供、初週1,000人課金。</p>
       </div>
       <div class="case-card">
-        <div class="case-revenue">73日間350万円</div>
-        <div class="case-tag">👕 AIデザインTシャツ販売</div>
-        <p>個人クリエイターがChatGPTでコピー、Stable Diffusionでデザイン生成、Canvaで仕上げてShopify出品。広告費ゼロ・在庫ゼロで開始1週間11万円、73日間350万円を達成。</p>
+        <div class="cr">73日間350万円</div>
+        <div class="ct">👕 AIデザインTシャツ</div>
+        <p>個人がChatGPT×Stable Diffusionでデザイン生成→Shopify出品。広告費ゼロ・在庫ゼロで開始1週間11万円。</p>
       </div>
       <div class="case-card">
-        <div class="case-revenue">年商45億円</div>
-        <div class="case-tag">🍽 食事カロリーAIアプリ「Cal AI」</div>
-        <p>高校生が「食事写真を撮るだけでカロリー計算」するAIアプリを開発。約1.5年で年商45億円・従業員30名のスタートアップに成長。Business Insiderで特集。</p>
+        <div class="cr">年商45億円</div>
+        <div class="ct">🍽 食事AIアプリ「Cal AI」</div>
+        <p>高校生が食事写真→カロリー自動計算アプリを開発。約1.5年で年商45億円・従業員30名のスタートアップに成長。</p>
       </div>
     </div>
   </section>
 
-  <!-- AIツール一覧 -->
-  <section id="tools">
-    <div class="sec-label">AI TOOLS</div>
-    <div class="sec-title">使うべきAIツール</div>
-    <p class="sec-desc">有料版で機能が一気に開放される主要ツール。まず1つ契約するだけで収益化速度が変わる。</p>
-    <div class="tools-grid">
-      <a class="tool-card" href="https://chat.openai.com" target="_blank" rel="noopener">
-        <span class="tool-icon">🤖</span>
-        <span class="tool-name">ChatGPT Plus</span>
-        <span class="tool-use">脚本・販売文・構成・分析の万能AI</span>
-        <span class="tool-price">$20/月〜</span>
-        <span class="aff-badge">※ リンクをアフィリに差し替え可</span>
+  <!-- AdSense 3 -->
+  <div class="ad-slot">
+    <ins class="adsbygoogle"
+         style="display:block;width:100%;min-height:90px;"
+         data-ad-client="ca-pub-3016615146886765"
+         data-ad-slot="auto"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+  <!-- ── Amazon books ── -->
+  <section id="books">
+    <div class="sec-eyebrow">AMAZON — おすすめ書籍</div>
+    <div class="sec-title">AI副業を加速する本</div>
+    <p class="sec-desc">実践書を1冊読むだけで収益化の解像度が変わる。</p>
+    <div class="amzn-grid">
+      <a class="amzn-card" href="https://www.amazon.co.jp/s?k=ChatGPT+副業+稼ぐ&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+        <span class="ac-icon">🤖</span>
+        <span class="ac-name">ChatGPT副業で稼ぐ本</span>
+        <span class="ac-stars">★★★★★</span>
+        <span class="ac-btn">Amazonで見る →</span>
       </a>
-      <a class="tool-card" href="https://www.midjourney.com" target="_blank" rel="noopener">
-        <span class="tool-icon">🎨</span>
-        <span class="tool-name">Midjourney</span>
-        <span class="tool-use">高品質画像生成。LP・SNS・EC用バナー</span>
-        <span class="tool-price">$10/月〜</span>
-        <span class="aff-badge">※ リンクをアフィリに差し替え可</span>
+      <a class="amzn-card" href="https://www.amazon.co.jp/s?k=AI+ビジネス+活用+2024&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+        <span class="ac-icon">💼</span>
+        <span class="ac-name">AIビジネス活用の教科書</span>
+        <span class="ac-stars">★★★★☆</span>
+        <span class="ac-btn">Amazonで見る →</span>
       </a>
-      <a class="tool-card" href="https://elevenlabs.io" target="_blank" rel="noopener">
-        <span class="tool-icon">🎙</span>
-        <span class="tool-name">ElevenLabs</span>
-        <span class="tool-use">自然なAI音声。顔出し不要のナレーション</span>
-        <span class="tool-price">$5/月〜</span>
-        <span class="aff-badge">※ リンクをアフィリに差し替え可</span>
+      <a class="amzn-card" href="https://www.amazon.co.jp/s?k=プロンプトエンジニアリング+書籍&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+        <span class="ac-icon">✍️</span>
+        <span class="ac-name">プロンプトエンジニアリング入門</span>
+        <span class="ac-stars">★★★★★</span>
+        <span class="ac-btn">Amazonで見る →</span>
       </a>
-      <a class="tool-card" href="https://runwayml.com" target="_blank" rel="noopener">
-        <span class="tool-icon">🎬</span>
-        <span class="tool-name">RunwayML</span>
-        <span class="tool-use">テキストから動画生成。YouTube・TikTok映像</span>
-        <span class="tool-price">$15/月〜</span>
-        <span class="aff-badge">※ リンクをアフィリに差し替え可</span>
-      </a>
-      <a class="tool-card" href="https://www.canva.com" target="_blank" rel="noopener">
-        <span class="tool-icon">✏️</span>
-        <span class="tool-name">Canva Pro</span>
-        <span class="tool-use">AI画像生成＋テンプレ。PDF・SNS素材を量産</span>
-        <span class="tool-price">¥1,500/月〜</span>
-        <span class="aff-badge">※ リンクをアフィリに差し替え可</span>
-      </a>
-      <a class="tool-card" href="https://www.heygen.com" target="_blank" rel="noopener">
-        <span class="tool-icon">🧑‍💻</span>
-        <span class="tool-name">HeyGen</span>
-        <span class="tool-use">AIアバター動画。顔出し不要の商品説明動画</span>
-        <span class="tool-price">$29/月〜</span>
-        <span class="aff-badge">※ リンクをアフィリに差し替え可</span>
-      </a>
-      <a class="tool-card" href="https://www.perplexity.ai" target="_blank" rel="noopener">
-        <span class="tool-icon">🔍</span>
-        <span class="tool-name">Perplexity Pro</span>
-        <span class="tool-use">AI検索。SEOリサーチ・業界動向把握が5分で完了</span>
-        <span class="tool-price">$20/月〜</span>
-        <span class="aff-badge">※ リンクをアフィリに差し替え可</span>
-      </a>
-      <a class="tool-card" href="https://claude.ai" target="_blank" rel="noopener">
-        <span class="tool-icon">💡</span>
-        <span class="tool-name">Claude Pro</span>
-        <span class="tool-use">長文処理。マニュアル・仕様書・原稿の要約・編集</span>
-        <span class="tool-price">$20/月〜</span>
-        <span class="aff-badge">※ リンクをアフィリに差し替え可</span>
+      <a class="amzn-card" href="https://www.amazon.co.jp/s?k=SNS+マーケティング+副業&tag=vimman-22-22" target="_blank" rel="noopener sponsored">
+        <span class="ac-icon">📱</span>
+        <span class="ac-name">SNSマーケティング副業</span>
+        <span class="ac-stars">★★★★☆</span>
+        <span class="ac-btn">Amazonで見る →</span>
       </a>
     </div>
-    <p style="margin-top:16px;font-size:11px;color:var(--muted);">
-      ※ 各ツールのアフィリエイトリンクに差し替えることで、ページ閲覧からも収益が発生します。
-    </p>
   </section>
 
-  <!-- セールストーク -->
-  <section id="am-sales">
-    <div class="sec-label">WHY NOW</div>
-    <div class="sec-title">なぜ今、AIで稼ぐのか</div>
+  <!-- ── Sales copy ── -->
+  <section id="why">
+    <div class="sec-eyebrow">WHY NOW</div>
+    <div class="sec-title">なぜ今すぐ始めるべきか</div>
     <ul class="sales-list">
-      <li>「AI副業？難しそう…」と思った瞬間、月10万円のチャンスを自ら捨てている</li>
-      <li>ChatGPTとXのアカウントがあれば、スキルゼロでも今日から始められる</li>
+      <li>「AI副業？難しそう…」と思った瞬間、月10万円のチャンスを自ら手放している</li>
+      <li>ChatGPTとXがあれば、スキルゼロでも今日から収益化を開始できる</li>
       <li>副業で最速に稼げるのはプログラミングでも動画編集でもない。AI×コンテンツが最強</li>
       <li>「発信ネタが思いつかない」という悩みはAIで秒速解決。投稿が止まる心配ゼロ</li>
-      <li>商品はすべてデジタル。在庫ゼロ・返品なし・手間なしで収益が積み上がる</li>
-      <li>ライバルが「何を発信すれば…」と迷っている間に、AIで自動マネタイズできる</li>
+      <li>商品はすべてデジタル。在庫ゼロ・返品なし・初期費用ほぼゼロで収益が積み上がる</li>
+      <li>ライバルが迷っている間に、あなたはAIで自動マネタイズの仕組みを完成させられる</li>
       <li>やるか、やらないか。行動した人だけが副業で月10万円以上の未来を手にしている</li>
     </ul>
   </section>
 
-  <!-- CTA -->
-  <section id="am-cta" style="border-bottom:none;">
-    <h2>まず1歩、動いてみよう</h2>
-    <p class="cta-sub">
-      無料PDFプレゼント中。LINE登録でAI副業スターターガイドを今すぐ受け取る。<br>
-      <span style="font-size:11px;color:#3a5a7a;">※ LINE登録リンク・note販売リンクをここに設置してください</span>
+  <!-- ── Final CTA ── -->
+  <section id="final-cta" style="border-top:1px solid var(--border);text-align:center;padding:56px 0;">
+    <h2 style="font-size:clamp(22px,5vw,38px);font-weight:900;margin-bottom:10px;
+      background:linear-gradient(135deg,#ffcc00,#ff8844);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+      今すぐ1歩、動いてみよう
+    </h2>
+    <p style="color:var(--muted);margin-bottom:28px;font-size:14px;">
+      無料PDFを受け取って、AI副業の全体像を5日間で学ぶ。<br>
+      登録は30秒。解除はいつでも可能。
     </p>
-    <div class="cta-buttons">
-      <!-- ★ href を LINE登録リンクに差し替えてください -->
-      <a href="#" class="btn-gold" onclick="alert('LINE登録リンクをここに設定してください')">
-        🎁 無料PDFをLINEで受け取る
+    <div class="final-btns">
+      <!-- ★ LINEリンクをここに設定してください -->
+      <a class="btn-gold" href="#" onclick="alert('LINE登録リンクをここに設定してください')">
+        🎁 LINE登録で無料PDFを受け取る
       </a>
-      <!-- ★ href を note記事リンクに差し替えてください -->
-      <a href="#" class="btn-primary" onclick="alert('noteリンクをここに設定してください')">
-        📄 noteで詳細を読む →
+      <!-- ★ noteリンクをここに設定してください -->
+      <a class="btn-blue" href="#" onclick="alert('noteリンクをここに設定してください')">
+        📄 noteで詳細記事を読む →
       </a>
     </div>
+    <p style="font-size:11px;color:#2a4060;margin-top:16px;">
+      ※ LINE登録・note購入リンクをここに設定してください
+    </p>
   </section>
 
-</div><!-- end am-wrap -->
+</div><!-- end wrap -->
+
+<!-- Floating bottom CTA -->
+<div id="float-cta">
+  <span class="fc-text">🎁 <span>無料PDF</span> プレゼント中 — AI副業スターターガイド</span>
+  <!-- ★ LINEリンクをここに設定 -->
+  <a class="btn-gold" href="#" style="font-size:12px;padding:9px 20px;" onclick="alert('LINE登録リンクをここに設定してください')">LINEで受け取る →</a>
+  <button id="float-close" onclick="this.parentElement.style.display='none'">✕</button>
+</div>
 
 <a href="#" id="back-top" title="トップへ">↑</a>
 
 <script>
-  function toggleCard(id) {
-    const card = document.getElementById(id);
-    card.classList.toggle('open');
+  function toggleMc(id) {
+    document.getElementById(id).classList.toggle('open');
   }
-  // Back to top
   document.getElementById('back-top').addEventListener('click', function(e) {
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 </script>
-
 </body>
 </html>
