@@ -385,9 +385,85 @@
       transition: all 0.15s;
     }
     .refresh-btn:hover { background: rgba(68,255,136,0.16); }
+  /* ── Admin PIN overlay ── */
+  #admin-pin-overlay {
+    position: fixed; inset: 0;
+    background: #060610;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  #admin-pin-box {
+    background: rgba(14,14,32,0.95);
+    border: 1px solid rgba(85,153,255,0.35);
+    border-radius: 16px;
+    padding: 36px 32px;
+    width: 100%; max-width: 400px;
+    box-shadow: 0 0 40px rgba(85,153,255,0.12);
+  }
+  #admin-pin-box h2 {
+    font-size: 16px; letter-spacing: 3px;
+    background: linear-gradient(135deg,#5599ff,#44ff88);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 6px;
+  }
+  #admin-pin-box p { font-size: 11px; color: #5577aa; margin-bottom: 24px; letter-spacing: 1px; }
+  #admin-pin-input {
+    width: 100%; padding: 12px 14px;
+    background: rgba(10,15,40,0.9);
+    border: 1px solid rgba(85,153,255,0.3);
+    border-radius: 8px; color: #ddeeff;
+    font-family: inherit; font-size: 16px; outline: none;
+    margin-bottom: 12px;
+    letter-spacing: 3px;
+  }
+  #admin-pin-input:focus { border-color: #5599ff; box-shadow: 0 0 0 3px rgba(85,153,255,0.15); }
+  #admin-pin-err { font-size: 11px; color: #ff6677; margin-bottom: 10px; min-height: 16px; }
+  #admin-pin-submit {
+    width: 100%; padding: 12px;
+    background: linear-gradient(135deg,#1a4aaa,#5599ff);
+    border: none; border-radius: 8px;
+    color: #fff; font-family: inherit; font-size: 13px;
+    font-weight: bold; letter-spacing: 2px; cursor: pointer;
+  }
+  #admin-pin-submit:hover { opacity: 0.9; }
+  #admin-pin-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+  /* セットアップ用ハッシュ表示 */
+  #admin-hash-display {
+    background: rgba(68,255,136,0.07);
+    border: 1px solid rgba(68,255,136,0.3);
+    border-radius: 8px; padding: 12px; margin-top: 14px;
+    font-size: 10px; color: #44ff88; word-break: break-all; line-height: 1.7;
+    display: none;
+  }
+  #admin-hash-display strong { display: block; margin-bottom: 6px; font-size: 11px; }
+  #admin-copy-btn {
+    margin-top: 8px; padding: 6px 12px;
+    background: rgba(68,255,136,0.12);
+    border: 1px solid rgba(68,255,136,0.4);
+    border-radius: 6px; color: #44ff88;
+    font-family: inherit; font-size: 11px; cursor: pointer;
+  }
   </style>
 </head>
 <body>
+
+<!-- ── 管理者PIN認証オーバーレイ ── -->
+<div id="admin-pin-overlay">
+  <div id="admin-pin-box">
+    <h2>VIM ARCADE</h2>
+    <p id="admin-pin-label">ADMIN PIN</p>
+    <input type="password" id="admin-pin-input" placeholder="管理者PINを入力" maxlength="64" autocomplete="off">
+    <div id="admin-pin-err"></div>
+    <button id="admin-pin-submit">確認</button>
+    <!-- セットアップ時のみ表示 -->
+    <div id="admin-hash-display">
+      <strong>⬇ このハッシュをauth.jsの ADMIN_SECRET_HASH に貼り付けてください</strong>
+      <span id="admin-hash-val"></span>
+      <button id="admin-copy-btn" onclick="copyHash()">コピー</button>
+    </div>
+  </div>
+</div>
 
 <!-- Sidebar -->
 <aside class="sidebar">
@@ -603,24 +679,13 @@
 <script src="auth.js"></script>
 <script src="premium.js"></script>
 <script>
-  // ── Auth guard ─────────────────────────────────────────────────
+  // ── Auth guard (ログイン＋メール一致チェック) ──────────────────
   (function() {
     if (!window.GameAuth || !window.GameAuth.isLoggedIn()) {
-      location.replace('login.html');
-      return;
+      location.replace('login.html'); return;
     }
-    const me = window.GameAuth.getCurrentUser();
-    const ownerEmail = window.GameAuth.getOwnerEmail();
-    // isAdmin() はメール一致も含めてチェック済み
     if (!window.GameAuth.isAdmin()) {
-      // 具体的な理由は外部に漏らさない
-      location.replace('index.html');
-      return;
-    }
-    // 追加チェック: 実際のメールが一致しているか（isAdmin内でも確認済みだが念のため）
-    if (!me || me.email.toLowerCase() !== ownerEmail) {
-      location.replace('index.html');
-      return;
+      location.replace('index.html'); return;
     }
   })();
 
@@ -629,11 +694,88 @@
   let filterMode  = 'all';
   let noteTarget  = null;
 
-  // ── Init ──────────────────────────────────────────────────────
-  window.addEventListener('DOMContentLoaded', function() {
+  // ── Admin PIN overlay ──────────────────────────────────────────
+  // セッション内でPIN認証済みかチェック（sessionStorageに保存）
+  const ADMIN_PIN_SESSION_KEY = 'va_admin_verified';
+
+  function isSessionVerified() {
+    return sessionStorage.getItem(ADMIN_PIN_SESSION_KEY) === '1';
+  }
+
+  function showAdminContent() {
+    document.getElementById('admin-pin-overlay').style.display = 'none';
     const me = window.GameAuth.getCurrentUser();
     document.getElementById('admin-name').textContent = me ? me.username : '—';
     refreshAll();
+  }
+
+  function copyHash() {
+    const val = document.getElementById('admin-hash-val').textContent;
+    navigator.clipboard.writeText(val).then(() => {
+      document.getElementById('admin-copy-btn').textContent = 'コピー済！';
+      setTimeout(() => { document.getElementById('admin-copy-btn').textContent = 'コピー'; }, 2000);
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', async function() {
+    const overlay  = document.getElementById('admin-pin-overlay');
+    const input    = document.getElementById('admin-pin-input');
+    const errEl    = document.getElementById('admin-pin-err');
+    const submitBtn= document.getElementById('admin-pin-submit');
+    const labelEl  = document.getElementById('admin-pin-label');
+    const hashDisp = document.getElementById('admin-hash-display');
+    const hashVal  = document.getElementById('admin-hash-val');
+
+    // セッション内で既に認証済みならスキップ
+    if (isSessionVerified()) { showAdminContent(); return; }
+
+    const storedHash = window.GameAuth.getAdminSecretHash();
+
+    if (!storedHash) {
+      // ── セットアップモード ──────────────────────────────────────
+      // ADMIN_SECRET_HASHが未設定 → PINを決めてハッシュ生成
+      labelEl.textContent = 'ADMIN PIN — 初回セットアップ';
+      submitBtn.textContent = 'ハッシュを生成する';
+      input.placeholder = '新しい管理者PINを入力（自由に決めてください）';
+
+      submitBtn.addEventListener('click', async function() {
+        const pin = input.value.trim();
+        if (pin.length < 4) { errEl.textContent = '4文字以上のPINを入力してください'; return; }
+        submitBtn.disabled = true;
+        const hash = await window.GameAuth.hashAdminPin(pin);
+        hashVal.textContent = hash;
+        hashDisp.style.display = 'block';
+        errEl.textContent = '';
+        submitBtn.disabled = false;
+      });
+    } else {
+      // ── 通常認証モード ─────────────────────────────────────────
+      labelEl.textContent = 'ADMIN PIN';
+      submitBtn.textContent = '確認';
+
+      async function doVerify() {
+        const pin = input.value.trim();
+        if (!pin) { errEl.textContent = 'PINを入力してください'; return; }
+        submitBtn.disabled = true;
+        errEl.textContent = '';
+        const ok = await window.GameAuth.verifyAdminPin(pin);
+        submitBtn.disabled = false;
+        if (ok) {
+          sessionStorage.setItem(ADMIN_PIN_SESSION_KEY, '1');
+          showAdminContent();
+        } else {
+          errEl.textContent = 'PINが違います';
+          input.value = '';
+          input.focus();
+        }
+      }
+
+      submitBtn.addEventListener('click', doVerify);
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') doVerify();
+      });
+      input.focus();
+    }
   });
 
   function refreshAll() {

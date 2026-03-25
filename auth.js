@@ -3,9 +3,13 @@
 window.GameAuth = (function() {
   'use strict';
 
-  // ★★★ ここを自分のメールアドレスに変更してください ★★★
-  // このメールアドレスを持つアカウントだけが管理者になれます
-  const OWNER_EMAIL = 'your-email@example.com';
+  // ── 管理者設定 ─────────────────────────────────────────────────
+  // OWNER_EMAIL: このメールで登録したアカウントだけ isAdmin フラグが立つ
+  const OWNER_EMAIL = 'y02_popsfer_40@icloud.com';
+
+  // ADMIN_SECRET_HASH: 管理者PINのSHA-256ハッシュ（PIN本体はここに書かない）
+  // 初回は '' のまま → admin.html のセットアップ画面でハッシュを生成し、ここに貼り付ける
+  const ADMIN_SECRET_HASH = '';
 
   const KEY_USERS   = 'va_users';
   const KEY_SESSION = 'va_session';
@@ -66,7 +70,24 @@ window.GameAuth = (function() {
     const u = getCurrentUser();
     return u && u.isAdmin && u.email.toLowerCase() === OWNER_EMAIL;
   }
-  function getOwnerEmail() { return OWNER_EMAIL; }
+  function getOwnerEmail()      { return OWNER_EMAIL; }
+  function getAdminSecretHash() { return ADMIN_SECRET_HASH; }
+
+  // PIN文字列をSHA-256ハッシュ化して返す
+  async function hashAdminPin(pin) {
+    try {
+      const data = new TextEncoder().encode(pin + 'va_admin_2024');
+      const buf  = await crypto.subtle.digest('SHA-256', data);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    } catch(e) { return ''; }
+  }
+
+  // 入力されたPINがADMIN_SECRET_HASHと一致するか検証
+  async function verifyAdminPin(pin) {
+    if (!ADMIN_SECRET_HASH) return false; // ハッシュ未設定は常に失敗
+    const h = await hashAdminPin(pin);
+    return h === ADMIN_SECRET_HASH;
+  }
 
   async function register(username, email, password) {
     username = (username || '').trim();
@@ -240,7 +261,8 @@ window.GameAuth = (function() {
 
   return {
     register, login, logout,
-    getCurrentUser, isLoggedIn, isAdmin, getOwnerEmail,
+    getCurrentUser, isLoggedIn, isAdmin,
+    getOwnerEmail, getAdminSecretHash, hashAdminPin, verifyAdminPin,
     saveGameData, loadGameData,
     getAllUsers, banUser, deleteUser, promoteUser, setUserNote, getStats,
   };
