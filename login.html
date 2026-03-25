@@ -614,7 +614,10 @@
     if (!res.ok) { showErr('login', res.error); return; }
 
     showOk('login');
-    setTimeout(() => { location.href = 'index.html'; }, 800);
+    setTimeout(() => {
+      const next = new URLSearchParams(location.search).get('next');
+      location.href = (next && /^[a-zA-Z0-9_\-]+\.html$/.test(next)) ? next : 'index.html';
+    }, 800);
   }
 
   // ── Register ──────────────────────────────────────────────────

@@ -19,7 +19,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 6px;
+  gap: 13px;   /* 8 * 1.618 ≈ 13 (黄金比) */
   width: 100%;
   max-width: 1800px;
   padding: 0 10px;
@@ -292,7 +292,7 @@ body {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 14px;
+  gap: 21px;         /* 13 * 1.618 ≈ 21 (黄金比) */
   width: 100%;
   box-sizing: border-box;
 }
@@ -300,18 +300,19 @@ body {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 8px;
-  flex: 1 1 auto;
-  min-width: 400px; /* never shrink below a reasonable game width */
+  gap: 13px;
+  flex: 61.8 1 0;    /* 黄金比 61.8% */
+  min-width: 320px;
+  max-width: 860px;
 }
 #side-panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  flex: 0 0 400px;
-  width: 400px;
-  max-width: 400px;
-  overflow: hidden; /* prevent content from expanding the panel */
+  gap: 13px;
+  flex: 38.2 1 0;    /* 黄金比 38.2% */
+  min-width: 280px;
+  max-width: 520px;
+  overflow: hidden;
 }
 /* Mobile: side panel hidden, game column full width */
 @media (max-width: 1200px) {
@@ -1614,38 +1615,69 @@ body {
 /* ── Site footer ── */
 #site-footer {
   width: 100%;
-  border-top: 1px solid #112233;
-  padding: 12px 0 8px;
-  margin-top: 4px;
+  border-top: 1px solid rgba(85,153,255,0.12);
+  padding: 32px 24px 20px;   /* 黄金比: 32 / 20 ≈ 1.618 */
+  margin-top: 8px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,4,20,0.6) 100%);
 }
 .footer-inner {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 0 12px;
-  max-width: 1800px;
+  gap: 28px;                 /* 黄金比 gap */
+  max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
 }
-.footer-left { display: flex; flex-direction: column; gap: 3px; }
-.footer-brand { font-size: 12px; font-weight: bold; color: #ffdd44; letter-spacing: 1px; }
-.footer-copy  { font-size: 10px; color: #334455; }
-.footer-links { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.footer-links a { font-size: 11px; color: #445566; text-decoration: none; }
-.footer-links a:hover { color: #88aaff; }
-.footer-support-btn {
-  background: rgba(80,20,40,0.6);
-  border: 1px solid #662244;
-  color: #ffaacc;
-  font-family: monospace;
-  font-size: 11px;
-  padding: 4px 10px;
-  border-radius: 3px;
-  cursor: pointer;
+/* ブランドブロック: 幅を黄金比 38.2% 相当 */
+.footer-brand-block {
+  display: flex; flex-direction: column; gap: 5px;
+  max-width: 320px;
 }
-.footer-support-btn:hover { background: rgba(150,40,80,0.6); color: #ffd0e0; }
+.footer-brand {
+  font-size: 16px; font-weight: 900; letter-spacing: 4px;
+  background: linear-gradient(135deg, #5599ff, #44ff88, #ffcc00);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.footer-tagline { font-size: 11px; color: #4a6080; letter-spacing: 1px; }
+.footer-copy    { font-size: 10px; color: #2a3a4a; margin-top: 3px; }
+
+/* ナビグループ: 3列 */
+.footer-nav {
+  display: flex; gap: 40px; flex-wrap: wrap;
+}
+.footer-nav-group {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.footer-nav-label {
+  font-size: 9px; letter-spacing: 3px; color: #4a6a8a;
+  font-weight: 700; margin-bottom: 4px;
+}
+.footer-nav-group a {
+  font-size: 12px; color: #5a7a9a; text-decoration: none;
+  transition: color 0.15s;
+}
+.footer-nav-group a:hover { color: #88aaff; }
+.footer-link-btn {
+  background: none; border: none; padding: 0;
+  font-family: monospace; font-size: 12px; color: #5a7a9a;
+  cursor: pointer; text-align: left;
+  transition: color 0.15s;
+}
+.footer-link-btn:hover { color: #88aaff; }
+
+/* ボトムバー */
+.footer-bottom-bar {
+  max-width: 1200px; margin: 24px auto 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(85,153,255,0.07);
+  font-size: 10px; color: #2a3a4a;
+  display: flex; gap: 10px; align-items: center;
+  flex-wrap: wrap;
+}
+.footer-sep { color: #1a2a3a; }
 
 /* ── Vim reference section ── */
 #vim-reference {
@@ -2031,7 +2063,11 @@ body {
   .support-options { gap: 8px; }
   .support-tier { width: 110px; padding: 10px 8px; }
 
-  .footer-inner { flex-direction: column; align-items: center; text-align: center; }
+  .footer-inner { flex-direction: column; gap: 20px; }
+  .footer-nav { gap: 20px; }
+  .footer-nav-group { flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .footer-nav-label { margin-bottom: 0; min-width: 60px; }
+  .footer-bottom-bar { justify-content: center; text-align: center; }
 
   #vim-reference { border-radius: 0; border-left: none; border-right: none; }
   .vr-section { flex: 1 1 140px; min-width: 130px; }

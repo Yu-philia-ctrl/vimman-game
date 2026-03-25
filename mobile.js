@@ -137,17 +137,61 @@
     });
   }
 
-  // ── Privacy / Terms stubs ─────────────────────────────────────
+  // ── Privacy / Terms モーダル ───────────────────────────────────
+  function showLegalModal(title, html) {
+    const modal = document.getElementById('legal-modal');
+    if (!modal) return;
+    document.getElementById('legal-modal-title').textContent = title;
+    document.getElementById('legal-modal-body').innerHTML = html;
+    modal.style.display = 'flex';
+    modal.addEventListener('click', function handler(e) {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        modal.removeEventListener('click', handler);
+      }
+    });
+  }
+
   function initFooterLinks() {
     const privacy = document.getElementById('footer-privacy');
     const terms   = document.getElementById('footer-terms');
+    const PRIVACY_HTML = `
+      <p style="margin-bottom:12px;">VIM ARCADE（以下「本サービス」）は、ユーザーのプライバシーを尊重します。</p>
+      <p style="font-weight:700;color:#5599ff;margin:10px 0 4px;">収集するデータ</p>
+      <ul style="padding-left:18px;line-height:2;">
+        <li>ゲームプレイデータ（進行状況・スコア）— ブラウザの localStorage に保存</li>
+        <li>広告配信のため Google AdSense を使用（Cookie を利用する場合があります）</li>
+      </ul>
+      <p style="font-weight:700;color:#5599ff;margin:10px 0 4px;">収集しないデータ</p>
+      <ul style="padding-left:18px;line-height:2;">
+        <li>氏名・住所などの個人を特定できる情報</li>
+        <li>クレジットカード情報</li>
+      </ul>
+      <p style="font-weight:700;color:#5599ff;margin:10px 0 4px;">第三者への提供</p>
+      <p>収集したデータを第三者に販売・提供することはありません。</p>
+      <p style="margin-top:12px;color:#446688;">お問い合わせ: <a href="mailto:contact@vimarcade.dev" style="color:#88aaff;">contact@vimarcade.dev</a></p>`;
+    const TERMS_HTML = `
+      <p style="margin-bottom:12px;">VIM ARCADE をご利用いただく前に、以下の利用規約をお読みください。</p>
+      <p style="font-weight:700;color:#5599ff;margin:10px 0 4px;">利用許可</p>
+      <ul style="padding-left:18px;line-height:2;">
+        <li>個人・教育目的での無料利用を許可します</li>
+        <li>著作権表示を維持する範囲での非商業的な共有を許可します</li>
+      </ul>
+      <p style="font-weight:700;color:#5599ff;margin:10px 0 4px;">禁止事項</p>
+      <ul style="padding-left:18px;line-height:2;">
+        <li>商業利用・再配布</li>
+        <li>リバースエンジニアリング</li>
+        <li>不正アクセス・サーバー攻撃</li>
+      </ul>
+      <p style="font-weight:700;color:#5599ff;margin:10px 0 4px;">免責事項</p>
+      <p>サービスは予告なく変更・終了する場合があります。本サービスの利用により生じた損害について、開発者は責任を負いません。</p>`;
     if (privacy) privacy.addEventListener('click', function(e) {
       e.preventDefault();
-      alert('プライバシーポリシー\n\nVIM ARCADEはゲームプレイデータ（進行状況）をlocalStorageに保存します。個人情報は収集しません。広告配信のためにGoogle AdSenseを使用する場合があります。');
+      showLegalModal('🔒 プライバシーポリシー', PRIVACY_HTML);
     });
     if (terms) terms.addEventListener('click', function(e) {
       e.preventDefault();
-      alert('利用規約\n\nVIM ARCADEは個人・教育目的での無料利用を許可します。商業利用・再配布は禁止します。サービスは予告なく変更・終了する場合があります。');
+      showLegalModal('📋 利用規約', TERMS_HTML);
     });
   }
 
