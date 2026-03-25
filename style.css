@@ -1616,68 +1616,98 @@ body {
 #site-footer {
   width: 100%;
   border-top: 1px solid rgba(85,153,255,0.12);
-  padding: 32px 24px 20px;   /* 黄金比: 32 / 20 ≈ 1.618 */
+  padding: 20px 24px;
   margin-top: 8px;
   background: linear-gradient(180deg, transparent 0%, rgba(0,4,20,0.6) 100%);
 }
 .footer-inner {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 28px;                 /* 黄金比 gap */
-  max-width: 1200px;
+  gap: 16px 32px;
+  max-width: 860px;
   margin: 0 auto;
   box-sizing: border-box;
 }
-/* ブランドブロック: 幅を黄金比 38.2% 相当 */
-.footer-brand-block {
-  display: flex; flex-direction: column; gap: 5px;
-  max-width: 320px;
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 .footer-brand {
-  font-size: 16px; font-weight: 900; letter-spacing: 4px;
+  font-size: 14px; font-weight: 900; letter-spacing: 4px;
   background: linear-gradient(135deg, #5599ff, #44ff88, #ffcc00);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.footer-tagline { font-size: 11px; color: #4a6080; letter-spacing: 1px; }
-.footer-copy    { font-size: 10px; color: #2a3a4a; margin-top: 3px; }
-
-/* ナビグループ: 3列 */
-.footer-nav {
-  display: flex; gap: 40px; flex-wrap: wrap;
+.footer-copy { font-size: 10px; color: #2a3a4a; }
+.footer-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
 }
-.footer-nav-group {
-  display: flex; flex-direction: column; gap: 8px;
-}
-.footer-nav-label {
-  font-size: 9px; letter-spacing: 3px; color: #4a6a8a;
-  font-weight: 700; margin-bottom: 4px;
-}
-.footer-nav-group a {
+.footer-links a {
   font-size: 12px; color: #5a7a9a; text-decoration: none;
   transition: color 0.15s;
 }
-.footer-nav-group a:hover { color: #88aaff; }
+.footer-links a:hover { color: #88aaff; }
 .footer-link-btn {
   background: none; border: none; padding: 0;
   font-family: monospace; font-size: 12px; color: #5a7a9a;
-  cursor: pointer; text-align: left;
+  cursor: pointer;
   transition: color 0.15s;
 }
 .footer-link-btn:hover { color: #88aaff; }
 
-/* ボトムバー */
-.footer-bottom-bar {
-  max-width: 1200px; margin: 24px auto 0;
-  padding-top: 12px;
-  border-top: 1px solid rgba(85,153,255,0.07);
-  font-size: 10px; color: #2a3a4a;
-  display: flex; gap: 10px; align-items: center;
-  flex-wrap: wrap;
+/* ── Legal modal ── */
+.legal-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,20,0.88);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
 }
-.footer-sep { color: #1a2a3a; }
+.legal-modal-overlay.active { display: flex; }
+.legal-modal-box {
+  background: #0a0e1a;
+  border: 1px solid rgba(85,153,255,0.25);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.legal-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(85,153,255,0.15);
+  flex-shrink: 0;
+}
+.legal-modal-title {
+  font-size: 14px; font-weight: 700; color: #88aaff; letter-spacing: 1px;
+}
+.legal-modal-close {
+  background: none; border: 1px solid rgba(85,153,255,0.3);
+  color: #5a7a9a; font-family: monospace; font-size: 12px;
+  padding: 4px 10px; border-radius: 4px; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.legal-modal-close:hover { color: #88aaff; border-color: #88aaff; }
+.legal-modal-body {
+  padding: 18px;
+  overflow-y: auto;
+  font-size: 13px; color: #7a9aaa; line-height: 1.7;
+}
 
 /* ── Vim reference section ── */
 #vim-reference {
@@ -2063,11 +2093,8 @@ body {
   .support-options { gap: 8px; }
   .support-tier { width: 110px; padding: 10px 8px; }
 
-  .footer-inner { flex-direction: column; gap: 20px; }
-  .footer-nav { gap: 20px; }
-  .footer-nav-group { flex-direction: row; flex-wrap: wrap; gap: 10px; align-items: center; }
-  .footer-nav-label { margin-bottom: 0; min-width: 60px; }
-  .footer-bottom-bar { justify-content: center; text-align: center; }
+  .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+  .footer-links { justify-content: center; }
 
   #vim-reference { border-radius: 0; border-left: none; border-right: none; }
   .vr-section { flex: 1 1 140px; min-width: 130px; }

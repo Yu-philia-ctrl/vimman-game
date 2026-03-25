@@ -143,12 +143,20 @@
     if (!modal) return;
     document.getElementById('legal-modal-title').textContent = title;
     document.getElementById('legal-modal-body').innerHTML = html;
-    modal.style.display = 'flex';
-    modal.addEventListener('click', function handler(e) {
-      if (e.target === modal) {
-        modal.style.display = 'none';
-        modal.removeEventListener('click', handler);
-      }
+    modal.classList.add('active');
+  }
+
+  function closeLegalModal() {
+    const modal = document.getElementById('legal-modal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  function initLegalModal() {
+    const modal = document.getElementById('legal-modal');
+    const closeBtn = document.getElementById('legal-modal-close');
+    if (closeBtn) closeBtn.addEventListener('click', closeLegalModal);
+    if (modal) modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeLegalModal();
     });
   }
 
@@ -216,6 +224,7 @@
     initMobile();
     initSupport();
     initFooterLinks();
+    initLegalModal();
     initVimRef();
   });
 
