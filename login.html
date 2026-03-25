@@ -39,8 +39,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       position: relative;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* ── Animated background ── */
@@ -168,7 +170,7 @@
       border-radius: 8px;
       color: var(--text);
       font-family: inherit;
-      font-size: 14px;
+      font-size: 16px; /* iOS zoom防止: 16px未満だとSafariがズームする */
       outline: none;
       transition: all 0.2s;
     }
@@ -289,6 +291,36 @@
       width: 0%;
     }
 
+    /* ── Password toggle button ── */
+    .pw-toggle {
+      position: absolute;
+      right: 10px; top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 6px;
+      color: var(--sub);
+      line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .pw-toggle:hover { color: var(--text); }
+    /* パスワードフィールドは右側にトグルボタン分のpadding */
+    .field-wrap input[type="password"],
+    .field-wrap input[type="text"].pw-field {
+      padding-right: 40px;
+    }
+
+    /* ── iPhone用: カード内スクロール対応 ── */
+    @media (max-width: 480px) {
+      .auth-wrap { padding: 12px; }
+      .card { padding: 20px 16px; border-radius: 12px; }
+      .logo h1 { font-size: 26px; }
+      body { justify-content: flex-start; padding-top: 20px; }
+    }
+
     /* ── First-user note ── */
     .admin-note {
       background: rgba(255, 204, 0, 0.08);
@@ -347,6 +379,7 @@
         <div class="field-wrap">
           <span class="field-icon">🔒</span>
           <input type="password" id="login-pw" placeholder="••••••••" autocomplete="current-password">
+          <button type="button" class="pw-toggle" onclick="togglePw('login-pw', this)" title="パスワードを表示">👁</button>
         </div>
       </div>
 
@@ -355,9 +388,7 @@
 
     <!-- Register form -->
     <div class="form-panel" id="panel-reg">
-      <div class="admin-note" id="admin-note">
-        ⭐ 最初のアカウントは自動的に管理者になります
-      </div>
+      <!-- admin-note は非表示 (管理者はオーナーのみ) -->
 
       <div class="alert error" id="reg-err">
         <span class="alert-icon">⚠</span><span id="reg-err-msg"></span>
@@ -387,6 +418,7 @@
         <div class="field-wrap">
           <span class="field-icon">🔒</span>
           <input type="password" id="reg-pw" placeholder="6文字以上" autocomplete="new-password" oninput="checkStrength(this.value)">
+          <button type="button" class="pw-toggle" onclick="togglePw('reg-pw', this)" title="パスワードを表示">👁</button>
         </div>
         <div class="pw-strength"><div class="pw-bar" id="pw-bar"></div></div>
       </div>
@@ -396,6 +428,7 @@
         <div class="field-wrap">
           <span class="field-icon">🔒</span>
           <input type="password" id="reg-pw2" placeholder="••••••••" autocomplete="new-password">
+          <button type="button" class="pw-toggle" onclick="togglePw('reg-pw2', this)" title="パスワードを表示">👁</button>
         </div>
       </div>
 
@@ -496,14 +529,6 @@
       return;
     }
 
-    // Check if first user (show admin note)
-    try {
-      const users = JSON.parse(localStorage.getItem('va_users') || '[]');
-      if (users.length === 0) {
-        document.getElementById('admin-note').style.display = 'block';
-      }
-    } catch(e) {}
-
     // Enter key support
     document.addEventListener('keydown', e => {
       if (e.key !== 'Enter') return;
@@ -519,6 +544,20 @@
     document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-' + tab).classList.add('active');
     document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  // ── Password visibility toggle ────────────────────────────────
+  function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈';
+      btn.title = 'パスワードを隠す';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁';
+      btn.title = 'パスワードを表示';
+    }
   }
 
   // ── Password strength ─────────────────────────────────────────

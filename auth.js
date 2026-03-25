@@ -3,6 +3,10 @@
 window.GameAuth = (function() {
   'use strict';
 
+  // ★★★ ここを自分のメールアドレスに変更してください ★★★
+  // このメールアドレスを持つアカウントだけが管理者になれます
+  const OWNER_EMAIL = 'your-email@example.com';
+
   const KEY_USERS   = 'va_users';
   const KEY_SESSION = 'va_session';
 
@@ -58,7 +62,11 @@ window.GameAuth = (function() {
   }
 
   function isLoggedIn() { return getCurrentUser() !== null; }
-  function isAdmin()    { const u = getCurrentUser(); return u && u.isAdmin; }
+  function isAdmin() {
+    const u = getCurrentUser();
+    return u && u.isAdmin && u.email.toLowerCase() === OWNER_EMAIL;
+  }
+  function getOwnerEmail() { return OWNER_EMAIL; }
 
   async function register(username, email, password) {
     username = (username || '').trim();
@@ -82,7 +90,8 @@ window.GameAuth = (function() {
 
     const salt         = generateSalt();
     const passwordHash = await hashPassword(password, salt);
-    const isFirstUser  = users.length === 0;
+    // 管理者はOWNER_EMAILに一致するアカウントのみ
+    const isOwner = email.toLowerCase() === OWNER_EMAIL;
 
     const user = {
       id:           generateId(),
@@ -93,7 +102,7 @@ window.GameAuth = (function() {
       createdAt:    new Date().toISOString(),
       lastLogin:    null,
       loginCount:   0,
-      isAdmin:      isFirstUser,
+      isAdmin:      isOwner,
       banned:       false,
       gameSave:     null,
       gameSaveAt:   null,
@@ -231,7 +240,7 @@ window.GameAuth = (function() {
 
   return {
     register, login, logout,
-    getCurrentUser, isLoggedIn, isAdmin,
+    getCurrentUser, isLoggedIn, isAdmin, getOwnerEmail,
     saveGameData, loadGameData,
     getAllUsers, banUser, deleteUser, promoteUser, setUserNote, getStats,
   };

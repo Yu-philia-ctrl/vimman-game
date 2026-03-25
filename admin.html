@@ -604,13 +604,25 @@
 <script src="premium.js"></script>
 <script>
   // ── Auth guard ─────────────────────────────────────────────────
-  if (!window.GameAuth || !window.GameAuth.isLoggedIn()) {
-    location.href = 'login.html';
-  }
-  if (!window.GameAuth.isAdmin()) {
-    alert('管理者権限がありません');
-    location.href = 'index.html';
-  }
+  (function() {
+    if (!window.GameAuth || !window.GameAuth.isLoggedIn()) {
+      location.replace('login.html');
+      return;
+    }
+    const me = window.GameAuth.getCurrentUser();
+    const ownerEmail = window.GameAuth.getOwnerEmail();
+    // isAdmin() はメール一致も含めてチェック済み
+    if (!window.GameAuth.isAdmin()) {
+      // 具体的な理由は外部に漏らさない
+      location.replace('index.html');
+      return;
+    }
+    // 追加チェック: 実際のメールが一致しているか（isAdmin内でも確認済みだが念のため）
+    if (!me || me.email.toLowerCase() !== ownerEmail) {
+      location.replace('index.html');
+      return;
+    }
+  })();
 
   // ── State ─────────────────────────────────────────────────────
   let allUsers    = [];
