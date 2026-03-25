@@ -9,7 +9,7 @@ window.GameAuth = (function() {
 
   // ADMIN_SECRET_HASH: 管理者PINのSHA-256ハッシュ（PIN本体はここに書かない）
   // 初回は '' のまま → admin.html のセットアップ画面でハッシュを生成し、ここに貼り付ける
-  const ADMIN_SECRET_HASH = '';
+  const ADMIN_SECRET_HASH = 'd88be1391945345091906621eda49d261c09d2ed430498414ed494aba8031253';
 
   const KEY_USERS   = 'va_users';
   const KEY_SESSION = 'va_session';
