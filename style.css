@@ -837,39 +837,31 @@ body {
   line-height: 1.5;
 }
 
-/* ── 招待リンクウィジェット ── */
-#referral-widget {
+/* ── Vimプレイヤー向けアプリ推薦 ── */
+#vim-apps-rec {
   background: #060a18;
-  border: 1px solid rgba(255,204,0,0.18);
+  border: 1px solid rgba(85,153,255,0.14);
   border-radius: 10px;
   padding: 14px 14px 10px;
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex; flex-direction: column; gap: 6px;
 }
-.rw-title {
-  font-size: 11px; font-weight: 900; letter-spacing: 1px; color: var(--gold, #ffcc00);
-  margin-bottom: 2px;
+.var-title {
+  font-size: 11px; font-weight: 700; color: #88aacc; letter-spacing: 1px;
+  margin-bottom: 4px;
 }
-.rw-item {
+.var-item {
   display: flex; align-items: center; gap: 8px;
-  background: rgba(255,255,255,0.03); border-radius: 6px;
-  padding: 8px 10px; text-decoration: none; color: #c8d8f0;
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02); border-radius: 6px;
+  padding: 9px 10px; text-decoration: none; color: #c8d8f0;
+  border: 1px solid rgba(255,255,255,0.05);
   transition: background 0.15s, border-color 0.15s;
 }
-.rw-item:hover { background: rgba(255,255,255,0.07); }
-.rw-tiktok { border-left: 3px solid rgba(255,0,80,0.5) !important; }
-.rw-temu   { border-left: 3px solid rgba(255,102,0,0.5) !important; }
-.rw-item .rw-icon { font-size: 18px; flex-shrink: 0; }
-.rw-item .rw-text { flex: 1; font-size: 12px; line-height: 1.3; }
-.rw-item .rw-text strong { font-size: 12px; }
-.rw-item .rw-text small { font-size: 10px; color: #5a7a9a; }
-.rw-item .rw-arrow { color: #5a7a9a; font-size: 12px; }
-.rw-more {
-  display: block; text-align: center; font-size: 11px;
-  color: #5a7a9a; text-decoration: none;
-  padding: 4px 0; transition: color 0.15s;
-}
-.rw-more:hover { color: #ffcc00; }
+.var-item:hover { background: rgba(85,153,255,0.07); border-color: rgba(85,153,255,0.2); }
+.var-icon { font-size: 18px; flex-shrink: 0; }
+.var-body { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.var-body strong { font-size: 12px; color: #c8d8f0; }
+.var-body span { font-size: 10px; color: #5a7a9a; }
+.var-arr { color: #2a4060; font-size: 12px; }
 
 /* ── AI副業 CTA card ── */
 #ai-money-cta {

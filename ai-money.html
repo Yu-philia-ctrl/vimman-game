@@ -339,68 +339,45 @@
       background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer;
     }
 
-    /* ── Referral cards ── */
-    #ref-section {
-      background: linear-gradient(135deg, rgba(5,9,26,.95) 0%, rgba(12,5,25,.95) 100%);
-      border: 1px solid rgba(255,204,0,0.25);
-      border-radius: var(--r);
-      padding: 24px 20px 20px;
-      margin-bottom: 0;
+    /* ── Content gate ── */
+    .cg-wrap { position: relative; }
+    .cg-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 14px; }
+    .cg-locked {
+      filter: blur(4px); pointer-events: none; user-select: none;
+      opacity: 0.45;
     }
-    #ref-section .ref-eyebrow {
-      font-size: 10px; letter-spacing: 4px; color: var(--gold); margin-bottom: 6px;
+    .cg-overlay {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 280px;
+      background: linear-gradient(to bottom, transparent 0%, rgba(0,8,17,0.98) 42%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      padding-bottom: 28px; gap: 10px; text-align: center;
     }
-    #ref-section h2 {
-      font-size: 18px; font-weight: 900; margin-bottom: 4px;
-      background: linear-gradient(135deg, #ffcc00, #ff8844);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .cg-overlay h4 {
+      font-size: 15px; font-weight: 900; color: #c8d8f0;
     }
-    #ref-section .ref-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
-    .ref-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 12px;
+    .cg-overlay p { font-size: 12px; color: var(--muted); max-width: 320px; line-height: 1.6; }
+    .cg-unlock-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+    /* ── Inline tool link ── */
+    .inline-tool {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(85,153,255,0.08); border: 1px solid rgba(85,153,255,0.2);
+      border-radius: 4px; padding: 3px 10px; margin-left: 4px;
+      color: var(--accent); text-decoration: none; font-size: 11px; font-weight: 700;
+      transition: background .15s;
+      white-space: nowrap;
     }
-    .ref-card {
-      display: flex; flex-direction: column; gap: 8px;
-      background: rgba(0,0,0,0.4); border-radius: var(--r);
-      padding: 14px; text-decoration: none; color: inherit;
-      border: 1px solid var(--border);
-      transition: border-color .15s, transform .15s;
+    .inline-tool:hover { background: rgba(85,153,255,0.16); }
+    .inline-tool.tiktok {
+      background: rgba(255,0,80,0.08); border-color: rgba(255,0,80,0.2); color: #ff6699;
     }
-    .ref-card:hover { border-color: rgba(255,204,0,0.4); transform: translateY(-2px); }
-    .ref-card .rc-top { display: flex; align-items: center; gap: 8px; }
-    .ref-card .rc-icon { font-size: 26px; flex-shrink: 0; }
-    .ref-card .rc-name { font-size: 14px; font-weight: 900; }
-    .ref-card .rc-reward {
-      font-size: 13px; font-weight: 900; color: var(--green);
-      background: rgba(68,255,136,0.1); border: 1px solid rgba(68,255,136,0.2);
-      padding: 3px 10px; border-radius: 4px; display: inline-block;
+    .inline-tool.tiktok:hover { background: rgba(255,0,80,0.15); }
+    .inline-tool.temu {
+      background: rgba(255,102,0,0.08); border-color: rgba(255,102,0,0.2); color: #ff8844;
     }
-    .ref-card .rc-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
-    .ref-card .rc-btn {
-      margin-top: auto;
-      display: block; text-align: center;
-      background: linear-gradient(135deg, #cc8800, #ffcc00);
-      color: #000; font-family: monospace; font-size: 11px; font-weight: 900;
-      padding: 8px; border-radius: 5px; letter-spacing: 1px;
-      transition: opacity .15s;
-    }
-    .ref-card:hover .rc-btn { opacity: .85; }
-    .ref-card.tiktok-card { border-color: rgba(255,0,80,0.2); }
-    .ref-card.tiktok-card:hover { border-color: rgba(255,0,80,0.5); }
-    .ref-card.tiktok-card .rc-btn {
-      background: linear-gradient(135deg, #ff0050, #ff4488);
-      color: #fff;
-    }
-    .ref-card.temu-card { border-color: rgba(255,102,0,0.2); }
-    .ref-card.temu-card:hover { border-color: rgba(255,102,0,0.5); }
-    .ref-card.temu-card .rc-btn {
-      background: linear-gradient(135deg, #cc3300, #ff6600);
-      color: #fff;
-    }
-    .ref-note {
-      font-size: 10px; color: #2a4060; margin-top: 10px; line-height: 1.6;
-    }
+    .inline-tool.temu:hover { background: rgba(255,102,0,0.15); }
 
     /* ── Back to top ── */
     #back-top {
@@ -462,88 +439,6 @@
     </div>
   </section>
 
-  <!-- ── 今すぐ稼げる招待リンク ── -->
-  <section style="padding-top:32px;">
-    <div id="ref-section">
-      <div class="ref-eyebrow">INSTANT EARN — 今すぐ稼げる</div>
-      <h2>紹介リンクでポイント・報酬をゲット</h2>
-      <p class="ref-sub">登録するだけ・アプリを入れるだけで報酬が発生するリンクをまとめました。</p>
-      <div class="ref-grid">
-
-        <!-- TikTok Lite 1 -->
-        <a class="ref-card tiktok-card" href="https://lite.tiktok.com/t/ZS9RWM7Yu14kT-H5ekI/" target="_blank" rel="noopener">
-          <div class="rc-top">
-            <span class="rc-icon">🎵</span>
-            <span class="rc-name">TikTok Lite</span>
-          </div>
-          <span class="rc-reward">招待ボーナス GET</span>
-          <p class="rc-desc">このリンクからTikTok Liteをインストールすると招待ボーナスが両者に付与。動画視聴でコイン獲得できるアプリ。</p>
-          <span class="rc-btn">▶ 招待リンクから登録する →</span>
-        </a>
-
-        <!-- TikTok Lite 2 -->
-        <a class="ref-card tiktok-card" href="https://lite.tiktok.com/t/ZS9RWrFhGqsJ3-OrwiU/" target="_blank" rel="noopener">
-          <div class="rc-top">
-            <span class="rc-icon">🎵</span>
-            <span class="rc-name">TikTok Lite ②</span>
-          </div>
-          <span class="rc-reward">招待ボーナス GET</span>
-          <p class="rc-desc">別の招待リンク。まだ登録していない人はこちらからも登録可能。コイン→ギフト券に変換できる。</p>
-          <span class="rc-btn">▶ 招待リンクから登録する →</span>
-        </a>
-
-        <!-- TikTok Lite 3 -->
-        <a class="ref-card tiktok-card" href="https://lite.tiktok.com/t/ZS9RWr8gUkLpS-ynhJv/" target="_blank" rel="noopener">
-          <div class="rc-top">
-            <span class="rc-icon">🎵</span>
-            <span class="rc-name">TikTok Lite ③</span>
-          </div>
-          <span class="rc-reward">招待ボーナス GET</span>
-          <p class="rc-desc">3つ目の招待リンク。友達にシェアして招待するたびに追加ボーナスがもらえる仕組み。</p>
-          <span class="rc-btn">▶ 招待リンクから登録する →</span>
-        </a>
-
-        <!-- Temu 1 -->
-        <a class="ref-card temu-card" href="https://temu.com/s/tfR8P5DNNWrkN" target="_blank" rel="noopener">
-          <div class="rc-top">
-            <span class="rc-icon">🛍</span>
-            <span class="rc-name">Temu</span>
-          </div>
-          <span class="rc-reward">最大¥5,000 OFF</span>
-          <p class="rc-desc">このリンクからTemuに登録するとクーポンが付与。激安ショッピングアプリ。紹介するたびに報酬発生。</p>
-          <span class="rc-btn">▶ Temuで割引クーポンGET →</span>
-        </a>
-
-        <!-- Temu 2 -->
-        <a class="ref-card temu-card" href="https://temu.com/s/drdf9h24vRcSkobf" target="_blank" rel="noopener">
-          <div class="rc-top">
-            <span class="rc-icon">🛍</span>
-            <span class="rc-name">Temu ②</span>
-          </div>
-          <span class="rc-reward">最大¥5,000 OFF</span>
-          <p class="rc-desc">もう1つのTemuリンク。新規登録・購入で紹介報酬が発生。友達に配布して収益を積み上げる。</p>
-          <span class="rc-btn">▶ Temuで割引クーポンGET →</span>
-        </a>
-
-        <!-- TikTok Studio -->
-        <a class="ref-card" href="https://www.tiktok.com/tiktokstudio/monetization" target="_blank" rel="noopener" style="border-color:rgba(85,153,255,0.2);">
-          <div class="rc-top">
-            <span class="rc-icon">💰</span>
-            <span class="rc-name">TikTok 収益化</span>
-          </div>
-          <span class="rc-reward" style="background:rgba(85,153,255,0.1);border-color:rgba(85,153,255,0.2);color:#88bbff;">Creator Fund</span>
-          <p class="rc-desc">TikTok Studioの収益化ページ。Creator Fund・LIVE配信ギフト・商品タグなど収益化方法を一覧で確認できる。</p>
-          <span class="rc-btn" style="background:linear-gradient(135deg,#1a4aff,#0088ff);color:#fff;">▶ TikTok収益化を確認する →</span>
-        </a>
-
-      </div>
-      <p class="ref-note">
-        ※ TikTok Liteの招待ボーナスは条件を満たした場合に付与されます。Temuのクーポン額は時期により変動します。<br>
-        ※ 紹介リンクから登録・購入が行われた場合、本サイトに紹介報酬が発生することがあります。
-      </p>
-    </div>
-  </section>
-
   <!-- ── Quick start ── -->
   <section>
     <div class="sec-eyebrow">QUICK START</div>
@@ -582,10 +477,7 @@
   <section id="tools">
     <div class="sec-eyebrow">AI TOOLS — アフィリエイトリンク</div>
     <div class="sec-title">今すぐ使うべきAIツール8選</div>
-    <p class="sec-desc">
-      どれか1つ契約するだけで収益化スピードが激変する。<br>
-      <span style="color:var(--gold);">★ リンク先で登録すると本サイトに紹介報酬が入ります（あなたへの追加料金なし）</span>
-    </p>
+    <p class="sec-desc">どれか1つ契約するだけで収益化スピードが激変する。現在使われている実績のある8ツールを厳選した。</p>
     <div class="tools-grid">
       <a class="tool-card" href="https://chat.openai.com" target="_blank" rel="noopener sponsored">
         <span class="tc-badge">必須 No.1</span>
@@ -716,14 +608,26 @@
         <div class="mc-body">
           <div class="mc-intro">30〜60秒を週3〜5本量産。バズ特性を活かして短期間でフォロワーを増やし、LINE登録・教材販売に繋げる。</div>
           <div class="steps">
+            <div class="step"><div class="sn">0</div><div class="sc">
+              <strong>まずTikTokをリサーチツールとして使い始める</strong>
+              <span class="arr">→ 本格版より通信量が少なく起動が速い軽量版アプリで競合動画を毎日観察する。どんな構成・テーマ・テロップが再生数を伸ばしているかを肌感覚でつかむのが最速の学習法。
+                <a class="inline-tool tiktok" href="https://lite.tiktok.com/t/ZS9RWM7Yu14kT-H5ekI/" target="_blank" rel="noopener">📱 TikTok Lite を使ってみる</a>
+              </span>
+            </div></div>
             <div class="step"><div class="sn">1</div><div class="sc"><strong>バズるテーマ30個＋10本分の脚本を一括生成</strong><span class="arr">→ 30〜60秒完結型。副業・心理学・ライフハックなど再生されやすいジャンルを選ぶ</span></div></div>
-            <div class="step"><div class="sn">2</div><div class="sc"><strong>ElevenLabs＋Veo3 / RunwayMLで映像を生成</strong><span class="arr">→ CapCutで字幕・BGMも自動生成して完成。顔出し・声出し完全不要</span></div></div>
-            <div class="step"><div class="sn">3</div><div class="sc"><strong>ハッシュタグ・タイトルを10パターン生成して投稿</strong><span class="arr">→ プロフィールにLINE登録・無料PDF導線を設置</span></div></div>
-            <div class="step"><div class="sn">4</div><div class="sc"><strong>LINEステップ7通で自動的に教材を販売</strong><span class="arr">→ 月間量産スケジュールをテンプレ化してストック動画が増え続ける</span></div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><strong>ElevenLabs＋RunwayMLで音声・映像を生成</strong><span class="arr">→ CapCutで字幕・BGMも自動生成。顔出し・声出し完全不要で完成</span></div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><strong>ハッシュタグ・タイトルを10パターン生成して投稿</strong><span class="arr">→ プロフィールにLINE登録・無料PDF導線を設置。投稿を積み上げるほどフォロワーが増加する</span></div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><strong>LINEステップ7通で教材を自動販売</strong><span class="arr">→ 月間量産スケジュールをテンプレ化してストック動画が増え続ける</span></div></div>
+            <div class="step"><div class="sn">5</div><div class="sc">
+              <strong>TikTok Studioで収益化を公式に申請する</strong>
+              <span class="arr">→ フォロワーが一定数を超えたらCreator Fund・LIVE配信ギフト・商品タグで公式収益化ルートも開く。
+                <a class="inline-tool" href="https://www.tiktok.com/tiktokstudio/monetization" target="_blank" rel="noopener">💰 収益化の条件を確認</a>
+              </span>
+            </div></div>
           </div>
           <div class="mc-cta">
             <a class="btn-green" href="https://runwayml.com" target="_blank" rel="noopener sponsored">🎬 RunwayMLで動画生成を始める</a>
-            <span class="mc-note">📌 完成形：フォロワー増加→LINE登録→教材販売の自動ループ</span>
+            <span class="mc-note">📌 完成形：フォロワー増加→LINE登録→教材販売→TikTok公式収益の多重ループ</span>
           </div>
         </div>
       </div>
@@ -740,9 +644,15 @@
           <div class="mc-intro">ChatGPTがPDFの中身・販売文・投稿文・追加商品まで全生成。在庫ゼロ・返品なし・手間なしで商品棚を育てる。</div>
           <div class="steps">
             <div class="step"><div class="sn">1</div><div class="sc"><strong>「初心者でも作れるデジタル商品50個」を生成</strong><span class="arr">→ PDFテンプレ・チェックリスト・まとめ・ミニ教材から選ぶ</span></div></div>
-            <div class="step"><div class="sn">2</div><div class="sc"><strong>「このテーマでPDF商品を完成形で作って」と指示</strong><span class="arr">→ 構成・本文・表紙タイトル10案まで自動出力。Canvaでコピペ→10〜20分で完成</span></div></div>
-            <div class="step"><div class="sn">3</div><div class="sc"><strong>note / BOOTHの販売ページ文を10パターン生成</strong><span class="arr">→ X投稿を共感・保存推奨型で20本生成して毎日1〜2投稿</span></div></div>
-            <div class="step"><div class="sn">4</div><div class="sc"><strong>「次に欲しくなる関連商品3つ」を横展開</strong><span class="arr">→ 商品棚が増えるほど放置で売れる仕組みが育つ</span></div></div>
+            <div class="step"><div class="sn">2</div><div class="sc">
+              <strong>Temuで「今売れている商品ジャンル・価格帯・タイトル構成」をリサーチ</strong>
+              <span class="arr">→ 物販プラットフォームは消費者のニーズが最も正直に表れる場所。売れているカテゴリを観察してChatGPTに「これをデジタル商品化するなら？」と聞くことで確度の高いPDF商品のアイデアが出る。
+                <a class="inline-tool temu" href="https://temu.com/s/tfR8P5DNNWrkN" target="_blank" rel="noopener">🛍 Temuでリサーチする</a>
+              </span>
+            </div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><strong>「このテーマでPDF商品を完成形で作って」と指示</strong><span class="arr">→ 構成・本文・表紙タイトル10案まで自動出力。Canvaでコピペ→10〜20分で完成</span></div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><strong>note / BOOTHの販売ページ文を10パターン生成</strong><span class="arr">→ X投稿を共感・保存推奨型で20本生成して毎日1〜2投稿</span></div></div>
+            <div class="step"><div class="sn">5</div><div class="sc"><strong>「次に欲しくなる関連商品3つ」を横展開</strong><span class="arr">→ 商品棚が増えるほど放置で売れる仕組みが育つ</span></div></div>
           </div>
           <div class="mc-cta">
             <a class="btn-green" href="https://www.canva.com/ja_jp/pro/" target="_blank" rel="noopener sponsored">✏️ Canvaでデザインを始める</a>
@@ -804,9 +714,11 @@
   <!-- ── Case studies ── -->
   <section id="cases">
     <div class="sec-eyebrow">CASE STUDIES</div>
-    <div class="sec-title">AIで収益化した7つの実例</div>
-    <p class="sec-desc">いずれも初期費用ほぼゼロ・スキル不要からスタートした実話。</p>
-    <div class="case-grid">
+    <div class="sec-title">AIで収益化した実例</div>
+    <p class="sec-desc">いずれも初期費用ほぼゼロ・スキル不要からスタートした実話。下の3件は全文公開、残りはアンロックで読める。</p>
+
+    <!-- 常時表示: 3件 -->
+    <div class="cg-items" style="margin-bottom:14px;">
       <div class="case-card">
         <div class="cr">累計1.5億円</div>
         <div class="ct">🎁 オンラインプレゼント交換</div>
@@ -822,25 +734,39 @@
         <div class="ct">📚 AI電子書籍出版</div>
         <p>20歳大学生がChatGPTで電子書籍を量産。Pinterest主婦層に集中広告。1年で売上1.5億円達成。</p>
       </div>
-      <div class="case-card">
-        <div class="cr">Reuters掲載</div>
-        <div class="ct">📖 AI絵本（Amazon出版）</div>
-        <p>NY営業マンがAIで絵本を数時間で完成しAmazonで出版。「会社員でもAIで出版」事例としてReutersに掲載。</p>
+    </div>
+
+    <!-- コンテンツゲート: 残り4件 -->
+    <div class="cg-wrap">
+      <div class="cg-items cg-locked" aria-hidden="true">
+        <div class="case-card">
+          <div class="cr">Reuters掲載</div>
+          <div class="ct">📖 AI絵本（Amazon出版）</div>
+          <p>NY営業マンがAIで絵本を数時間で完成しAmazonで出版。会社員でも出版できる事例としてReutersに掲載。</p>
+        </div>
+        <div class="case-card">
+          <div class="cr">初週1,000万円</div>
+          <div class="ct">🤖 AIアバターチャット</div>
+          <p>フォロワー180万人のインフルエンサーが自分をAI化。Telegramで音声チャットを有料提供。</p>
+        </div>
+        <div class="case-card">
+          <div class="cr">73日間350万円</div>
+          <div class="ct">👕 AIデザインTシャツ</div>
+          <p>個人がChatGPT×Stable Diffusionでデザイン生成→Shopify出品。広告費ゼロで73日間350万円。</p>
+        </div>
+        <div class="case-card">
+          <div class="cr">年商45億円</div>
+          <div class="ct">🍽 食事AIアプリ「Cal AI」</div>
+          <p>高校生が食事写真→カロリー計算AIアプリを開発。約1.5年で年商45億円・従業員30名に成長。</p>
+        </div>
       </div>
-      <div class="case-card">
-        <div class="cr">初週1,000万円</div>
-        <div class="ct">🤖 AIアバターチャット</div>
-        <p>フォロワー180万人のインフルエンサーが自分をAI化。Telegramで音声チャットを有料提供、初週1,000人課金。</p>
-      </div>
-      <div class="case-card">
-        <div class="cr">73日間350万円</div>
-        <div class="ct">👕 AIデザインTシャツ</div>
-        <p>個人がChatGPT×Stable Diffusionでデザイン生成→Shopify出品。広告費ゼロ・在庫ゼロで開始1週間11万円。</p>
-      </div>
-      <div class="case-card">
-        <div class="cr">年商45億円</div>
-        <div class="ct">🍽 食事AIアプリ「Cal AI」</div>
-        <p>高校生が食事写真→カロリー自動計算アプリを開発。約1.5年で年商45億円・従業員30名のスタートアップに成長。</p>
+      <div class="cg-overlay">
+        <h4>残り4事例 ＋ 各事例の詳細な収益構造を読む</h4>
+        <p>TikTok Liteをインストールして続きにアクセスする。インストール後にこのページへ戻ると自動的に解除される。</p>
+        <div class="cg-unlock-btns">
+          <a class="btn-green" href="https://lite.tiktok.com/t/ZS9RWM7Yu14kT-H5ekI/" target="_blank" rel="noopener" onclick="unlockCases()">📱 TikTok Liteをインストールして続きを読む</a>
+          <a class="btn-outline" href="#final-cta">またはLINE登録で全文公開 →</a>
+        </div>
       </div>
     </div>
   </section>
@@ -950,6 +876,19 @@
     e.preventDefault();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  // Content gate unlock
+  function unlockCases() {
+    localStorage.setItem('va_cases_unlocked', '1');
+  }
+  (function() {
+    if (localStorage.getItem('va_cases_unlocked') === '1') {
+      var locked = document.querySelector('.cg-locked');
+      var overlay = document.querySelector('.cg-overlay');
+      if (locked) locked.classList.remove('cg-locked');
+      if (overlay) overlay.style.display = 'none';
+    }
+  })();
 </script>
 </body>
 </html>
