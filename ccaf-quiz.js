@@ -1038,10 +1038,9 @@ const ccafQuizGame = (function () {
     const k = e.key;
     if (state === 'menu') {
       if (k === 'ArrowUp'   || k === 'k') menuSel = Math.max(0, menuSel - 1);
-      if (k === 'ArrowDown' || k === 'j') menuSel = Math.min(2, menuSel + 1);
+      if (k === 'ArrowDown' || k === 'j') menuSel = Math.min(1, menuSel + 1);
       if (k === 'Enter' || k === 'z' || k === 'Z') {
         if (menuSel === 0) startQuiz();
-        else if (menuSel === 1) { state = 'study'; studyDomain = 0; studyScroll = 0; }
         else switchGame('menu');
       }
     } else if (state === 'study') {
@@ -1131,9 +1130,8 @@ const ccafQuizGame = (function () {
     const btnW = 260, btnH = 44;
     const btnY = cardStartY + DOMAINS.length * (cardH + 8) + 14;
     const btnDefs = [
-      { label: '▶ 試験を開始する',   color: '#9977ff', bg: '#4433aa' },
-      { label: '📚 事前に学習する',  color: '#44cc88', bg: '#1a3a22' },
-      { label: '← メニューに戻る',  color: '#aaa',    bg: 'rgba(255,255,255,0.05)' },
+      { label: '▶ 試験を開始する',  color: '#9977ff', bg: '#4433aa' },
+      { label: '← メニューに戻る', color: '#aaa',    bg: 'rgba(255,255,255,0.05)' },
     ];
     btnDefs.forEach(function (btn, i) {
       const bx = W / 2 - btnW / 2;
@@ -1144,6 +1142,7 @@ const ccafQuizGame = (function () {
       txt(btn.label, W / 2, by + 28, (sel ? 'bold ' : '') + '14px monospace', sel ? btn.color : '#888', 'center');
     });
 
+    txt('📚 詳細学習はページ下の「CCA-F問題集」セクションへ', W / 2, btnY + 2 * (btnH + 8) + 16, '10px monospace', '#554477', 'center');
     txt('クリック / ↑↓ kj 選択  Enter/Z 決定', W / 2, H - 18, '11px monospace', '#8866aa', 'center');
   }
 
@@ -1397,9 +1396,8 @@ const ccafQuizGame = (function () {
     if (state === 'menu') {
       const btnH = 44, cardH = 44, cardStartY = 155;
       const btnY = cardStartY + DOMAINS.length * (cardH + 8) + 14;
-      if (cy >= btnY           && cy <= btnY + btnH)       { menuSel = 0; startQuiz(); return; }
-      if (cy >= btnY + 52      && cy <= btnY + 52 + btnH)  { menuSel = 1; state = 'study'; studyDomain = 0; studyScroll = 0; return; }
-      if (cy >= btnY + 104     && cy <= btnY + 104 + btnH) { menuSel = 2; switchGame('menu'); return; }
+      if (cy >= btnY           && cy <= btnY + btnH)      { menuSel = 0; startQuiz(); return; }
+      if (cy >= btnY + 52      && cy <= btnY + 52 + btnH) { menuSel = 1; switchGame('menu'); return; }
       return;
     }
     if (state === 'study') {

@@ -202,7 +202,7 @@
         <span class="ql-label">▶ ゲームを開始:</span>
         <button class="ql-btn ql-main"   onclick="if(window.switchGame)window.switchGame('vimman')">⚔ VimMan RPG</button>
         <button class="ql-btn ql-lb"     onclick="if(window.switchGame)window.switchGame('linuxbattle')">🐧 Linux Battle</button>
-        <button class="ql-btn ql-ccaf"   onclick="if(window.switchGame)window.switchGame('ccaf')">🎓 CCA-F 試験対策</button>
+        <button class="ql-btn ql-ccaf"   onclick="document.getElementById('ccaf-exam').scrollIntoView({behavior:'smooth'})">🎓 CCA-F 問題集</button>
         <button class="ql-btn ql-sub"    onclick="if(window.switchGame)window.switchGame('snake')">🐍 Snake</button>
         <button class="ql-btn ql-sub"    onclick="if(window.switchGame)window.switchGame('invaders')">👾 Invaders</button>
         <button class="ql-btn ql-sub"    onclick="if(window.switchGame)window.switchGame('tetris')">🧩 Tetris</button>
@@ -514,6 +514,13 @@
         <button id="mensa-share-btn" class="mensa-share-btn">結果をシェア 🐦</button>
       </div>
     </div>
+  </section>
+
+  <!-- ── CCA-F 問題集セクション ── -->
+  <section id="ccaf-exam">
+    <div id="ccaf-exam-header"></div>
+    <div id="ccaf-exam-tabs"></div>
+    <div id="ccaf-exam-body"></div>
   </section>
 
       <!-- ── ゲーム下 広告スロット（レスポンシブ横長） ── -->
@@ -1111,6 +1118,9 @@
         <button class="comm-tab active" data-tab="chat">💬 チャット</button>
         <button class="comm-tab" data-tab="leaderboard">🏆 ランキング</button>
         <button class="comm-tab" data-tab="tips">💡 攻略情報</button>
+        <button class="comm-tab" data-tab="score-history">📊 スコア履歴</button>
+        <button class="comm-tab" data-tab="study-plan">📅 12週間計画</button>
+        <button class="comm-tab" data-tab="news">📰 最新情報</button>
       </div>
 
       <!-- Chat panel -->
@@ -1151,6 +1161,64 @@
         <div id="comm-tips-submit">
           <input type="text" id="comm-tip-input" placeholder="攻略情報を投稿..." maxlength="100" disabled />
           <button id="btn-submit-tip" disabled>投稿</button>
+        </div>
+      </div>
+
+      <!-- Score History panel -->
+      <div id="comm-panel-score-history" class="comm-panel hidden">
+        <div style="padding:14px 0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-size:15px;font-weight:700;color:#c8b8ff">📊 CCA-F スコア履歴</span>
+            <button id="btn-ccaf-go" onclick="document.getElementById('ccaf-exam').scrollIntoView({behavior:'smooth'})" style="background:linear-gradient(135deg,#4433aa,#7755cc);border:none;color:#fff;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer">問題集を開く →</button>
+          </div>
+          <div id="comm-score-hist-list" style="display:flex;flex-direction:column;gap:6px">
+            <div style="text-align:center;padding:30px;color:#5050888;font-size:13px;color:#505080">模擬試験を受けるとスコアが記録されます</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 12-Week Study Plan panel -->
+      <div id="comm-panel-study-plan" class="comm-panel hidden">
+        <div style="padding:14px 0">
+          <div style="font-size:15px;font-weight:700;color:#c8b8ff;margin-bottom:14px">📅 CCA-F 12週間学習計画</div>
+          <div id="comm-study-plan-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+
+      <!-- News panel -->
+      <div id="comm-panel-news" class="comm-panel hidden">
+        <div style="padding:14px 0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-size:15px;font-weight:700;color:#c8b8ff">📰 Claude / AI 最新情報</span>
+            <span style="font-size:11px;color:#5050808;color:#505080">定期更新</span>
+          </div>
+          <div id="comm-news-list" style="display:flex;flex-direction:column;gap:10px">
+            <div class="comm-news-item">
+              <div class="comm-news-date">2025-03</div>
+              <div class="comm-news-title"><a href="https://docs.anthropic.com/ja/docs/claude-code/overview" target="_blank" rel="noopener">Claude Code GA — エージェントコーディングツール正式リリース</a></div>
+              <div class="comm-news-body">Claude CodeがGA。CCA-F試験の主要トピックであるエージェント設計・MCP統合の実例として必読。</div>
+            </div>
+            <div class="comm-news-item">
+              <div class="comm-news-date">2025-02</div>
+              <div class="comm-news-title"><a href="https://docs.anthropic.com/ja/docs/build-with-claude/mcp" target="_blank" rel="noopener">MCP (Model Context Protocol) 仕様 v1.0 公開</a></div>
+              <div class="comm-news-body">ツール設計・MCP統合ドメイン（18%）の核心。Toolsリスト・Resources・Promptsの仕様を確認。</div>
+            </div>
+            <div class="comm-news-item">
+              <div class="comm-news-date">2025-01</div>
+              <div class="comm-news-title"><a href="https://docs.anthropic.com/ja/docs/build-with-claude/agents" target="_blank" rel="noopener">マルチエージェントシステム設計ガイド更新</a></div>
+              <div class="comm-news-body">オーケストレーター・サブエージェント・HITLパターンが体系化。エージェント設計ドメイン（27%）の最重要資料。</div>
+            </div>
+            <div class="comm-news-item">
+              <div class="comm-news-date">2024-12</div>
+              <div class="comm-news-title"><a href="https://docs.anthropic.com/ja/docs/build-with-claude/tool-use" target="_blank" rel="noopener">Tool Use API — inputSchema / output フィールド更新</a></div>
+              <div class="comm-news-body">ツール定義の`parameters`→`inputSchema`、`result`→`output`へ変更。CCA-F出題範囲に含まれる最新仕様。</div>
+            </div>
+            <div class="comm-news-item">
+              <div class="comm-news-date">2024-11</div>
+              <div class="comm-news-title"><a href="https://docs.anthropic.com/ja/docs/claude-code/settings" target="_blank" rel="noopener">Claude Code 設定ガイド — CLAUDE.md / hooks 詳細化</a></div>
+              <div class="comm-news-body">CLAUDE.md設定・PreToolUse hooks・権限管理がドメイン3（20%）の出題範囲。公式ドキュメントで確認必須。</div>
+            </div>
+          </div>
         </div>
       </div>
     </div><!-- end community-body -->
@@ -1216,6 +1284,70 @@
 <script src="metaverse.js"></script>
 <script src="humanity-quiz.js"></script>
 <script src="mensa-quiz.js"></script>
+<script src="ccaf-exam.js"></script>
+<script>
+// ── Community extra tabs: score history, study plan ───────────────
+(function() {
+  var STUDY_PLAN = [
+    { w:'W1-2', topic:'エージェント基礎 (D1・27%)', desc:'オーケストレーター・サブエージェント・tool_use/tool_resultブロックを理解。docs.anthropic.com/ja/docs/build-with-claude/agents を精読。' },
+    { w:'W3-4', topic:'ツール設計 & MCP (D2・18%)', desc:'MCP仕様・Tools/Resources/Prompts・inputSchema・outputSchemaを習得。MCPサーバー接続の実装パターンを確認。' },
+    { w:'W5-6', topic:'Claude Code 設定 (D3・20%)', desc:'CLAUDE.md の書き方・PreToolUse/PostToolUse hooks・allowedTools/deniedTools・permissionMode を理解。' },
+    { w:'W7-8', topic:'プロンプト設計 & 出力制御 (D4・20%)', desc:'few-shot / chain-of-thought / XML構造化プロンプト・temperature設定・ストリーミング出力パターンを実践。' },
+    { w:'W9-10', topic:'コンテキスト管理 & 信頼性 (D5・15%)', desc:'コンテキストウィンドウ管理・要約戦略・エラーハンドリング・HITL (Human-in-the-loop) パターンを深掘り。' },
+    { w:'W11', topic:'模擬試験 × 3回 & 弱点分析', desc:'このサイトの模擬試験を3回受験。スコア履歴・分析タブで弱点ドメインを特定し、集中復習。合格ライン720点を目標。' },
+    { w:'W12', topic:'最終仕上げ & 本番試験', desc:'間違いリストを復習し、ドメイン別参考資料（公式docs）を再確認。試験当日は落ち着いて問題を読み、消去法を活用。' },
+  ];
+
+  function renderStudyPlan() {
+    var el = document.getElementById('comm-study-plan-list');
+    if (!el) return;
+    el.innerHTML = STUDY_PLAN.map(function(p) {
+      return '<div class="comm-study-week">' +
+        '<div class="comm-study-wnum">' + p.w + '</div>' +
+        '<div class="comm-study-wbody">' +
+          '<div class="comm-study-wtopic">' + p.topic + '</div>' +
+          '<div class="comm-study-wdesc">'  + p.desc  + '</div>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  function renderCommScoreHist() {
+    var el = document.getElementById('comm-score-hist-list');
+    if (!el) return;
+    try {
+      var hist = JSON.parse(localStorage.getItem('ccaf_exam_history') || '[]');
+      if (!hist.length) {
+        el.innerHTML = '<div style="text-align:center;padding:30px;color:#505080;font-size:13px">模擬試験を受けるとスコアが記録されます</div>';
+        return;
+      }
+      el.innerHTML = hist.map(function(r, i) {
+        var pass = r.score >= 720;
+        return '<div class="comm-score-hist-row">' +
+          '<span class="comm-score-rank">' + (i+1) + '</span>' +
+          '<span class="comm-score-date">' + (r.date || '') + '</span>' +
+          '<span class="comm-score-val ' + (pass?'pass':'fail') + '">' + r.score + '</span>' +
+          '<span class="comm-score-res ' + (pass?'pass':'fail') + '">' + (pass?'合格':'不合格') + '</span>' +
+          '<span class="comm-score-acc">' + r.correct + '/30 (' + Math.round(r.correct/30*100) + '%)</span>' +
+        '</div>';
+      }).join('');
+    } catch(e) {
+      el.innerHTML = '';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    renderStudyPlan();
+    renderCommScoreHist();
+    // Also refresh score history when tab is clicked (in case exam was taken after load)
+    document.addEventListener('click', function(e) {
+      var tab = e.target.closest && e.target.closest('.comm-tab');
+      if (tab && tab.getAttribute('data-tab') === 'score-history') {
+        setTimeout(renderCommScoreHist, 50);
+      }
+    });
+  });
+})();
+</script>
 <script>
 // ── Auth integration ─────────────────────────────────────────────
 (function() {
