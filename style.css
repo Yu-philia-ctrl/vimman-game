@@ -2462,3 +2462,122 @@ body {
 .comm-score-res.pass { color: #44cc88; }
 .comm-score-res.fail { color: #ee4455; }
 .comm-score-acc   { color: #6060a0; text-align: right; }
+
+/* ── CCA-F: corrected & missing class names ──────────────────────── */
+
+/* Question card (JS uses cex-qcard, not cex-q-card) */
+.cex-qcard {
+  background: #13132a; border: 1px solid #2a2a50; border-radius: 10px;
+  padding: 20px; margin-bottom: 16px;
+}
+.cex-domain-badge-row { margin-bottom: 10px; }
+.cex-q-text { font-size: 15px; color: #d0d8ff; line-height: 1.7; margin-bottom: 14px; font-weight: 500; }
+
+/* Options (JS uses cex-opt, not cex-opt-btn) */
+.cex-opt {
+  display: flex; align-items: center; gap: 10px;
+  background: #0e0e22; border: 1px solid #2a2a50; border-radius: 8px;
+  padding: 10px 14px; cursor: pointer; text-align: left; width: 100%;
+  box-sizing: border-box; margin-bottom: 8px;
+  transition: all .18s; color: #b0b8e8; font-size: 14px;
+}
+.cex-opt:hover { border-color: #7755cc; background: rgba(100,80,200,.12); }
+.cex-opt.selected  { border-color: #9977ff; background: rgba(120,90,220,.18); color: #e0d0ff; }
+.cex-opt.correct   { border-color: #44cc88; background: rgba(40,180,100,.15); color: #88ffbb; cursor: default; }
+.cex-opt.wrong     { border-color: #ee4455; background: rgba(200,50,60,.12); color: #ff9999; cursor: default; }
+.cex-opt.dim       { opacity: .45; cursor: default; }
+
+/* Option key badge (JS uses cex-opt-key) */
+.cex-opt-key {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  background: #1e1e40; color: #7070bb;
+}
+.cex-opt-key.correct { background: #1a4a30; color: #44cc88; }
+.cex-opt-key.wrong   { background: #3a1520; color: #ee4455; }
+
+/* Feedback (correct/wrong header in explanation) */
+.cex-feedback {
+  font-size: 14px; font-weight: 700; padding: 6px 0; margin-bottom: 8px;
+}
+.cex-feedback.correct { color: #44cc88; }
+.cex-feedback.wrong   { color: #ee4455; }
+
+/* Per-option explanations container */
+.cex-opt-exps { display: flex; flex-direction: column; gap: 0; margin-bottom: 8px; }
+
+/* Explanation panel visibility */
+.cex-exp-panel { display: none; margin-top: 14px; padding: 14px 16px;
+  background: #0a0a1a; border: 1px solid #1e1e40; border-radius: 8px; }
+.cex-exp-panel.show { display: block; }
+
+/* Review panel */
+.cex-review-wrap { display: flex; flex-direction: column; gap: 10px; }
+.cex-review-progress {
+  font-size: 13px; color: #8080aa; margin-bottom: 6px; font-weight: 600;
+}
+
+/* Analysis: stats row */
+.cex-stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;
+}
+.cex-stat {
+  background: #0f0f22; border: 1px solid #1e1e38; border-radius: 8px;
+  padding: 14px; text-align: center;
+}
+.cex-stat-val { font-size: 28px; font-weight: 900; color: #c8b8ff; line-height: 1; }
+.cex-stat-label { font-size: 11px; color: #6060a0; margin-top: 5px; }
+
+/* Analysis: trend chart */
+.cex-trend-title { font-size: 13px; color: #7070a0; margin-bottom: 10px; }
+.cex-trend {
+  display: flex; align-items: flex-end; gap: 6px;
+  height: 80px; background: #0a0a18; border-radius: 8px;
+  padding: 8px 12px; margin-bottom: 14px;
+}
+.cex-trend-bar-wrap {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end; height: 100%; gap: 4px;
+}
+.cex-trend-bar {
+  width: 100%; background: #4433aa; border-radius: 3px 3px 0 0; min-height: 4px;
+  transition: height .3s;
+}
+.cex-trend-bar.pass { background: #44cc88; }
+.cex-trend-label { font-size: 10px; color: #6060a0; }
+.cex-wrong-hint {
+  background: rgba(200,150,0,.08); border: 1px solid rgba(200,150,0,.25);
+  border-radius: 6px; padding: 10px 14px; font-size: 13px; color: #ddaa55;
+}
+.cex-no-wrong {
+  font-size: 13px; color: #44cc88; padding: 10px 0;
+}
+
+/* Random panel wrapper */
+.cex-rand-wrap { display: flex; flex-direction: column; gap: 14px; }
+
+/* List panel: opt-label (used in list view only) */
+.cex-list-opt .cex-opt-label {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; background: #1e1e40; color: #7070bb;
+}
+.cex-list-opt.correct .cex-opt-label.correct { background: #1a4a30; color: #44cc88; }
+
+@media (max-width: 480px) {
+  .cex-stats-row { grid-template-columns: 1fr 1fr; }
+  .cex-stat-val { font-size: 22px; }
+  .cex-hist-row { grid-template-columns: 24px 1fr 60px 48px; }
+  .cex-hist-acc { display: none; }
+}
+
+/* ── CCA-F: display fixes ── */
+/* List view: explanations always visible (no .show class in list HTML) */
+.cex-list-item .cex-exp-panel { display: block; }
+
+/* Remove double-spacing: cex-opts has gap:8px, so cex-opt needs no margin-bottom */
+.cex-opt { margin-bottom: 0; }
+
+/* cex-opts already has gap from earlier rule; just ensure column */
+.cex-opts { display: flex; flex-direction: column; gap: 8px; }
