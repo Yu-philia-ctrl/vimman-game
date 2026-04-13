@@ -19,14 +19,19 @@
     }
 
     // ── Canvas scaling ────────────────────────────────────────────
-    // Canvas logical resolution is 800×600 (4:3). Scale to fit screen width.
+    // Canvas logical resolution is 800×600 (4:3).
+    // Scale to fill the #game-area container, maintaining aspect ratio.
     function scaleCanvas() {
-      const maxW = Math.min(window.innerWidth - 8, 800);
-      const scale = maxW / 800;
+      const gameArea = document.getElementById('game-area');
+      const aw = (gameArea ? gameArea.clientWidth  : window.innerWidth)  - 8;
+      const ah = (gameArea ? gameArea.clientHeight : window.innerHeight * 0.55) - 8;
+      if (aw <= 0 || ah <= 0) return;
+      const scale = Math.min(aw / 800, ah / 600);
       canvas.style.width  = Math.round(800 * scale) + 'px';
       canvas.style.height = Math.round(600 * scale) + 'px';
     }
-    scaleCanvas();
+    // Defer first call so flex layout is settled
+    requestAnimationFrame(scaleCanvas);
     window.addEventListener('resize', scaleCanvas);
     window.addEventListener('orientationchange', function() {
       setTimeout(scaleCanvas, 200);

@@ -6,8 +6,8 @@ window.GameAudio = (function() {
   let bgmTimer = null;
   let currentBgm = null;
   let bgmStep = 0;
-  let sfxEnabled = true;
-  let bgmEnabled = true;
+  let sfxEnabled = false;
+  let bgmEnabled = false;
   let volume = 0.35;
 
   // ── Init ────────────────────────────────────────────────────────

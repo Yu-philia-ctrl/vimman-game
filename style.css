@@ -2581,3 +2581,139 @@ body {
 
 /* cex-opts already has gap from earlier rule; just ensure column */
 .cex-opts { display: flex; flex-direction: column; gap: 8px; }
+
+/* ══════════════════════════════════════════════════════════════
+   FIXED VIEWPORT GAME LAYOUT — v2
+   Full-screen game like major game sites; no page scroll.
+   ══════════════════════════════════════════════════════════════ */
+html {
+  height: 100%;
+}
+body {
+  height: 100% !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  min-height: unset !important;
+  align-items: stretch !important;
+}
+/* Cancel the safe-area padding-bottom that was added to body */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body { padding-bottom: 0 !important; }
+}
+
+/* ann-bar: compact, shrinks but doesn't grow */
+#ai-ann-bar {
+  flex-shrink: 0;
+}
+
+/* App wrapper: flex-grow to fill body */
+#app-wrapper {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Toolbar: fixed strip, no rounding */
+#toolbar {
+  flex-shrink: 0 !important;
+  position: relative !important;
+  top: unset !important;
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+}
+
+/* Main layout: flex-grow inside app-wrapper */
+#main-layout {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  gap: 0 !important;
+}
+
+/* Game column: full height, no gaps between children */
+#game-column {
+  height: 100% !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Quick launch: compact, no rounded corners */
+#quick-launch {
+  flex-shrink: 0;
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  padding: 4px 8px !important;
+  gap: 4px !important;
+}
+
+/* Game area: grows to fill remaining column space */
+#game-area {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #000008 !important;
+  padding: 4px !important;
+  width: 100% !important;
+}
+
+/* Canvas: JS drives actual pixel size via scaleCanvas() */
+#gameCanvas {
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Bottom elements: don't grow */
+#amzn-bar { flex-shrink: 0; }
+#kbd-display { flex-shrink: 0; }
+
+/* Mobile controls: full-width strip, no outer radius */
+#mobile-controls.visible {
+  flex-shrink: 0 !important;
+  max-width: 100% !important;
+  border-radius: 0 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+/* Re-apply safe-area only to the controls bar */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  #mobile-controls.visible {
+    padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Side panel: own scroll so page never scrolls */
+#side-panel {
+  overflow-y: auto !important;
+  height: 100% !important;
+}
+
+/* ── Mobile: hide non-essential chrome to maximise game area ── */
+@media (max-width: 639px) {
+  #ai-ann-bar          { display: none !important; }
+  #quick-launch        { display: none !important; }
+  #amzn-bar            { display: none !important; }
+  #kbd-display         { display: none !important; }
+  /* Strip toolbar down to title + HOME + Settings */
+  #btn-share,
+  #btn-support,
+  #btn-kbd-toggle,
+  #tb-size-ctrl,
+  #toolbar-tagline     { display: none !important; }
+  #toolbar             { padding: 5px 10px !important; flex-wrap: nowrap !important; }
+  #toolbar-title       { font-size: 13px !important; letter-spacing: 1px !important; }
+  #toolbar-right       { gap: 4px !important; }
+}
