@@ -259,6 +259,39 @@ window.GameAuth = (function() {
     };
   }
 
+  // ── Built-in user seeding ──────────────────────────────────────
+  // Ensures the default VimMan account always exists in localStorage.
+  // Uses a fixed salt so the hash is deterministic across devices.
+  async function seedDefaultUsers() {
+    try {
+      const users = getUsers();
+      if (users.some(u => u.username.toLowerCase() === 'vimman')) return;
+
+      const salt         = 'a1b2c3d4e5f6789012345678deadbeef'; // fixed salt
+      const passwordHash = await hashPassword('VimMan1904rops', salt);
+
+      users.push({
+        id:           'vimman-builtin-v1',
+        username:     'VimMan',
+        email:        OWNER_EMAIL,
+        passwordHash,
+        salt,
+        createdAt:    '2024-01-01T00:00:00.000Z',
+        lastLogin:    null,
+        loginCount:   0,
+        isAdmin:      true,
+        banned:       false,
+        gameSave:     null,
+        gameSaveAt:   null,
+        note:         'Built-in default account',
+      });
+      saveUsers(users);
+    } catch(e) { /* ignore seeding errors */ }
+  }
+
+  // Run seed on module load (async, non-blocking)
+  seedDefaultUsers();
+
   return {
     register, login, logout,
     getCurrentUser, isLoggedIn, isAdmin,

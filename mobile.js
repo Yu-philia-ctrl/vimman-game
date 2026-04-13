@@ -19,11 +19,12 @@
     }
 
     // ── Canvas scaling ────────────────────────────────────────────
+    // Canvas logical resolution is 800×600 (4:3). Scale to fit screen width.
     function scaleCanvas() {
-      const maxW = Math.min(window.innerWidth - 8, 512);
-      const scale = maxW / 512;
-      canvas.style.width  = Math.round(512 * scale) + 'px';
-      canvas.style.height = Math.round(480 * scale) + 'px';
+      const maxW = Math.min(window.innerWidth - 8, 800);
+      const scale = maxW / 800;
+      canvas.style.width  = Math.round(800 * scale) + 'px';
+      canvas.style.height = Math.round(600 * scale) + 'px';
     }
     scaleCanvas();
     window.addEventListener('resize', scaleCanvas);
