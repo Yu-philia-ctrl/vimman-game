@@ -214,36 +214,7 @@ function _initToolbar() {
   wireChk('chk-kbd',       'showKbd');
   wireChk('chk-hints',     'showHints');
 
-  // Page zoom control (applied to <html> so flexbox cannot override it)
-  (function() {
-    const ZOOMS  = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5];
-    const LABELS = ['58%','67%','75%','83%','92%','100%','108%','117%','125%'];
-    const KEY = 'vimarcade_zoom_idx';
-    let zIdx = parseInt(localStorage.getItem(KEY) || '5', 10); // default 120% (labeled 100%)
-    if (zIdx < 0 || zIdx >= ZOOMS.length) zIdx = 5;
-
-    function applyZoom() {
-      // Apply to <html> root — unaffected by flex layout rules
-      document.documentElement.style.zoom = ZOOMS[zIdx];
-      const lbl = document.getElementById('tb-size-label');
-      if (lbl) lbl.textContent = LABELS[zIdx];
-      localStorage.setItem(KEY, String(zIdx));
-    }
-
-    const btnUp   = document.getElementById('btn-size-up');
-    const btnDown = document.getElementById('btn-size-down');
-    if (btnUp) btnUp.addEventListener('click', function(e) {
-      e.stopPropagation();
-      zIdx = Math.min(zIdx + 1, ZOOMS.length - 1);
-      applyZoom();
-    });
-    if (btnDown) btnDown.addEventListener('click', function(e) {
-      e.stopPropagation();
-      zIdx = Math.max(zIdx - 1, 0);
-      applyZoom();
-    });
-    applyZoom();
-  })();
+  // Removed page zoom controls to keep a stable, single-scale gameplay UI.
 
   // Reset XP
   const btnResetXP = document.getElementById('btn-reset-xp');

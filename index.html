@@ -79,10 +79,7 @@
   <script src="premium.js"></script>
   <script>
     (function() {
-      if (window.GameAuth && !window.GameAuth.isLoggedIn()) {
-        document.documentElement.style.display = 'none';
-        location.replace('login.html');
-      }
+      window.__guestMode = !(window.GameAuth && window.GameAuth.isLoggedIn());
     })();
   </script>
 </head>
@@ -109,11 +106,6 @@
       <button class="tb-btn tb-btn-share" id="btn-share" title="Xでシェア">𝕏 Share</button>
       <button class="tb-btn tb-btn-support" id="btn-support" title="応援する">❤ Support</button>
       <button class="tb-btn" id="btn-kbd-toggle" title="キーボード表示切替">⌨ KBD</button>
-      <div id="tb-size-ctrl" title="画面サイズ調整">
-        <button class="tb-btn tb-size-btn" id="btn-size-down" title="縮小">－</button>
-        <span id="tb-size-label">100%</span>
-        <button class="tb-btn tb-size-btn" id="btn-size-up" title="拡大">＋</button>
-      </div>
       <span id="tb-user-wrap" style="display:none;align-items:center;gap:6px;margin-left:4px;">
         <span id="tb-username" style="font-size:11px;color:#88aaff;font-family:monospace;letter-spacing:1px;"></span>
         <button class="tb-btn" id="btn-logout" onclick="doGameLogout()" title="ログアウト" style="color:#ff8888">⏻</button>
@@ -209,6 +201,12 @@
       </div>
       <div id="game-area">
         <canvas id="gameCanvas" width="800" height="600" tabindex="0" autofocus></canvas>
+      </div>
+      <div id="game-links">
+        <a href="login.html">ログイン/アカウント</a>
+        <a href="metaverse-world.html">Metaverse World</a>
+        <a href="ai-money.html">AI副業ガイド</a>
+        <a href="admin.html">管理画面</a>
       </div>
 
   <!-- ── インタースティシャル広告オーバーレイ (ゲーム遷移時に表示) ── -->
@@ -1353,11 +1351,7 @@
 (function() {
   if (!window.GameAuth) return;
 
-  // Redirect to login if not authenticated
-  if (!window.GameAuth.isLoggedIn()) {
-    location.href = 'login.html';
-    return;
-  }
+  const isGuest = !window.GameAuth.isLoggedIn();
 
   // Show user info in toolbar
   const user = window.GameAuth.getCurrentUser();
@@ -1375,6 +1369,15 @@
         Object.assign(window.SAVE, cloudSave);
       } catch(e) {}
     }
+  } else if (isGuest) {
+    const name = document.getElementById('tb-username');
+    const wrap = document.getElementById('tb-user-wrap');
+    const tag  = document.getElementById('toolbar-tagline');
+    const logoutBtn = document.getElementById('btn-logout');
+    if (wrap) wrap.style.display = 'flex';
+    if (name) name.textContent = '👤 Guest';
+    if (tag) tag.textContent = 'ゲストプレイ中（ログインでクラウド保存）';
+    if (logoutBtn) logoutBtn.style.display = 'none';
   }
 
   // Auto-sync save every 60 seconds
